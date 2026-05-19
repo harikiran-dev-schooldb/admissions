@@ -1,9 +1,9 @@
 "use client";
 
-import { useAdmissionStages } from "@/src/hooks/useAdmissionStages";
-import { Admission } from "@/src/types/admission";
-import { getAgeString } from "@/src/utils/age";
+import { useAdmissionStages } from "@/hooks/useAdmissionStages";
 import StatusPill from "./StatusPill";
+import { Admission } from "@/types/admission";
+import { getAgeString } from "@/utils/age";
 
 type Props = {
   student: Admission;

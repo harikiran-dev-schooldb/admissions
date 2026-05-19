@@ -1,0 +1,179 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/* =========================================================
+   ENUMS
+========================================================= */
+
+enum EntranceStatus {
+  NOT_STARTED
+  PENDING
+  PASS
+  FAIL
+}
+
+enum InterviewStatus {
+  NOT_STARTED
+  PENDING
+  SELECTED
+  REJECTED
+}
+
+enum FinalAdmissionStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
+
+/* =========================================================
+   ELIGIBILITY CHECKS
+========================================================= */
+
+model EligibilityCheck {
+  id              String   @id @default(cuid())
+
+  student         String?
+
+  parent          String?
+
+  mobile          String?
+
+  dob             String
+
+  calculatedAge   String
+
+  eligibleClass   String
+
+  academicYear    String
+
+  converted       Boolean  @default(false)
+
+  admissionId     String?
+
+  createdAt       DateTime @default(now())
+
+  updatedAt       DateTime @updatedAt
+}
+
+/* =========================================================
+   ADMISSIONS
+========================================================= */
+
+model Admission {
+  id String @id @default(cuid())
+
+  enquiryNo String @unique
+
+  student String
+
+  parent String
+
+  admClass String
+
+  mobile String
+
+  dob String
+
+  age String?
+
+  eligible String?
+
+  eligibleStatus String?
+
+  enquiryDate String?
+
+  /*
+    STAGES
+  */
+
+  /*
+    Application Issued
+  */
+  applicationIssued Boolean @default(false)
+
+  /*
+    Application Submitted
+  */
+  applicationSubmitted Boolean @default(false)
+
+  /*
+    Entrance Exam
+    PRE KG & LKG skip this
+  */
+  entrance EntranceStatus @default(NOT_STARTED)
+
+  /*
+    Interview
+  */
+  interview InterviewStatus @default(NOT_STARTED)
+
+  /*
+    Admission Form Issued
+  */
+  admissionFormIssued Boolean @default(false)
+
+  /*
+    Final Admission
+  */
+  finalAdmission FinalAdmissionStatus @default(PENDING)
+
+  /*
+    TIMESTAMPS
+  */
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  /*
+    RELATIONS
+  */
+
+  feeRecords FeeRecord[]
+}
+
+/* =========================================================
+   FEE STRUCTURE
+========================================================= */
+
+model FeeRecord {
+  id String @id @default(cuid())
+
+  enquiryNo String
+
+  academicYear String
+
+  term Int
+
+  annualFees Int
+
+  age String?
+
+  className String
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
+
+  admission Admission @relation(fields: [enquiryNo], references: [enquiryNo], onDelete: Cascade)
+}
+
+/* =========================================================
+   ELIGIBILITY MASTER
+========================================================= */
+
+model Eligibility {
+  id String @id @default(cuid())
+
+  age Int
+
+  className String @map("class")
+
+  createdAt DateTime @default(now())
+}

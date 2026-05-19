@@ -1,8 +1,8 @@
 "use client";
 
-import AdmissionFilters from "@/src/components/admissions/AdmissionFilters";
-import AdmissionsTable from "@/src/components/admissions/AdmissionsTable";
-import { useAdmissions } from "@/src/hooks/useAdmissions";
+import AdmissionFilters from "@/components/admissions/AdmissionFilters";
+import AdmissionsTable from "@/components/admissions/AdmissionsTable";
+import { useAdmissions } from "@/hooks/useAdmissions";
 import { useMemo, useState } from "react";
 
 export default function AdmissionsPage() {
