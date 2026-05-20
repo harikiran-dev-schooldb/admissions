@@ -769,17 +769,15 @@ export const AdmissionScalarFieldEnum = {
   mobile: 'mobile',
   dob: 'dob',
   age: 'age',
-  eligible: 'eligible',
   eligibleStatus: 'eligibleStatus',
-  enquiryDate: 'enquiryDate',
-  applicationIssued: 'applicationIssued',
-  applicationSubmitted: 'applicationSubmitted',
   entrance: 'entrance',
   interview: 'interview',
-  admissionFormIssued: 'admissionFormIssued',
   finalAdmission: 'finalAdmission',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  admissionGiven: 'admissionGiven',
+  application: 'application',
+  eligibleClass: 'eligibleClass',
+  enquiryDate: 'enquiryDate'
 } as const
 
 export type AdmissionScalarFieldEnum = (typeof AdmissionScalarFieldEnum)[keyof typeof AdmissionScalarFieldEnum]
@@ -914,6 +912,34 @@ export type EnumFinalAdmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputT
  * Reference to a field of type 'FinalAdmissionStatus[]'
  */
 export type ListEnumFinalAdmissionStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FinalAdmissionStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'AdmissionGivenStatus'
+ */
+export type EnumAdmissionGivenStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdmissionGivenStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'AdmissionGivenStatus[]'
+ */
+export type ListEnumAdmissionGivenStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AdmissionGivenStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'ApplicationStatus'
+ */
+export type EnumApplicationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApplicationStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'ApplicationStatus[]'
+ */
+export type ListEnumApplicationStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ApplicationStatus[]'>
     
 
 

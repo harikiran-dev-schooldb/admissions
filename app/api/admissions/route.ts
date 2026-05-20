@@ -2,69 +2,93 @@ import { NextResponse } from "next/server";
 
 import { prisma } from "@/lib/prisma";
 
-import { normalizeName } from "@/utils/formatters";
+export async function GET() {
+  try {
+    const admissions =
+      await prisma.admission.findMany({
+        orderBy: {
+          enquiryDate: "desc",
+        },
+      });
 
-import { getAgeString } from "@/utils/age";
+    return NextResponse.json(admissions);
+  } catch (error) {
+    console.error(error);
 
-export async function POST(req: Request) {
+    return NextResponse.json(
+      {
+        error: "Failed to fetch admissions",
+      },
+      {
+        status: 500,
+      }
+    );
+  }
+}
+
+export async function POST(
+  req: Request
+) {
   try {
     const body = await req.json();
 
     const latest =
       await prisma.admission.findFirst({
         orderBy: {
-          createdAt: "desc",
+          enquiryDate: "desc",
         },
       });
 
     const latestNo =
       latest?.enquiryNo
         ?.split("-")
-        ?.pop() || "700";
+        ?.pop() || "1000";
 
-    const enquiryNo = `ENQ-2026-${
+    const enquiryNo = `ENQ-${
       Number(latestNo) + 1
     }`;
+
+    const noEntrance = [
+      "PRE KG",
+      "LKG",
+    ].includes(body.admClass);
 
     const admission =
       await prisma.admission.create({
         data: {
           enquiryNo,
 
-          student: normalizeName(
-            body.student
-          ),
+          student: body.student,
 
-          parent: normalizeName(
-            body.parent
-          ),
+          parent: body.parent,
 
           mobile: body.mobile,
 
-          admClass: body.admClass,
-
           dob: body.dob,
 
-          age: getAgeString(body.dob),
+          age: body.age,
 
-          eligible: body.eligibleClass,
+          admClass: body.admClass,
 
-          eligibleStatus: "ELIGIBLE",
+          eligibleClass:
+            body.eligibleClass,
 
-          enquiryDate:
-            new Date().toISOString(),
+          eligibleStatus:
+            "ELIGIBLE",
 
-          applicationIssued: false,
+          application: "NO",
 
-          applicationSubmitted: false,
+          entrance: noEntrance
+            ? "NOT_REQUIRED"
+            : "NOT_STARTED",
 
-          entrance: "NOT_STARTED",
+          interview: "NOT_STARTED",
 
-          interview: "PENDING",
+          admissionGiven:
+            "NOT_GIVEN",
 
-          admissionFormIssued: false,
-
-          finalAdmission: "PENDING",
+          finalAdmission:
+            "PENDING",
         },
       });
 
@@ -77,7 +101,8 @@ export async function POST(req: Request) {
 
     return NextResponse.json(
       {
-        success: false,
+        error:
+          "Failed to create admission",
       },
       {
         status: 500,

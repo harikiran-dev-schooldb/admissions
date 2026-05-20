@@ -7,173 +7,96 @@ datasource db {
   provider = "postgresql"
 }
 
-/* =========================================================
-   ENUMS
-========================================================= */
+model EligibilityCheck {
+  id            String   @id @default(cuid())
+  student       String?
+  parent        String?
+  mobile        String?
+  dob           String
+  calculatedAge String
+  eligibleClass String
+  academicYear  String
+  converted     Boolean  @default(false)
+  admissionId   String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Admission {
+  id             String               @id @default(cuid())
+  enquiryNo      String               @unique
+  /// *
+  ///    * STUDENT DETAILS
+  student        String
+  parent         String
+  admClass       String
+  mobile         String
+  dob            String
+  age            String?
+  eligibleStatus String?
+  entrance       EntranceStatus       @default(NOT_STARTED)
+  interview      InterviewStatus      @default(NOT_STARTED)
+  finalAdmission FinalAdmissionStatus @default(PENDING)
+  updatedAt      DateTime             @updatedAt
+  admissionGiven AdmissionGivenStatus @default(NOT_GIVEN)
+  /// *
+  ///    * ADMISSION PROCESS
+  application    ApplicationStatus    @default(NO)
+  eligibleClass  String?
+  /// *
+  ///    * DATES
+  enquiryDate    DateTime             @default(now())
+  feeRecords     FeeRecord[]
+}
+
+model FeeRecord {
+  id           String    @id @default(cuid())
+  enquiryNo    String
+  academicYear String
+  term         Int
+  annualFees   Int
+  age          String?
+  className    String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  admission    Admission @relation(fields: [enquiryNo], references: [enquiryNo], onDelete: Cascade)
+}
+
+model Eligibility {
+  id        String   @id @default(cuid())
+  age       Int
+  className String   @map("class")
+  createdAt DateTime @default(now())
+}
+
+enum ApplicationStatus {
+  NO
+  YES
+  SUBMITTED
+}
 
 enum EntranceStatus {
   NOT_STARTED
-  PENDING
   PASS
   FAIL
+  PENDING
+  NOT_REQUIRED
 }
 
 enum InterviewStatus {
   NOT_STARTED
-  PENDING
   SELECTED
   REJECTED
+  PENDING
+}
+
+enum AdmissionGivenStatus {
+  NOT_GIVEN
+  GIVEN
 }
 
 enum FinalAdmissionStatus {
   PENDING
-  CONFIRMED
+  ADMITTED
   CANCELLED
-}
-
-/* =========================================================
-   ELIGIBILITY CHECKS
-========================================================= */
-
-model EligibilityCheck {
-  id              String   @id @default(cuid())
-
-  student         String?
-
-  parent          String?
-
-  mobile          String?
-
-  dob             String
-
-  calculatedAge   String
-
-  eligibleClass   String
-
-  academicYear    String
-
-  converted       Boolean  @default(false)
-
-  admissionId     String?
-
-  createdAt       DateTime @default(now())
-
-  updatedAt       DateTime @updatedAt
-}
-
-/* =========================================================
-   ADMISSIONS
-========================================================= */
-
-model Admission {
-  id String @id @default(cuid())
-
-  enquiryNo String @unique
-
-  student String
-
-  parent String
-
-  admClass String
-
-  mobile String
-
-  dob String
-
-  age String?
-
-  eligible String?
-
-  eligibleStatus String?
-
-  enquiryDate String?
-
-  /*
-    STAGES
-  */
-
-  /*
-    Application Issued
-  */
-  applicationIssued Boolean @default(false)
-
-  /*
-    Application Submitted
-  */
-  applicationSubmitted Boolean @default(false)
-
-  /*
-    Entrance Exam
-    PRE KG & LKG skip this
-  */
-  entrance EntranceStatus @default(NOT_STARTED)
-
-  /*
-    Interview
-  */
-  interview InterviewStatus @default(NOT_STARTED)
-
-  /*
-    Admission Form Issued
-  */
-  admissionFormIssued Boolean @default(false)
-
-  /*
-    Final Admission
-  */
-  finalAdmission FinalAdmissionStatus @default(PENDING)
-
-  /*
-    TIMESTAMPS
-  */
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  /*
-    RELATIONS
-  */
-
-  feeRecords FeeRecord[]
-}
-
-/* =========================================================
-   FEE STRUCTURE
-========================================================= */
-
-model FeeRecord {
-  id String @id @default(cuid())
-
-  enquiryNo String
-
-  academicYear String
-
-  term Int
-
-  annualFees Int
-
-  age String?
-
-  className String
-
-  createdAt DateTime @default(now())
-
-  updatedAt DateTime @updatedAt
-
-  admission Admission @relation(fields: [enquiryNo], references: [enquiryNo], onDelete: Cascade)
-}
-
-/* =========================================================
-   ELIGIBILITY MASTER
-========================================================= */
-
-model Eligibility {
-  id String @id @default(cuid())
-
-  age Int
-
-  className String @map("class")
-
-  createdAt DateTime @default(now())
 }

@@ -100,17 +100,15 @@ export const AdmissionScalarFieldEnum = {
   mobile: 'mobile',
   dob: 'dob',
   age: 'age',
-  eligible: 'eligible',
   eligibleStatus: 'eligibleStatus',
-  enquiryDate: 'enquiryDate',
-  applicationIssued: 'applicationIssued',
-  applicationSubmitted: 'applicationSubmitted',
   entrance: 'entrance',
   interview: 'interview',
-  admissionFormIssued: 'admissionFormIssued',
   finalAdmission: 'finalAdmission',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  admissionGiven: 'admissionGiven',
+  application: 'application',
+  eligibleClass: 'eligibleClass',
+  enquiryDate: 'enquiryDate'
 } as const
 
 export type AdmissionScalarFieldEnum = (typeof AdmissionScalarFieldEnum)[keyof typeof AdmissionScalarFieldEnum]

@@ -9,11 +9,21 @@
 * 🟢 You can import this file directly.
 */
 
+export const ApplicationStatus = {
+  NO: 'NO',
+  YES: 'YES',
+  SUBMITTED: 'SUBMITTED'
+} as const
+
+export type ApplicationStatus = (typeof ApplicationStatus)[keyof typeof ApplicationStatus]
+
+
 export const EntranceStatus = {
   NOT_STARTED: 'NOT_STARTED',
-  PENDING: 'PENDING',
   PASS: 'PASS',
-  FAIL: 'FAIL'
+  FAIL: 'FAIL',
+  PENDING: 'PENDING',
+  NOT_REQUIRED: 'NOT_REQUIRED'
 } as const
 
 export type EntranceStatus = (typeof EntranceStatus)[keyof typeof EntranceStatus]
@@ -21,17 +31,25 @@ export type EntranceStatus = (typeof EntranceStatus)[keyof typeof EntranceStatus
 
 export const InterviewStatus = {
   NOT_STARTED: 'NOT_STARTED',
-  PENDING: 'PENDING',
   SELECTED: 'SELECTED',
-  REJECTED: 'REJECTED'
+  REJECTED: 'REJECTED',
+  PENDING: 'PENDING'
 } as const
 
 export type InterviewStatus = (typeof InterviewStatus)[keyof typeof InterviewStatus]
 
 
+export const AdmissionGivenStatus = {
+  NOT_GIVEN: 'NOT_GIVEN',
+  GIVEN: 'GIVEN'
+} as const
+
+export type AdmissionGivenStatus = (typeof AdmissionGivenStatus)[keyof typeof AdmissionGivenStatus]
+
+
 export const FinalAdmissionStatus = {
   PENDING: 'PENDING',
-  CONFIRMED: 'CONFIRMED',
+  ADMITTED: 'ADMITTED',
   CANCELLED: 'CANCELLED'
 } as const
 

@@ -1,19 +1,26 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Admission } from "../types/admission";
-import { fetchAdmissions } from "../services/admissions.service";
-
-
+import {
+  useEffect,
+  useState,
+} from "react";
 
 export function useAdmissions() {
-  const [students, setStudents] = useState<Admission[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [students, setStudents] =
+    useState<any[]>([]);
 
-  async function loadData() {
+  const [loading, setLoading] =
+    useState(true);
+
+  async function loadAdmissions() {
     try {
-      const data = await fetchAdmissions();
-      setStudents(data);
+      const res = await fetch(
+        "/api/admissions"
+      );
+
+      const json = await res.json();
+
+      setStudents(json);
     } catch (err) {
       console.error(err);
     } finally {
@@ -22,12 +29,12 @@ export function useAdmissions() {
   }
 
   useEffect(() => {
-    loadData();
+    loadAdmissions();
   }, []);
 
   return {
     students,
-    setStudents,
     loading,
+    reload: loadAdmissions,
   };
 }

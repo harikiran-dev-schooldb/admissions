@@ -33,17 +33,15 @@ export type AdmissionMinAggregateOutputType = {
   mobile: string | null
   dob: string | null
   age: string | null
-  eligible: string | null
   eligibleStatus: string | null
-  enquiryDate: string | null
-  applicationIssued: boolean | null
-  applicationSubmitted: boolean | null
   entrance: $Enums.EntranceStatus | null
   interview: $Enums.InterviewStatus | null
-  admissionFormIssued: boolean | null
   finalAdmission: $Enums.FinalAdmissionStatus | null
-  createdAt: Date | null
   updatedAt: Date | null
+  admissionGiven: $Enums.AdmissionGivenStatus | null
+  application: $Enums.ApplicationStatus | null
+  eligibleClass: string | null
+  enquiryDate: Date | null
 }
 
 export type AdmissionMaxAggregateOutputType = {
@@ -55,17 +53,15 @@ export type AdmissionMaxAggregateOutputType = {
   mobile: string | null
   dob: string | null
   age: string | null
-  eligible: string | null
   eligibleStatus: string | null
-  enquiryDate: string | null
-  applicationIssued: boolean | null
-  applicationSubmitted: boolean | null
   entrance: $Enums.EntranceStatus | null
   interview: $Enums.InterviewStatus | null
-  admissionFormIssued: boolean | null
   finalAdmission: $Enums.FinalAdmissionStatus | null
-  createdAt: Date | null
   updatedAt: Date | null
+  admissionGiven: $Enums.AdmissionGivenStatus | null
+  application: $Enums.ApplicationStatus | null
+  eligibleClass: string | null
+  enquiryDate: Date | null
 }
 
 export type AdmissionCountAggregateOutputType = {
@@ -77,17 +73,15 @@ export type AdmissionCountAggregateOutputType = {
   mobile: number
   dob: number
   age: number
-  eligible: number
   eligibleStatus: number
-  enquiryDate: number
-  applicationIssued: number
-  applicationSubmitted: number
   entrance: number
   interview: number
-  admissionFormIssued: number
   finalAdmission: number
-  createdAt: number
   updatedAt: number
+  admissionGiven: number
+  application: number
+  eligibleClass: number
+  enquiryDate: number
   _all: number
 }
 
@@ -101,17 +95,15 @@ export type AdmissionMinAggregateInputType = {
   mobile?: true
   dob?: true
   age?: true
-  eligible?: true
   eligibleStatus?: true
-  enquiryDate?: true
-  applicationIssued?: true
-  applicationSubmitted?: true
   entrance?: true
   interview?: true
-  admissionFormIssued?: true
   finalAdmission?: true
-  createdAt?: true
   updatedAt?: true
+  admissionGiven?: true
+  application?: true
+  eligibleClass?: true
+  enquiryDate?: true
 }
 
 export type AdmissionMaxAggregateInputType = {
@@ -123,17 +115,15 @@ export type AdmissionMaxAggregateInputType = {
   mobile?: true
   dob?: true
   age?: true
-  eligible?: true
   eligibleStatus?: true
-  enquiryDate?: true
-  applicationIssued?: true
-  applicationSubmitted?: true
   entrance?: true
   interview?: true
-  admissionFormIssued?: true
   finalAdmission?: true
-  createdAt?: true
   updatedAt?: true
+  admissionGiven?: true
+  application?: true
+  eligibleClass?: true
+  enquiryDate?: true
 }
 
 export type AdmissionCountAggregateInputType = {
@@ -145,17 +135,15 @@ export type AdmissionCountAggregateInputType = {
   mobile?: true
   dob?: true
   age?: true
-  eligible?: true
   eligibleStatus?: true
-  enquiryDate?: true
-  applicationIssued?: true
-  applicationSubmitted?: true
   entrance?: true
   interview?: true
-  admissionFormIssued?: true
   finalAdmission?: true
-  createdAt?: true
   updatedAt?: true
+  admissionGiven?: true
+  application?: true
+  eligibleClass?: true
+  enquiryDate?: true
   _all?: true
 }
 
@@ -240,17 +228,15 @@ export type AdmissionGroupByOutputType = {
   mobile: string
   dob: string
   age: string | null
-  eligible: string | null
   eligibleStatus: string | null
-  enquiryDate: string | null
-  applicationIssued: boolean
-  applicationSubmitted: boolean
   entrance: $Enums.EntranceStatus
   interview: $Enums.InterviewStatus
-  admissionFormIssued: boolean
   finalAdmission: $Enums.FinalAdmissionStatus
-  createdAt: Date
   updatedAt: Date
+  admissionGiven: $Enums.AdmissionGivenStatus
+  application: $Enums.ApplicationStatus
+  eligibleClass: string | null
+  enquiryDate: Date
   _count: AdmissionCountAggregateOutputType | null
   _min: AdmissionMinAggregateOutputType | null
   _max: AdmissionMaxAggregateOutputType | null
@@ -283,17 +269,15 @@ export type AdmissionWhereInput = {
   mobile?: Prisma.StringFilter<"Admission"> | string
   dob?: Prisma.StringFilter<"Admission"> | string
   age?: Prisma.StringNullableFilter<"Admission"> | string | null
-  eligible?: Prisma.StringNullableFilter<"Admission"> | string | null
   eligibleStatus?: Prisma.StringNullableFilter<"Admission"> | string | null
-  enquiryDate?: Prisma.StringNullableFilter<"Admission"> | string | null
-  applicationIssued?: Prisma.BoolFilter<"Admission"> | boolean
-  applicationSubmitted?: Prisma.BoolFilter<"Admission"> | boolean
   entrance?: Prisma.EnumEntranceStatusFilter<"Admission"> | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusFilter<"Admission"> | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolFilter<"Admission"> | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusFilter<"Admission"> | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFilter<"Admission"> | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFilter<"Admission"> | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.StringNullableFilter<"Admission"> | string | null
+  enquiryDate?: Prisma.DateTimeFilter<"Admission"> | Date | string
   feeRecords?: Prisma.FeeRecordListRelationFilter
 }
 
@@ -306,17 +290,15 @@ export type AdmissionOrderByWithRelationInput = {
   mobile?: Prisma.SortOrder
   dob?: Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
-  eligible?: Prisma.SortOrderInput | Prisma.SortOrder
   eligibleStatus?: Prisma.SortOrderInput | Prisma.SortOrder
-  enquiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  applicationIssued?: Prisma.SortOrder
-  applicationSubmitted?: Prisma.SortOrder
   entrance?: Prisma.SortOrder
   interview?: Prisma.SortOrder
-  admissionFormIssued?: Prisma.SortOrder
   finalAdmission?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  admissionGiven?: Prisma.SortOrder
+  application?: Prisma.SortOrder
+  eligibleClass?: Prisma.SortOrderInput | Prisma.SortOrder
+  enquiryDate?: Prisma.SortOrder
   feeRecords?: Prisma.FeeRecordOrderByRelationAggregateInput
 }
 
@@ -332,17 +314,15 @@ export type AdmissionWhereUniqueInput = Prisma.AtLeast<{
   mobile?: Prisma.StringFilter<"Admission"> | string
   dob?: Prisma.StringFilter<"Admission"> | string
   age?: Prisma.StringNullableFilter<"Admission"> | string | null
-  eligible?: Prisma.StringNullableFilter<"Admission"> | string | null
   eligibleStatus?: Prisma.StringNullableFilter<"Admission"> | string | null
-  enquiryDate?: Prisma.StringNullableFilter<"Admission"> | string | null
-  applicationIssued?: Prisma.BoolFilter<"Admission"> | boolean
-  applicationSubmitted?: Prisma.BoolFilter<"Admission"> | boolean
   entrance?: Prisma.EnumEntranceStatusFilter<"Admission"> | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusFilter<"Admission"> | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolFilter<"Admission"> | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusFilter<"Admission"> | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFilter<"Admission"> | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFilter<"Admission"> | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.StringNullableFilter<"Admission"> | string | null
+  enquiryDate?: Prisma.DateTimeFilter<"Admission"> | Date | string
   feeRecords?: Prisma.FeeRecordListRelationFilter
 }, "id" | "enquiryNo">
 
@@ -355,17 +335,15 @@ export type AdmissionOrderByWithAggregationInput = {
   mobile?: Prisma.SortOrder
   dob?: Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
-  eligible?: Prisma.SortOrderInput | Prisma.SortOrder
   eligibleStatus?: Prisma.SortOrderInput | Prisma.SortOrder
-  enquiryDate?: Prisma.SortOrderInput | Prisma.SortOrder
-  applicationIssued?: Prisma.SortOrder
-  applicationSubmitted?: Prisma.SortOrder
   entrance?: Prisma.SortOrder
   interview?: Prisma.SortOrder
-  admissionFormIssued?: Prisma.SortOrder
   finalAdmission?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  admissionGiven?: Prisma.SortOrder
+  application?: Prisma.SortOrder
+  eligibleClass?: Prisma.SortOrderInput | Prisma.SortOrder
+  enquiryDate?: Prisma.SortOrder
   _count?: Prisma.AdmissionCountOrderByAggregateInput
   _max?: Prisma.AdmissionMaxOrderByAggregateInput
   _min?: Prisma.AdmissionMinOrderByAggregateInput
@@ -383,17 +361,15 @@ export type AdmissionScalarWhereWithAggregatesInput = {
   mobile?: Prisma.StringWithAggregatesFilter<"Admission"> | string
   dob?: Prisma.StringWithAggregatesFilter<"Admission"> | string
   age?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
-  eligible?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   eligibleStatus?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
-  enquiryDate?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
-  applicationIssued?: Prisma.BoolWithAggregatesFilter<"Admission"> | boolean
-  applicationSubmitted?: Prisma.BoolWithAggregatesFilter<"Admission"> | boolean
   entrance?: Prisma.EnumEntranceStatusWithAggregatesFilter<"Admission"> | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusWithAggregatesFilter<"Admission"> | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolWithAggregatesFilter<"Admission"> | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusWithAggregatesFilter<"Admission"> | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Admission"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Admission"> | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusWithAggregatesFilter<"Admission"> | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusWithAggregatesFilter<"Admission"> | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
+  enquiryDate?: Prisma.DateTimeWithAggregatesFilter<"Admission"> | Date | string
 }
 
 export type AdmissionCreateInput = {
@@ -405,17 +381,15 @@ export type AdmissionCreateInput = {
   mobile: string
   dob: string
   age?: string | null
-  eligible?: string | null
   eligibleStatus?: string | null
-  enquiryDate?: string | null
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: $Enums.EntranceStatus
   interview?: $Enums.InterviewStatus
-  admissionFormIssued?: boolean
   finalAdmission?: $Enums.FinalAdmissionStatus
-  createdAt?: Date | string
   updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
   feeRecords?: Prisma.FeeRecordCreateNestedManyWithoutAdmissionInput
 }
 
@@ -428,17 +402,15 @@ export type AdmissionUncheckedCreateInput = {
   mobile: string
   dob: string
   age?: string | null
-  eligible?: string | null
   eligibleStatus?: string | null
-  enquiryDate?: string | null
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: $Enums.EntranceStatus
   interview?: $Enums.InterviewStatus
-  admissionFormIssued?: boolean
   finalAdmission?: $Enums.FinalAdmissionStatus
-  createdAt?: Date | string
   updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
   feeRecords?: Prisma.FeeRecordUncheckedCreateNestedManyWithoutAdmissionInput
 }
 
@@ -451,17 +423,15 @@ export type AdmissionUpdateInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   dob?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  eligible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  enquiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  applicationIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  applicationSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   feeRecords?: Prisma.FeeRecordUpdateManyWithoutAdmissionNestedInput
 }
 
@@ -474,17 +444,15 @@ export type AdmissionUncheckedUpdateInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   dob?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  eligible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  enquiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  applicationIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  applicationSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   feeRecords?: Prisma.FeeRecordUncheckedUpdateManyWithoutAdmissionNestedInput
 }
 
@@ -497,17 +465,15 @@ export type AdmissionCreateManyInput = {
   mobile: string
   dob: string
   age?: string | null
-  eligible?: string | null
   eligibleStatus?: string | null
-  enquiryDate?: string | null
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: $Enums.EntranceStatus
   interview?: $Enums.InterviewStatus
-  admissionFormIssued?: boolean
   finalAdmission?: $Enums.FinalAdmissionStatus
-  createdAt?: Date | string
   updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
 }
 
 export type AdmissionUpdateManyMutationInput = {
@@ -519,17 +485,15 @@ export type AdmissionUpdateManyMutationInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   dob?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  eligible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  enquiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  applicationIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  applicationSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdmissionUncheckedUpdateManyInput = {
@@ -541,17 +505,15 @@ export type AdmissionUncheckedUpdateManyInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   dob?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  eligible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  enquiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  applicationIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  applicationSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdmissionCountOrderByAggregateInput = {
@@ -563,17 +525,15 @@ export type AdmissionCountOrderByAggregateInput = {
   mobile?: Prisma.SortOrder
   dob?: Prisma.SortOrder
   age?: Prisma.SortOrder
-  eligible?: Prisma.SortOrder
   eligibleStatus?: Prisma.SortOrder
-  enquiryDate?: Prisma.SortOrder
-  applicationIssued?: Prisma.SortOrder
-  applicationSubmitted?: Prisma.SortOrder
   entrance?: Prisma.SortOrder
   interview?: Prisma.SortOrder
-  admissionFormIssued?: Prisma.SortOrder
   finalAdmission?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  admissionGiven?: Prisma.SortOrder
+  application?: Prisma.SortOrder
+  eligibleClass?: Prisma.SortOrder
+  enquiryDate?: Prisma.SortOrder
 }
 
 export type AdmissionMaxOrderByAggregateInput = {
@@ -585,17 +545,15 @@ export type AdmissionMaxOrderByAggregateInput = {
   mobile?: Prisma.SortOrder
   dob?: Prisma.SortOrder
   age?: Prisma.SortOrder
-  eligible?: Prisma.SortOrder
   eligibleStatus?: Prisma.SortOrder
-  enquiryDate?: Prisma.SortOrder
-  applicationIssued?: Prisma.SortOrder
-  applicationSubmitted?: Prisma.SortOrder
   entrance?: Prisma.SortOrder
   interview?: Prisma.SortOrder
-  admissionFormIssued?: Prisma.SortOrder
   finalAdmission?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  admissionGiven?: Prisma.SortOrder
+  application?: Prisma.SortOrder
+  eligibleClass?: Prisma.SortOrder
+  enquiryDate?: Prisma.SortOrder
 }
 
 export type AdmissionMinOrderByAggregateInput = {
@@ -607,17 +565,15 @@ export type AdmissionMinOrderByAggregateInput = {
   mobile?: Prisma.SortOrder
   dob?: Prisma.SortOrder
   age?: Prisma.SortOrder
-  eligible?: Prisma.SortOrder
   eligibleStatus?: Prisma.SortOrder
-  enquiryDate?: Prisma.SortOrder
-  applicationIssued?: Prisma.SortOrder
-  applicationSubmitted?: Prisma.SortOrder
   entrance?: Prisma.SortOrder
   interview?: Prisma.SortOrder
-  admissionFormIssued?: Prisma.SortOrder
   finalAdmission?: Prisma.SortOrder
-  createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  admissionGiven?: Prisma.SortOrder
+  application?: Prisma.SortOrder
+  eligibleClass?: Prisma.SortOrder
+  enquiryDate?: Prisma.SortOrder
 }
 
 export type AdmissionScalarRelationFilter = {
@@ -635,6 +591,14 @@ export type EnumInterviewStatusFieldUpdateOperationsInput = {
 
 export type EnumFinalAdmissionStatusFieldUpdateOperationsInput = {
   set?: $Enums.FinalAdmissionStatus
+}
+
+export type EnumAdmissionGivenStatusFieldUpdateOperationsInput = {
+  set?: $Enums.AdmissionGivenStatus
+}
+
+export type EnumApplicationStatusFieldUpdateOperationsInput = {
+  set?: $Enums.ApplicationStatus
 }
 
 export type AdmissionCreateNestedOneWithoutFeeRecordsInput = {
@@ -660,17 +624,15 @@ export type AdmissionCreateWithoutFeeRecordsInput = {
   mobile: string
   dob: string
   age?: string | null
-  eligible?: string | null
   eligibleStatus?: string | null
-  enquiryDate?: string | null
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: $Enums.EntranceStatus
   interview?: $Enums.InterviewStatus
-  admissionFormIssued?: boolean
   finalAdmission?: $Enums.FinalAdmissionStatus
-  createdAt?: Date | string
   updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
 }
 
 export type AdmissionUncheckedCreateWithoutFeeRecordsInput = {
@@ -682,17 +644,15 @@ export type AdmissionUncheckedCreateWithoutFeeRecordsInput = {
   mobile: string
   dob: string
   age?: string | null
-  eligible?: string | null
   eligibleStatus?: string | null
-  enquiryDate?: string | null
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: $Enums.EntranceStatus
   interview?: $Enums.InterviewStatus
-  admissionFormIssued?: boolean
   finalAdmission?: $Enums.FinalAdmissionStatus
-  createdAt?: Date | string
   updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
 }
 
 export type AdmissionCreateOrConnectWithoutFeeRecordsInput = {
@@ -720,17 +680,15 @@ export type AdmissionUpdateWithoutFeeRecordsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   dob?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  eligible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  enquiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  applicationIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  applicationSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type AdmissionUncheckedUpdateWithoutFeeRecordsInput = {
@@ -742,17 +700,15 @@ export type AdmissionUncheckedUpdateWithoutFeeRecordsInput = {
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
   dob?: Prisma.StringFieldUpdateOperationsInput | string
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  eligible?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  enquiryDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  applicationIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  applicationSubmitted?: Prisma.BoolFieldUpdateOperationsInput | boolean
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
   interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
-  admissionFormIssued?: Prisma.BoolFieldUpdateOperationsInput | boolean
   finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -795,17 +751,15 @@ export type AdmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   mobile?: boolean
   dob?: boolean
   age?: boolean
-  eligible?: boolean
   eligibleStatus?: boolean
-  enquiryDate?: boolean
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: boolean
   interview?: boolean
-  admissionFormIssued?: boolean
   finalAdmission?: boolean
-  createdAt?: boolean
   updatedAt?: boolean
+  admissionGiven?: boolean
+  application?: boolean
+  eligibleClass?: boolean
+  enquiryDate?: boolean
   feeRecords?: boolean | Prisma.Admission$feeRecordsArgs<ExtArgs>
   _count?: boolean | Prisma.AdmissionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["admission"]>
@@ -819,17 +773,15 @@ export type AdmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   mobile?: boolean
   dob?: boolean
   age?: boolean
-  eligible?: boolean
   eligibleStatus?: boolean
-  enquiryDate?: boolean
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: boolean
   interview?: boolean
-  admissionFormIssued?: boolean
   finalAdmission?: boolean
-  createdAt?: boolean
   updatedAt?: boolean
+  admissionGiven?: boolean
+  application?: boolean
+  eligibleClass?: boolean
+  enquiryDate?: boolean
 }, ExtArgs["result"]["admission"]>
 
 export type AdmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -841,17 +793,15 @@ export type AdmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   mobile?: boolean
   dob?: boolean
   age?: boolean
-  eligible?: boolean
   eligibleStatus?: boolean
-  enquiryDate?: boolean
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: boolean
   interview?: boolean
-  admissionFormIssued?: boolean
   finalAdmission?: boolean
-  createdAt?: boolean
   updatedAt?: boolean
+  admissionGiven?: boolean
+  application?: boolean
+  eligibleClass?: boolean
+  enquiryDate?: boolean
 }, ExtArgs["result"]["admission"]>
 
 export type AdmissionSelectScalar = {
@@ -863,20 +813,18 @@ export type AdmissionSelectScalar = {
   mobile?: boolean
   dob?: boolean
   age?: boolean
-  eligible?: boolean
   eligibleStatus?: boolean
-  enquiryDate?: boolean
-  applicationIssued?: boolean
-  applicationSubmitted?: boolean
   entrance?: boolean
   interview?: boolean
-  admissionFormIssued?: boolean
   finalAdmission?: boolean
-  createdAt?: boolean
   updatedAt?: boolean
+  admissionGiven?: boolean
+  application?: boolean
+  eligibleClass?: boolean
+  enquiryDate?: boolean
 }
 
-export type AdmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "enquiryNo" | "student" | "parent" | "admClass" | "mobile" | "dob" | "age" | "eligible" | "eligibleStatus" | "enquiryDate" | "applicationIssued" | "applicationSubmitted" | "entrance" | "interview" | "admissionFormIssued" | "finalAdmission" | "createdAt" | "updatedAt", ExtArgs["result"]["admission"]>
+export type AdmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "enquiryNo" | "student" | "parent" | "admClass" | "mobile" | "dob" | "age" | "eligibleStatus" | "entrance" | "interview" | "finalAdmission" | "updatedAt" | "admissionGiven" | "application" | "eligibleClass" | "enquiryDate", ExtArgs["result"]["admission"]>
 export type AdmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   feeRecords?: boolean | Prisma.Admission$feeRecordsArgs<ExtArgs>
   _count?: boolean | Prisma.AdmissionCountOutputTypeDefaultArgs<ExtArgs>
@@ -887,53 +835,38 @@ export type AdmissionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
 export type $AdmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Admission"
   objects: {
-    /**
-     * RELATIONS
-     */
     feeRecords: Prisma.$FeeRecordPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     enquiryNo: string
+    /**
+     * *
+     * * STUDENT DETAILS
+     */
     student: string
     parent: string
     admClass: string
     mobile: string
     dob: string
     age: string | null
-    eligible: string | null
     eligibleStatus: string | null
-    enquiryDate: string | null
-    /**
-     * Application Issued
-     */
-    applicationIssued: boolean
-    /**
-     * Application Submitted
-     */
-    applicationSubmitted: boolean
-    /**
-     * Entrance Exam
-     *     PRE KG & LKG skip this
-     */
     entrance: $Enums.EntranceStatus
-    /**
-     * Interview
-     */
     interview: $Enums.InterviewStatus
-    /**
-     * Admission Form Issued
-     */
-    admissionFormIssued: boolean
-    /**
-     * Final Admission
-     */
     finalAdmission: $Enums.FinalAdmissionStatus
-    /**
-     * TIMESTAMPS
-     */
-    createdAt: Date
     updatedAt: Date
+    admissionGiven: $Enums.AdmissionGivenStatus
+    /**
+     * *
+     * * ADMISSION PROCESS
+     */
+    application: $Enums.ApplicationStatus
+    eligibleClass: string | null
+    /**
+     * *
+     * * DATES
+     */
+    enquiryDate: Date
   }, ExtArgs["result"]["admission"]>
   composites: {}
 }
@@ -1366,17 +1299,15 @@ export interface AdmissionFieldRefs {
   readonly mobile: Prisma.FieldRef<"Admission", 'String'>
   readonly dob: Prisma.FieldRef<"Admission", 'String'>
   readonly age: Prisma.FieldRef<"Admission", 'String'>
-  readonly eligible: Prisma.FieldRef<"Admission", 'String'>
   readonly eligibleStatus: Prisma.FieldRef<"Admission", 'String'>
-  readonly enquiryDate: Prisma.FieldRef<"Admission", 'String'>
-  readonly applicationIssued: Prisma.FieldRef<"Admission", 'Boolean'>
-  readonly applicationSubmitted: Prisma.FieldRef<"Admission", 'Boolean'>
   readonly entrance: Prisma.FieldRef<"Admission", 'EntranceStatus'>
   readonly interview: Prisma.FieldRef<"Admission", 'InterviewStatus'>
-  readonly admissionFormIssued: Prisma.FieldRef<"Admission", 'Boolean'>
   readonly finalAdmission: Prisma.FieldRef<"Admission", 'FinalAdmissionStatus'>
-  readonly createdAt: Prisma.FieldRef<"Admission", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Admission", 'DateTime'>
+  readonly admissionGiven: Prisma.FieldRef<"Admission", 'AdmissionGivenStatus'>
+  readonly application: Prisma.FieldRef<"Admission", 'ApplicationStatus'>
+  readonly eligibleClass: Prisma.FieldRef<"Admission", 'String'>
+  readonly enquiryDate: Prisma.FieldRef<"Admission", 'DateTime'>
 }
     
 
