@@ -1,193 +1,73 @@
+import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-import { prisma } from "@/lib/prisma";
 
-export async function PATCH(
-  req: Request
-) {
+
+export async function PATCH(req: Request) {
   try {
     const body = await req.json();
 
-    const {
-      id,
-      field,
-      value,
-    } = body;
+    const { id, field, value } = body;
 
-    const admission =
+    const existing =
       await prisma.admission.findUnique({
-        where: {
-          id,
-        },
+        where: { id },
       });
 
-    if (!admission) {
+    if (!existing) {
       return NextResponse.json(
         {
-          error:
-            "Admission not found",
+          error: "Student not found",
         },
         {
           status: 404,
-        }
+        },
       );
     }
 
-    /*
-      BUSINESS RULES
-    */
-
-    const noEntrance = [
-      "PRE KG",
-      "LKG",
-    ].includes(admission.admClass);
+    const updateData: any = {
+      [field]: value,
+    };
 
     /*
-      APPLICATION
+      APPLICATION SUBMITTED
     */
 
     if (
-      field === "application"
+      field === "application" &&
+      value === "SUBMITTED"
     ) {
-      const updated =
-        await prisma.admission.update({
-          where: {
-            id,
-          },
+      const skipEntrance =
+        existing.admClass === "PRE KG" ||
+        existing.admClass === "LKG";
 
-          data: {
-            application: value,
-          },
-        });
-
-      return NextResponse.json(
-        updated
-      );
+      updateData.entrance = skipEntrance
+        ? "NOT_REQUIRED"
+        : "PENDING";
     }
 
     /*
-      ENTRANCE
-    */
-
-    if (field === "entrance") {
-      if (noEntrance) {
-        return NextResponse.json(
-          {
-            error:
-              "Entrance not required",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-
-      if (
-        admission.application !==
-        "SUBMITTED"
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "Application must be submitted first",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-
-      const updated =
-        await prisma.admission.update({
-          where: {
-            id,
-          },
-
-          data: {
-            entrance: value,
-          },
-        });
-
-      return NextResponse.json(
-        updated
-      );
-    }
-
-    /*
-      INTERVIEW
-    */
-
-    if (field === "interview") {
-      if (
-        !noEntrance &&
-        admission.entrance !==
-          "PASS"
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "Entrance must be PASS",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-
-      const updated =
-        await prisma.admission.update({
-          where: {
-            id,
-          },
-
-          data: {
-            interview: value,
-          },
-        });
-
-      return NextResponse.json(
-        updated
-      );
-    }
-
-    /*
-      ADMISSION GIVEN
+      ENTRANCE PASS
     */
 
     if (
-      field ===
-      "admissionGiven"
+      field === "entrance" &&
+      value === "PASS"
     ) {
-      if (
-        admission.interview !==
-        "SELECTED"
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "Interview must be SELECTED",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
+      updateData.interview =
+        "PENDING";
+    }
 
-      const updated =
-        await prisma.admission.update({
-          where: {
-            id,
-          },
+    /*
+      INTERVIEW SELECTED
+    */
 
-          data: {
-            admissionGiven:
-              value,
-          },
-        });
-
-      return NextResponse.json(
-        updated
-      );
+    if (
+      field === "interview" &&
+      value === "SELECTED"
+    ) {
+      updateData.admissionGiven =
+        "GIVEN";
     }
 
     /*
@@ -195,60 +75,31 @@ export async function PATCH(
     */
 
     if (
-      field ===
-      "finalAdmission"
+      field === "finalAdmission" &&
+      value === "ADMITTED"
     ) {
-      if (
-        admission.admissionGiven !==
-        "GIVEN"
-      ) {
-        return NextResponse.json(
-          {
-            error:
-              "Admission form not given",
-          },
-          {
-            status: 400,
-          }
-        );
-      }
-
-      const updated =
-        await prisma.admission.update({
-          where: {
-            id,
-          },
-
-          data: {
-            finalAdmission:
-              value,
-          },
-        });
-
-      return NextResponse.json(
-        updated
-      );
+      updateData.admissionGiven =
+        "GIVEN";
     }
 
-    return NextResponse.json(
-      {
-        error: "Invalid field",
-      },
-      {
-        status: 400,
-      }
-    );
+    const updated =
+      await prisma.admission.update({
+        where: { id },
+
+        data: updateData,
+      });
+
+    return NextResponse.json(updated);
   } catch (error) {
     console.error(error);
 
     return NextResponse.json(
       {
-        error:
-          "Failed to update stage",
+        error: "Update failed",
       },
       {
         status: 500,
-      }
+      },
     );
   }
 }

@@ -38,16 +38,6 @@ export default function AdmissionsHeader({
 
           {/* RIGHT */}
           <div className="flex items-center gap-3">
-            <div className="rounded-3xl border border-white/70 bg-white/90 px-6 py-4 shadow-xl">
-              <div className="text-xs font-semibold uppercase tracking-wider text-slate-400">
-                Total Enquiries
-              </div>
-
-              <div className="mt-1 text-3xl font-bold text-slate-900">
-                {total}
-              </div>
-            </div>
-
             <button
               onClick={onToggleFullScreen}
               className="rounded-2xl border border-white/70 bg-white/90 p-4 shadow-lg transition hover:scale-105 hover:bg-white"
@@ -57,6 +47,25 @@ export default function AdmissionsHeader({
               ) : (
                 <Maximize2 className="h-5 w-5 text-slate-700" />
               )}
+            </button>
+
+            <button
+              className="
+    rounded-2xl
+    bg-blue-600
+    px-5
+    py-3
+    text-sm
+    font-semibold
+    text-white
+    shadow-lg
+    shadow-blue-200
+    transition-all
+    hover:scale-105
+    hover:bg-blue-700
+  "
+            >
+              + New Enquiry
             </button>
           </div>
         </div>

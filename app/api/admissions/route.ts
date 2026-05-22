@@ -7,7 +7,7 @@ export async function GET() {
     const admissions =
       await prisma.admission.findMany({
         orderBy: {
-          enquiryDate: "desc",
+          enquiryNo: "desc",
         },
       });
 

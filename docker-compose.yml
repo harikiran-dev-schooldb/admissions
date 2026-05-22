@@ -1,0 +1,28 @@
+version: "3.9"
+
+services:
+  admissions-db:
+    image: postgres:16
+    container_name: admissions_postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: admissions
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+
+    ports:
+      - "5433:5432"
+
+    volumes:
+      - admissions_data:/var/lib/postgresql/data
+      - ./init:/docker-entrypoint-initdb.d
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  admissions_data:
