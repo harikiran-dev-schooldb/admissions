@@ -46,20 +46,24 @@ model Admission {
   /// *
   ///    * DATES
   enquiryDate    DateTime             @default(now())
-  feeRecords     FeeRecord[]
 }
 
 model FeeRecord {
-  id           String    @id @default(cuid())
-  enquiryNo    String
+  id String @id @default(cuid())
+
   academicYear String
-  term         Int
-  annualFees   Int
-  age          String?
-  className    String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  admission    Admission @relation(fields: [enquiryNo], references: [enquiryNo], onDelete: Cascade)
+
+  term Int
+
+  annualFees Int
+
+  age String?
+
+  className String
+
+  createdAt DateTime @default(now())
+
+  updatedAt DateTime @updatedAt
 }
 
 model Eligibility {

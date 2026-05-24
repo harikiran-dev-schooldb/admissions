@@ -8,22 +8,6 @@ type Props = {
   selectedClass: string;
 };
 
-const fees = [
-  { age: 3, className: "PRE KG", termFee: 6500, totalFee: 26000 },
-  { age: 4, className: "LKG", termFee: 7250, totalFee: 29000 },
-  { age: 5, className: "UKG", termFee: 7250, totalFee: 29000 },
-  { age: 6, className: "I", termFee: 8400, totalFee: 33600 },
-  { age: 7, className: "II", termFee: 8400, totalFee: 33600 },
-  { age: 8, className: "III", termFee: 8700, totalFee: 34800 },
-  { age: 9, className: "IV", termFee: 8700, totalFee: 34800 },
-  { age: 10, className: "V", termFee: 9000, totalFee: 36000 },
-  { age: 11, className: "VI", termFee: 9000, totalFee: 36000 },
-  { age: 12, className: "VII", termFee: 9400, totalFee: 37600 },
-  { age: 13, className: "VIII", termFee: 11600, totalFee: 46400 },
-  { age: 14, className: "IX", termFee: 12300, totalFee: 49200 },
-  { age: 15, className: "X", termFee: 12300, totalFee: 49200 },
-];
-
 export default function AdmissionFeesModal({
   open,
   onClose,

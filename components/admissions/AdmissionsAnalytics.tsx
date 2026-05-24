@@ -192,6 +192,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
 
         <div
           className="
+            min-w-0
             rounded-3xl
             border
             border-slate-200
@@ -211,7 +212,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
           </div>
 
           <div className="h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="99%" height="100%">
               <BarChart data={funnelData}>
                 <CartesianGrid strokeDasharray="3 3" />
 
@@ -231,6 +232,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
 
         <div
           className="
+            min-w-0
             rounded-3xl
             border
             border-slate-200
@@ -248,7 +250,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
           </div>
 
           <div className="h-[320px]">
-            <ResponsiveContainer width="100%" height="100%">
+            <ResponsiveContainer width="99%" height="100%">
               <PieChart>
                 <Pie
                   data={classData}

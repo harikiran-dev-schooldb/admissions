@@ -785,7 +785,6 @@ export type AdmissionScalarFieldEnum = (typeof AdmissionScalarFieldEnum)[keyof t
 
 export const FeeRecordScalarFieldEnum = {
   id: 'id',
-  enquiryNo: 'enquiryNo',
   academicYear: 'academicYear',
   term: 'term',
   annualFees: 'annualFees',

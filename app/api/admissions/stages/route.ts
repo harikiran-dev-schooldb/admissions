@@ -1,7 +1,13 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
-
+const allowedFields = [
+  "application",
+  "entrance",
+  "interview",
+  "admissionGiven",
+  "finalAdmission",
+];
 
 export async function PATCH(req: Request) {
   try {
@@ -9,10 +15,20 @@ export async function PATCH(req: Request) {
 
     const { id, field, value } = body;
 
-    const existing =
-      await prisma.admission.findUnique({
-        where: { id },
-      });
+    if (!allowedFields.includes(field)) {
+      return NextResponse.json(
+        {
+          error: "Invalid field",
+        },
+        {
+          status: 400,
+        }
+      );
+    }
+
+    const existing = await prisma.admission.findUnique({
+      where: { id },
+    });
 
     if (!existing) {
       return NextResponse.json(
@@ -21,11 +37,11 @@ export async function PATCH(req: Request) {
         },
         {
           status: 404,
-        },
+        }
       );
     }
 
-    const updateData: any = {
+    const updateData: Record<string, string> = {
       [field]: value,
     };
 
@@ -54,8 +70,20 @@ export async function PATCH(req: Request) {
       field === "entrance" &&
       value === "PASS"
     ) {
-      updateData.interview =
-        "PENDING";
+      updateData.interview = "PENDING";
+    }
+
+    /*
+      ENTRANCE FAIL
+    */
+
+    if (
+      field === "entrance" &&
+      value === "FAIL"
+    ) {
+      updateData.interview = "NOT_STARTED";
+      updateData.admissionGiven = "NOT_GIVEN";
+      updateData.finalAdmission = "PENDING";
     }
 
     /*
@@ -66,8 +94,19 @@ export async function PATCH(req: Request) {
       field === "interview" &&
       value === "SELECTED"
     ) {
-      updateData.admissionGiven =
-        "GIVEN";
+      updateData.admissionGiven = "GIVEN";
+    }
+
+    /*
+      INTERVIEW REJECTED
+    */
+
+    if (
+      field === "interview" &&
+      value === "REJECTED"
+    ) {
+      updateData.admissionGiven = "NOT_GIVEN";
+      updateData.finalAdmission = "CANCELLED";
     }
 
     /*
@@ -78,16 +117,14 @@ export async function PATCH(req: Request) {
       field === "finalAdmission" &&
       value === "ADMITTED"
     ) {
-      updateData.admissionGiven =
-        "GIVEN";
+      updateData.admissionGiven = "GIVEN";
+      updateData.interview = "SELECTED";
     }
 
-    const updated =
-      await prisma.admission.update({
-        where: { id },
-
-        data: updateData,
-      });
+    const updated = await prisma.admission.update({
+      where: { id },
+      data: updateData,
+    });
 
     return NextResponse.json(updated);
   } catch (error) {
@@ -99,7 +136,7 @@ export async function PATCH(req: Request) {
       },
       {
         status: 500,
-      },
+      }
     );
   }
 }

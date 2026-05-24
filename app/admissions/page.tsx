@@ -12,8 +12,6 @@ import AdmissionDetailModal from "@/components/admissions/AdmissionDetailModal";
 
 import { useAdmissions } from "@/hooks/useAdmissions";
 import NewAdmissionModal from "@/components/admissions/NewAdmissionModal";
-import PipelineBoard from "@/components/admissions/PipelineBoard";
-import AdmissionsAnalytics from "@/components/admissions/AdmissionsAnalytics";
 
 export default function AdmissionsPage() {
   const { students, loading } = useAdmissions();
@@ -68,30 +66,10 @@ export default function AdmissionsPage() {
         total={students.length}
         isFullScreen={isFullScreen}
         onToggleFullScreen={() => setIsFullScreen(!isFullScreen)}
+        onOpenNew={() => setOpenNew(true)}
       />
 
       <main className="space-y-6 p-6">
-        <div className="flex justify-end">
-          <button
-            onClick={() => setOpenNew(true)}
-            className="
-      rounded-2xl
-      bg-blue-600
-      px-6
-      py-3
-      text-sm
-      font-bold
-      text-white
-      shadow-lg
-      shadow-blue-200
-      transition-all
-      hover:scale-105
-      hover:bg-blue-700
-    "
-          >
-            + New Admission
-          </button>
-        </div>
         <KPISection students={students} />
 
         <AdmissionsTable
@@ -118,8 +96,6 @@ export default function AdmissionsPage() {
           onClose={() => setOpenNew(false)}
           reload={() => window.location.reload()}
         />
-
-        <AdmissionsAnalytics students={students} />
       </main>
     </div>
   );

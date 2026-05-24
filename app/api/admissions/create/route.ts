@@ -5,14 +5,28 @@ import { NextResponse } from "next/server";
 
 
 
-function generateEnquiryNo() {
+async function generateEnquiryNo() {
   const year = new Date().getFullYear();
 
-  const random = Math.floor(
-    100 + Math.random() * 900,
-  );
+  const lastAdmission = await prisma.admission.findFirst({
+    orderBy: {
+      enquiryNo: "desc",
+    },
+  });
 
-  return `ENQ-${year}-${random}`;
+  let nextNumber = 1;
+
+  if (lastAdmission?.enquiryNo) {
+    const parts = lastAdmission.enquiryNo.split("-");
+
+    const lastNumber = Number(parts[2]);
+
+    if (!isNaN(lastNumber)) {
+      nextNumber = lastNumber + 1;
+    }
+  }
+
+  return `ENQ-${year}-${nextNumber}`;
 }
 
 export async function POST(req: Request) {
@@ -52,7 +66,7 @@ export async function POST(req: Request) {
     const created =
       await prisma.admission.create({
         data: {
-          enquiryNo: generateEnquiryNo(),
+          enquiryNo: await generateEnquiryNo(),
 
           student,
 
