@@ -14,107 +14,154 @@ type Props = {
   reload: () => void;
 };
 
-function pillClass(value: string) {
-  switch (value) {
-    case "YES":
-    case "PASS":
-    case "SELECTED":
-    case "GIVEN":
-    case "ADMITTED":
-      return `
-        bg-emerald-100
-        text-emerald-700
-        border-emerald-200
-      `;
+const STAGES = [
+  {
+    key: "application",
+    label: "Application",
+    icon: FileText,
 
-    case "FAIL":
-    case "REJECTED":
-    case "CANCELLED":
-      return `
-        bg-red-100
-        text-red-700
-        border-red-200
-      `;
+    completedValues: ["YES", "SUBMITTED"],
 
-    case "PENDING":
-      return `
-        bg-amber-100
-        text-amber-700
-        border-amber-200
-      `;
+    options: [
+      {
+        label: "YES",
+        value: "YES",
+      },
 
-    case "NOT_REQUIRED":
-      return `
-        bg-sky-100
-        text-sky-700
-        border-sky-200
-      `;
+      {
+        label: "SUBMITTED",
+        value: "SUBMITTED",
+      },
+    ],
+  },
 
-    default:
-      return `
-        bg-slate-100
-        text-slate-700
-        border-slate-200
-      `;
+  {
+    key: "entrance",
+    label: "Entrance",
+    icon: GraduationCap,
+
+    completedValues: ["PASS", "NOT_REQUIRED"],
+
+    options: [
+      {
+        label: "NOT STARTED",
+        value: "NOT_STARTED",
+      },
+
+      {
+        label: "PENDING",
+        value: "PENDING",
+      },
+
+      {
+        label: "PASS",
+        value: "PASS",
+      },
+
+      {
+        label: "FAIL",
+        value: "FAIL",
+      },
+
+      {
+        label: "NOT REQUIRED",
+        value: "NOT_REQUIRED",
+      },
+    ],
+  },
+
+  {
+    key: "interview",
+    label: "Interview",
+    icon: UserCheck,
+
+    completedValues: ["SELECTED"],
+
+    options: [
+      {
+        label: "NOT STARTED",
+        value: "NOT_STARTED",
+      },
+
+      {
+        label: "PENDING",
+        value: "PENDING",
+      },
+
+      {
+        label: "SELECTED",
+        value: "SELECTED",
+      },
+
+      {
+        label: "REJECTED",
+        value: "REJECTED",
+      },
+    ],
+  },
+
+  {
+    key: "admissionGiven",
+    label: "Admission",
+    icon: ShieldCheck,
+
+    completedValues: ["GIVEN"],
+
+    options: [
+      {
+        label: "NOT GIVEN",
+        value: "NOT_GIVEN",
+      },
+
+      {
+        label: "GIVEN",
+        value: "GIVEN",
+      },
+    ],
+  },
+
+  {
+    key: "finalAdmission",
+    label: "Final Admission",
+    icon: CheckCircle2,
+
+    completedValues: ["ADMITTED"],
+
+    options: [
+      {
+        label: "PENDING",
+        value: "PENDING",
+      },
+
+      {
+        label: "ADMITTED",
+        value: "ADMITTED",
+      },
+
+      {
+        label: "CANCELLED",
+        value: "CANCELLED",
+      },
+    ],
+  },
+];
+
+function getCurrentStage(student: any) {
+  for (const stage of STAGES) {
+    const value = student[stage.key];
+
+    if (!stage.completedValues.includes(value)) {
+      return stage;
+    }
   }
-}
 
-function StageSelect({
-  label,
-  icon: Icon,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  icon: any;
-  value: string;
-  options: { label: string; value: string }[];
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div className="space-y-2">
-      <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-slate-500">
-        <Icon className="h-4 w-4" />
-        {label}
-      </div>
-
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={`
-          min-w-[170px]
-          px-4
-          py-3
-          rounded-2xl
-          text-sm
-          font-semibold
-          border
-          shadow-sm
-          backdrop-blur-xl
-          appearance-none
-          transition-all
-          duration-200
-          hover:shadow-lg
-          hover:-translate-y-0.5
-          focus:outline-none
-          ${pillClass(value)}
-        `}
-      >
-        {options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </div>
-  );
+  return null;
 }
 
 export default function AdmissionStages({ student, reload }: Props) {
   async function updateStage(field: string, value: string) {
     try {
-      const res = await fetch("/api/admissions/stage", {
+      const res = await fetch("/api/admissions/stages", {
         method: "PATCH",
 
         headers: {
@@ -132,128 +179,189 @@ export default function AdmissionStages({ student, reload }: Props) {
 
       if (!res.ok) {
         alert(json.error || "Failed to update");
+
         return;
       }
 
       reload();
     } catch (error) {
       console.error(error);
+
       alert("Something went wrong");
     }
   }
 
+  const currentStage = getCurrentStage(student);
+
+  // ALL COMPLETED
+  if (!currentStage) {
+    return (
+      <div
+        className="
+          flex
+          items-center
+          justify-between
+          rounded-2xl
+          border
+          border-emerald-200
+          bg-emerald-50
+          px-5
+          py-4
+        "
+      >
+        <div
+          className="
+            flex
+            items-center
+            gap-3
+          "
+        >
+          <div
+            className="
+              flex
+              h-10
+              w-10
+              items-center
+              justify-center
+              rounded-xl
+              bg-emerald-100
+            "
+          >
+            <CheckCircle2
+              className="
+                h-5
+                w-5
+                text-emerald-700
+              "
+            />
+          </div>
+
+          <div>
+            <p
+              className="
+                text-xs
+                font-semibold
+                uppercase
+                tracking-wide
+                text-emerald-700
+              "
+            >
+              Current Stage
+            </p>
+
+            <h3
+              className="
+                text-lg
+                font-bold
+                text-slate-900
+              "
+            >
+              Admission Completed
+            </h3>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const Icon = currentStage.icon;
+
+  const value = student[currentStage.key];
+
   return (
     <div
       className="
+      flex
+      flex-wrap
+      items-center
+      justify-between
+      gap-4
+      rounded-2xl
+      border
+      border-slate-200
+      bg-white
+      px-5
+      py-4
+      shadow-sm
+    "
+    >
+      {/* LEFT */}
+      <div
+        className="
         flex
-        flex-wrap
-        gap-5
-        rounded-3xl
+        items-center
+        gap-3
+      "
+      >
+        <div
+          className="
+          flex
+          h-11
+          w-11
+          items-center
+          justify-center
+          rounded-xl
+          bg-slate-100
+        "
+        >
+          <Icon
+            className="
+            h-5
+            w-5
+            text-slate-600
+          "
+          />
+        </div>
+
+        <div>
+          <p
+            className="
+            text-lg
+            font-semibold
+            text-slate-900
+          "
+          >
+            {currentStage.label}
+          </p>
+
+          <p
+            className="
+            text-sm
+            text-slate-500
+          "
+          >
+            Update admission status
+          </p>
+        </div>
+      </div>
+
+      {/* RIGHT */}
+      <select
+        value={value}
+        onChange={(e) => updateStage(currentStage.key, e.target.value)}
+        className="
+        min-w-[220px]
+        rounded-xl
         border
         border-slate-200
-        bg-slate-50/80
-        p-5
+        bg-slate-50
+        px-4
+        py-3
+        text-sm
+        font-semibold
+        text-slate-800
+        outline-none
+        transition-all
+        focus:border-slate-400
+        focus:bg-white
       "
-    >
-      <StageSelect
-        label="Application"
-        icon={FileText}
-        value={student.application}
-        onChange={(value) => updateStage("application", value)}
-        options={[
-          { label: "YES", value: "YES" },
-          {
-            label: "SUBMITTED",
-            value: "SUBMITTED",
-          },
-        ]}
-      />
-
-      <StageSelect
-        label="Entrance"
-        icon={GraduationCap}
-        value={student.entrance}
-        onChange={(value) => updateStage("entrance", value)}
-        options={[
-          {
-            label: "NOT STARTED",
-            value: "NOT_STARTED",
-          },
-          {
-            label: "PENDING",
-            value: "PENDING",
-          },
-          { label: "PASS", value: "PASS" },
-          { label: "FAIL", value: "FAIL" },
-          {
-            label: "NOT REQUIRED",
-            value: "NOT_REQUIRED",
-          },
-        ]}
-      />
-
-      <StageSelect
-        label="Interview"
-        icon={UserCheck}
-        value={student.interview}
-        onChange={(value) => updateStage("interview", value)}
-        options={[
-          {
-            label: "NOT STARTED",
-            value: "NOT_STARTED",
-          },
-          {
-            label: "PENDING",
-            value: "PENDING",
-          },
-          {
-            label: "SELECTED",
-            value: "SELECTED",
-          },
-          {
-            label: "REJECTED",
-            value: "REJECTED",
-          },
-        ]}
-      />
-
-      <StageSelect
-        label="Admission Given"
-        icon={ShieldCheck}
-        value={student.admissionGiven}
-        onChange={(value) => updateStage("admissionGiven", value)}
-        options={[
-          {
-            label: "NOT GIVEN",
-            value: "NOT_GIVEN",
-          },
-          {
-            label: "GIVEN",
-            value: "GIVEN",
-          },
-        ]}
-      />
-
-      <StageSelect
-        label="Final Admission"
-        icon={CheckCircle2}
-        value={student.finalAdmission}
-        onChange={(value) => updateStage("finalAdmission", value)}
-        options={[
-          {
-            label: "PENDING",
-            value: "PENDING",
-          },
-          {
-            label: "ADMITTED",
-            value: "ADMITTED",
-          },
-          {
-            label: "CANCELLED",
-            value: "CANCELLED",
-          },
-        ]}
-      />
+      >
+        {currentStage.options.map((option) => (
+          <option key={option.value} value={option.value}>
+            {option.label}
+          </option>
+        ))}
+      </select>
     </div>
   );
 }

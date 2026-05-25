@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 
 const allowedFields = [
@@ -7,15 +8,29 @@ const allowedFields = [
   "interview",
   "admissionGiven",
   "finalAdmission",
-];
+] as const;
+
+type AllowedField =
+  (typeof allowedFields)[number];
 
 export async function PATCH(req: Request) {
   try {
     const body = await req.json();
 
-    const { id, field, value } = body;
+    const {
+      id,
+      field,
+      value,
+    }: {
+      id: string;
+      field: AllowedField;
+      value: string;
+    } = body;
 
-    if (!allowedFields.includes(field)) {
+    // VALIDATE FIELD
+    if (
+      !allowedFields.includes(field)
+    ) {
       return NextResponse.json(
         {
           error: "Invalid field",
@@ -26,9 +41,24 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const existing = await prisma.admission.findUnique({
-      where: { id },
-    });
+    // FIND STUDENT
+    const existing =
+      await prisma.admission.findUnique({
+        where: {
+          id,
+        },
+
+        select: {
+          id: true,
+          admClass: true,
+
+          application: true,
+          entrance: true,
+          interview: true,
+          admissionGiven: true,
+          finalAdmission: true,
+        },
+      });
 
     if (!existing) {
       return NextResponse.json(
@@ -41,72 +71,111 @@ export async function PATCH(req: Request) {
       );
     }
 
-    const updateData: Record<string, string> = {
+    // UPDATE PAYLOAD
+    const updateData: Record<
+      string,
+      string
+    > = {
       [field]: value,
     };
 
     /*
-      APPLICATION SUBMITTED
+      APPLICATION
     */
 
     if (
-      field === "application" &&
-      value === "SUBMITTED"
+      field === "application"
     ) {
-      const skipEntrance =
-        existing.admClass === "PRE KG" ||
-        existing.admClass === "LKG";
+      if (value === "SUBMITTED") {
+        const skipEntrance =
+          existing.admClass ===
+            "PRE KG" ||
+          existing.admClass ===
+            "LKG";
 
-      updateData.entrance = skipEntrance
-        ? "NOT_REQUIRED"
-        : "PENDING";
+        updateData.entrance =
+          skipEntrance
+            ? "NOT_REQUIRED"
+            : "PENDING";
+      }
+
+      if (value === "YES") {
+        updateData.entrance =
+          "NOT_STARTED";
+      }
     }
 
     /*
-      ENTRANCE PASS
+      ENTRANCE
     */
 
-    if (
-      field === "entrance" &&
-      value === "PASS"
-    ) {
-      updateData.interview = "PENDING";
+    if (field === "entrance") {
+      if (value === "PASS") {
+        updateData.interview =
+          "PENDING";
+      }
+
+      if (value === "FAIL") {
+        updateData.interview =
+          "NOT_STARTED";
+
+        updateData.admissionGiven =
+          "NOT_GIVEN";
+
+        updateData.finalAdmission =
+          "PENDING";
+      }
+
+      if (
+        value === "NOT_REQUIRED"
+      ) {
+        updateData.interview =
+          "PENDING";
+      }
     }
 
     /*
-      ENTRANCE FAIL
+      INTERVIEW
     */
 
-    if (
-      field === "entrance" &&
-      value === "FAIL"
-    ) {
-      updateData.interview = "NOT_STARTED";
-      updateData.admissionGiven = "NOT_GIVEN";
-      updateData.finalAdmission = "PENDING";
+    if (field === "interview") {
+      if (
+        value === "SELECTED"
+      ) {
+        updateData.admissionGiven =
+          "GIVEN";
+      }
+
+      if (
+        value === "REJECTED"
+      ) {
+        updateData.admissionGiven =
+          "NOT_GIVEN";
+
+        updateData.finalAdmission =
+          "CANCELLED";
+      }
     }
 
     /*
-      INTERVIEW SELECTED
+      ADMISSION GIVEN
     */
 
     if (
-      field === "interview" &&
-      value === "SELECTED"
+      field ===
+      "admissionGiven"
     ) {
-      updateData.admissionGiven = "GIVEN";
-    }
+      if (value === "GIVEN") {
+        updateData.finalAdmission =
+          "PENDING";
+      }
 
-    /*
-      INTERVIEW REJECTED
-    */
-
-    if (
-      field === "interview" &&
-      value === "REJECTED"
-    ) {
-      updateData.admissionGiven = "NOT_GIVEN";
-      updateData.finalAdmission = "CANCELLED";
+      if (
+        value === "NOT_GIVEN"
+      ) {
+        updateData.finalAdmission =
+          "CANCELLED";
+      }
     }
 
     /*
@@ -114,25 +183,54 @@ export async function PATCH(req: Request) {
     */
 
     if (
-      field === "finalAdmission" &&
-      value === "ADMITTED"
+      field ===
+      "finalAdmission"
     ) {
-      updateData.admissionGiven = "GIVEN";
-      updateData.interview = "SELECTED";
+      if (
+        value === "ADMITTED"
+      ) {
+        updateData.admissionGiven =
+          "GIVEN";
+
+        updateData.interview =
+          "SELECTED";
+      }
+
+      if (
+        value === "CANCELLED"
+      ) {
+        updateData.admissionGiven =
+          "NOT_GIVEN";
+      }
     }
 
-    const updated = await prisma.admission.update({
-      where: { id },
-      data: updateData,
-    });
+    // UPDATE DB
+    const updated =
+      await prisma.admission.update({
+        where: {
+          id,
+        },
 
-    return NextResponse.json(updated);
+        data: updateData,
+      });
+
+    // OPTIONAL
+    revalidatePath("/admissions");
+
+    return NextResponse.json({
+      success: true,
+      data: updated,
+    });
   } catch (error) {
-    console.error(error);
+    console.error(
+      "PATCH_STAGE_ERROR",
+      error
+    );
 
     return NextResponse.json(
       {
-        error: "Update failed",
+        error:
+          "Failed to update stage",
       },
       {
         status: 500,
