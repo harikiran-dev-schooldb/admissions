@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { Calendar, CheckCircle2, Loader2, Phone, User, X } from "lucide-react";
 
 import { calculateAge, getEligibleClass } from "@/lib/eligibility";
-import AdmissionFeesModal from "./AdmissionFeesModal";
+import NewFeeModal from "../fees/NewFeeModal";
 
 type Props = {
   open: boolean;
@@ -524,11 +524,7 @@ export default function NewAdmissionModal({ open, onClose, reload }: Props) {
         </div>
       </div>
 
-      <AdmissionFeesModal
-        open={showFees}
-        onClose={handleCloseFees}
-        selectedClass={admClass}
-      />
+      <NewFeeModal open={showFees} onClose={handleCloseFees} reload={reload} />
     </>
   );
 }

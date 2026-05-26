@@ -27,7 +27,10 @@ export async function PATCH(req: Request) {
       value: string;
     } = body;
 
-    // VALIDATE FIELD
+    /*
+      VALIDATE FIELD
+    */
+
     if (
       !allowedFields.includes(field)
     ) {
@@ -41,7 +44,10 @@ export async function PATCH(req: Request) {
       );
     }
 
-    // FIND STUDENT
+    /*
+      FIND STUDENT
+    */
+
     const existing =
       await prisma.admission.findUnique({
         where: {
@@ -71,7 +77,10 @@ export async function PATCH(req: Request) {
       );
     }
 
-    // UPDATE PAYLOAD
+    /*
+      UPDATE PAYLOAD
+    */
+
     const updateData: Record<
       string,
       string
@@ -86,7 +95,49 @@ export async function PATCH(req: Request) {
     if (
       field === "application"
     ) {
-      if (value === "SUBMITTED") {
+      /*
+        NO
+      */
+
+      if (value === "NO") {
+        updateData.entrance =
+          "NOT_STARTED";
+
+        updateData.interview =
+          "NOT_STARTED";
+
+        updateData.admissionGiven =
+          "NOT_GIVEN";
+
+        updateData.finalAdmission =
+          "PENDING";
+      }
+
+      /*
+        YES
+      */
+
+      if (value === "YES") {
+        updateData.entrance =
+          "NOT_STARTED";
+
+        updateData.interview =
+          "NOT_STARTED";
+
+        updateData.admissionGiven =
+          "NOT_GIVEN";
+
+        updateData.finalAdmission =
+          "PENDING";
+      }
+
+      /*
+        SUBMITTED
+      */
+
+      if (
+        value === "SUBMITTED"
+      ) {
         const skipEntrance =
           existing.admClass ===
             "PRE KG" ||
@@ -98,11 +149,6 @@ export async function PATCH(req: Request) {
             ? "NOT_REQUIRED"
             : "PENDING";
       }
-
-      if (value === "YES") {
-        updateData.entrance =
-          "NOT_STARTED";
-      }
     }
 
     /*
@@ -110,10 +156,18 @@ export async function PATCH(req: Request) {
     */
 
     if (field === "entrance") {
+      /*
+        PASS
+      */
+
       if (value === "PASS") {
         updateData.interview =
           "PENDING";
       }
+
+      /*
+        FAIL
+      */
 
       if (value === "FAIL") {
         updateData.interview =
@@ -126,10 +180,31 @@ export async function PATCH(req: Request) {
           "PENDING";
       }
 
+      /*
+        NOT REQUIRED
+      */
+
       if (
         value === "NOT_REQUIRED"
       ) {
         updateData.interview =
+          "PENDING";
+      }
+
+      /*
+        NOT STARTED
+      */
+
+      if (
+        value === "NOT_STARTED"
+      ) {
+        updateData.interview =
+          "NOT_STARTED";
+
+        updateData.admissionGiven =
+          "NOT_GIVEN";
+
+        updateData.finalAdmission =
           "PENDING";
       }
     }
@@ -139,12 +214,20 @@ export async function PATCH(req: Request) {
     */
 
     if (field === "interview") {
+      /*
+        SELECTED
+      */
+
       if (
         value === "SELECTED"
       ) {
         updateData.admissionGiven =
           "GIVEN";
       }
+
+      /*
+        REJECTED
+      */
 
       if (
         value === "REJECTED"
@@ -154,6 +237,20 @@ export async function PATCH(req: Request) {
 
         updateData.finalAdmission =
           "CANCELLED";
+      }
+
+      /*
+        NOT STARTED
+      */
+
+      if (
+        value === "NOT_STARTED"
+      ) {
+        updateData.admissionGiven =
+          "NOT_GIVEN";
+
+        updateData.finalAdmission =
+          "PENDING";
       }
     }
 
@@ -165,10 +262,18 @@ export async function PATCH(req: Request) {
       field ===
       "admissionGiven"
     ) {
+      /*
+        GIVEN
+      */
+
       if (value === "GIVEN") {
         updateData.finalAdmission =
           "PENDING";
       }
+
+      /*
+        NOT GIVEN
+      */
 
       if (
         value === "NOT_GIVEN"
@@ -186,6 +291,10 @@ export async function PATCH(req: Request) {
       field ===
       "finalAdmission"
     ) {
+      /*
+        ADMITTED
+      */
+
       if (
         value === "ADMITTED"
       ) {
@@ -194,7 +303,27 @@ export async function PATCH(req: Request) {
 
         updateData.interview =
           "SELECTED";
+
+        if (
+          existing.entrance ===
+          "NOT_STARTED"
+        ) {
+          updateData.entrance =
+            "PASS";
+        }
+
+        if (
+          existing.application ===
+          "NO"
+        ) {
+          updateData.application =
+            "SUBMITTED";
+        }
       }
+
+      /*
+        CANCELLED
+      */
 
       if (
         value === "CANCELLED"
@@ -204,7 +333,10 @@ export async function PATCH(req: Request) {
       }
     }
 
-    // UPDATE DB
+    /*
+      UPDATE DATABASE
+    */
+
     const updated =
       await prisma.admission.update({
         where: {
@@ -214,7 +346,10 @@ export async function PATCH(req: Request) {
         data: updateData,
       });
 
-    // OPTIONAL
+    /*
+      REVALIDATE
+    */
+
     revalidatePath("/admissions");
 
     return NextResponse.json({

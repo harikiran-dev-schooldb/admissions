@@ -2,7 +2,6 @@
 
 import {
   CheckCircle2,
-  Clock3,
   FileText,
   GraduationCap,
   ShieldCheck,
@@ -20,9 +19,14 @@ const STAGES = [
     label: "Application",
     icon: FileText,
 
-    completedValues: ["YES", "SUBMITTED"],
+    completedValues: ["SUBMITTED"],
 
     options: [
+      {
+        label: "NO",
+        value: "NO",
+      },
+
       {
         label: "YES",
         value: "YES",
@@ -193,72 +197,61 @@ export default function AdmissionStages({ student, reload }: Props) {
 
   const currentStage = getCurrentStage(student);
 
-  // ALL COMPLETED
+  // COMPLETED
   if (!currentStage) {
     return (
       <div
         className="
-          flex
+          inline-flex
           items-center
-          justify-between
+          gap-3
           rounded-2xl
           border
           border-emerald-200
           bg-emerald-50
-          px-5
-          py-4
+          px-4
+          py-3
         "
       >
         <div
           className="
             flex
+            h-10
+            w-10
             items-center
-            gap-3
+            justify-center
+            rounded-xl
+            bg-emerald-100
           "
         >
-          <div
+          <CheckCircle2
             className="
-              flex
-              h-10
-              w-10
-              items-center
-              justify-center
-              rounded-xl
-              bg-emerald-100
+              h-5
+              w-5
+              text-emerald-700
+            "
+          />
+        </div>
+
+        <div>
+          <p
+            className="
+              text-base
+              font-semibold
+              text-slate-900
             "
           >
-            <CheckCircle2
-              className="
-                h-5
-                w-5
-                text-emerald-700
-              "
-            />
-          </div>
+            Admission Completed
+          </p>
 
-          <div>
-            <p
-              className="
-                text-xs
-                font-semibold
-                uppercase
-                tracking-wide
-                text-emerald-700
-              "
-            >
-              Current Stage
-            </p>
-
-            <h3
-              className="
-                text-lg
-                font-bold
-                text-slate-900
-              "
-            >
-              Admission Completed
-            </h3>
-          </div>
+          <p
+            className="
+              text-xs
+              text-emerald-700
+            "
+          >
+            Student admitted
+          </p>
         </div>
       </div>
     );
@@ -271,89 +264,77 @@ export default function AdmissionStages({ student, reload }: Props) {
   return (
     <div
       className="
-      flex
-      flex-wrap
+      inline-flex
       items-center
-      justify-between
-      gap-4
+      gap-2
       rounded-2xl
       border
       border-slate-200
       bg-white
-      px-5
-      py-4
+      px-3
+      py-2.5
       shadow-sm
     "
     >
-      {/* LEFT */}
       <div
         className="
         flex
+        h-9
+        w-9
         items-center
-        gap-3
+        justify-center
+        rounded-xl
+        bg-slate-100
       "
       >
-        <div
+        <Icon
           className="
-          flex
-          h-11
-          w-11
-          items-center
-          justify-center
-          rounded-xl
-          bg-slate-100
+          h-4
+          w-4
+          text-slate-600
         "
-        >
-          <Icon
-            className="
-            h-5
-            w-5
-            text-slate-600
-          "
-          />
-        </div>
-
-        <div>
-          <p
-            className="
-            text-lg
-            font-semibold
-            text-slate-900
-          "
-          >
-            {currentStage.label}
-          </p>
-
-          <p
-            className="
-            text-sm
-            text-slate-500
-          "
-          >
-            Update admission status
-          </p>
-        </div>
+        />
       </div>
 
-      {/* RIGHT */}
+      <div className="min-w-0">
+        <p
+          className="
+          text-sm
+          font-semibold
+          text-slate-900
+          leading-none
+        "
+        >
+          {currentStage.label}
+        </p>
+
+        <p
+          className="
+          mt-1
+          text-[11px]
+          text-slate-500
+          leading-none
+        "
+        >
+          Update status
+        </p>
+      </div>
+
       <select
         value={value}
         onChange={(e) => updateStage(currentStage.key, e.target.value)}
         className="
-        min-w-[220px]
-        rounded-xl
+        w-[120px]
+        rounded-lg
         border
         border-slate-200
         bg-slate-50
-        px-4
-        py-3
+        px-2.5
+        py-2
         text-sm
         font-semibold
         text-slate-800
         outline-none
-        transition-all
-        focus:border-slate-400
-        focus:bg-white
       "
       >
         {currentStage.options.map((option) => (
