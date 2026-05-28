@@ -47,7 +47,7 @@ export default function AdmissionsHeader({
           {/* RIGHT */}
           <div className="flex items-center gap-3">
             <Link
-              href="/admissions"
+              href="/"
               className="
     flex
     items-center
@@ -91,7 +91,7 @@ export default function AdmissionsHeader({
     hover:bg-slate-50
   "
             >
-              <Home className="h-4 w-4" />
+              <Currency className="h-4 w-4" />
               Fees
             </Link>
 

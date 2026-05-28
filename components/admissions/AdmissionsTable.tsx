@@ -42,19 +42,17 @@ export default function AdmissionTable({
   reload,
 }: Props) {
   return (
-    <div className="space-y-6">
+    <div className="space-y-5">
       {/* SEARCH */}
 
       <div
         className="
-          rounded-[32px]
+          rounded-[28px]
           border
           border-slate-200
-          bg-white/90
-          p-5
-          shadow-xl
-          shadow-slate-200/40
-          backdrop-blur-xl
+          bg-white
+          p-4
+          shadow-sm
         "
       >
         <div className="relative">
@@ -75,7 +73,7 @@ export default function AdmissionTable({
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search student, parent or mobile..."
             className="
-              h-16
+              h-14
               w-full
               rounded-2xl
               border
@@ -83,7 +81,7 @@ export default function AdmissionTable({
               bg-slate-50
               pl-14
               pr-5
-              text-[15px]
+              text-sm
               outline-none
               transition-all
               focus:border-blue-500
@@ -100,12 +98,11 @@ export default function AdmissionTable({
       <div
         className="
           overflow-hidden
-          rounded-[32px]
+          rounded-[28px]
           border
           border-slate-200
           bg-white
-          shadow-xl
-          shadow-slate-200/40
+          shadow-sm
         "
       >
         {/* HEADER */}
@@ -113,14 +110,14 @@ export default function AdmissionTable({
         <div
           className="
             hidden
-            grid-cols-[140px_220px_220px_170px_120px_1fr_120px]
-            gap-4
+            grid-cols-[120px_170px_130px_170px_90px_minmax(260px,1fr)_100px]
+            gap-2
             border-b
             border-slate-200
             bg-slate-50
-            px-6
-            py-5
-            text-xs
+            px-4
+            py-4
+            text-[11px]
             font-bold
             uppercase
             tracking-wider
@@ -132,9 +129,9 @@ export default function AdmissionTable({
 
           <div>Student</div>
 
-          <div>Parent</div>
+          <div>DOB</div>
 
-          <div>Mobile</div>
+          <div>Parent</div>
 
           <div>Class</div>
 
@@ -168,7 +165,7 @@ export default function AdmissionTable({
               className="
                 transition-all
                 duration-200
-                hover:bg-slate-50/70
+                hover:bg-slate-50/60
               "
             >
               {/* DESKTOP */}
@@ -176,10 +173,10 @@ export default function AdmissionTable({
               <div
                 className="
                   hidden
-                  grid-cols-[140px_220px_220px_170px_120px_1fr_120px]
-                  gap-4
-                  px-6
-                  py-6
+                  grid-cols-[120px_170px_130px_170px_90px_minmax(260px,1fr)_100px]
+                  gap-2
+                  px-4
+                  py-4
                   lg:grid
                 "
               >
@@ -191,7 +188,7 @@ export default function AdmissionTable({
                   </div>
 
                   <div className="mt-1 text-xs text-slate-400">
-                    {new Date(student.enquiryDate).toLocaleDateString()}
+                    {new Date(student.enquiryDate).toLocaleDateString("en-GB")}
                   </div>
                 </div>
 
@@ -200,6 +197,14 @@ export default function AdmissionTable({
                 <div>
                   <div className="font-bold text-slate-900">
                     {student.student}
+                  </div>
+                </div>
+
+                {/* DOB */}
+
+                <div>
+                  <div className="font-semibold text-slate-700">
+                    {new Date(student.dob).toLocaleDateString("en-GB")}
                   </div>
 
                   <div className="mt-1 text-sm text-slate-500">
@@ -217,14 +222,6 @@ export default function AdmissionTable({
                   <div className="mt-1 text-sm text-slate-400">Parent</div>
                 </div>
 
-                {/* MOBILE */}
-
-                <div>
-                  <div className="font-semibold text-slate-700">
-                    {student.mobile}
-                  </div>
-                </div>
-
                 {/* CLASS */}
 
                 <div>
@@ -233,8 +230,8 @@ export default function AdmissionTable({
                       inline-flex
                       rounded-2xl
                       bg-blue-100
-                      px-4
-                      py-2
+                      px-3
+                      py-1.5
                       text-sm
                       font-bold
                       text-blue-700
@@ -252,20 +249,19 @@ export default function AdmissionTable({
 
                 {/* ACTIONS */}
 
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-2">
                   <button
                     onClick={() => onView(student)}
                     className="
                       flex
-                      h-12
-                      w-12
+                      h-11
+                      w-11
                       items-center
                       justify-center
                       rounded-2xl
                       bg-slate-100
                       text-slate-700
                       transition-all
-                      hover:scale-105
                       hover:bg-blue-100
                       hover:text-blue-700
                     "
@@ -278,15 +274,15 @@ export default function AdmissionTable({
                     target="_blank"
                     className="
                       flex
-                      h-12
-                      w-12
+                      h-11
+                      w-11
                       items-center
                       justify-center
                       rounded-2xl
                       bg-emerald-100
                       text-emerald-700
                       transition-all
-                      hover:scale-105
+                      hover:bg-emerald-200
                     "
                   >
                     <Phone className="h-5 w-5" />
@@ -323,7 +319,7 @@ export default function AdmissionTable({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-2 gap-3">
                   <div>
                     <div className="text-xs text-slate-400">Mobile</div>
 
@@ -331,9 +327,23 @@ export default function AdmissionTable({
                   </div>
 
                   <div>
+                    <div className="text-xs text-slate-400">DOB</div>
+
+                    <div className="font-medium">
+                      {new Date(student.dob).toLocaleDateString("en-GB")}
+                    </div>
+                  </div>
+
+                  <div>
                     <div className="text-xs text-slate-400">Enquiry</div>
 
                     <div className="font-medium">{student.enquiryNo}</div>
+                  </div>
+
+                  <div>
+                    <div className="text-xs text-slate-400">Age</div>
+
+                    <div className="font-medium">{student.age}</div>
                   </div>
                 </div>
 
