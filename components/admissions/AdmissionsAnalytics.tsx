@@ -15,6 +15,7 @@ import {
 
 import { TrendingUp, Users, GraduationCap } from "lucide-react";
 import type { Admission } from "@/src/generated/prisma/client";
+import type { Admission } from "@/src/generated/prisma/client";
 
 interface Props {
   students: Admission[];
