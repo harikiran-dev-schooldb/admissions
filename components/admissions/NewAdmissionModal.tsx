@@ -11,9 +11,10 @@ type Props = {
   open: boolean;
   onClose: () => void;
   reload: () => void;
+  academicYear: string;
 };
 
-export default function NewAdmissionModal({ open, onClose, reload }: Props) {
+export default function NewAdmissionModal({ open, onClose, reload, academicYear }: Props) {
   const [dob, setDob] = useState("");
 
   const [student, setStudent] = useState("");
@@ -51,6 +52,7 @@ export default function NewAdmissionModal({ open, onClose, reload }: Props) {
         },
 
         body: JSON.stringify({
+          academicYear,
           student,
           parent,
           mobile,
@@ -323,6 +325,10 @@ export default function NewAdmissionModal({ open, onClose, reload }: Props) {
               </div>
 
               <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-600">Academic Year</label>
+                  <div className="flex h-14 items-center rounded-2xl border border-blue-200 bg-blue-50 px-4 font-bold text-blue-700">{academicYear}</div>
+                </div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-600">
                     Student Name
