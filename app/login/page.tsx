@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useRouter,useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { ArrowRight, Eye, EyeOff, GraduationCap, LockKeyhole, Mail } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 export default function LoginPage(){
- const router=useRouter();const params=useSearchParams();const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [show,setShow]=useState(false);const [loading,setLoading]=useState(false);const [error,setError]=useState("");
- async function handleLogin(e:React.FormEvent){e.preventDefault();try{setLoading(true);setError("");const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;if(!data.session?.access_token)throw new Error("No session returned");document.cookie=`sb-access-token=${data.session.access_token}; Path=/; Max-Age=${data.session.expires_in??3600}; SameSite=Lax; Secure`;const next=params.get("next");router.push(next?.startsWith("/")?next:"/admissions");router.refresh()}catch(err:unknown){setError(err instanceof Error?err.message:"Login failed")}finally{setLoading(false)}}
+ const router=useRouter();const [email,setEmail]=useState("");const [password,setPassword]=useState("");const [show,setShow]=useState(false);const [loading,setLoading]=useState(false);const [error,setError]=useState("");
+ async function handleLogin(e:React.FormEvent){e.preventDefault();try{setLoading(true);setError("");const {data,error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;if(!data.session?.access_token)throw new Error("No session returned");document.cookie=`sb-access-token=${data.session.access_token}; Path=/; Max-Age=${data.session.expires_in??3600}; SameSite=Lax; Secure`;const next=new URLSearchParams(window.location.search).get("next");router.push(next?.startsWith("/")?next:"/admissions");router.refresh()}catch(err:unknown){setError(err instanceof Error?err.message:"Login failed")}finally{setLoading(false)}}
  return <main className="grid min-h-screen bg-[#f6f8fc] lg:grid-cols-[1.05fr_.95fr]">
   <section className="relative hidden overflow-hidden bg-[#091540] p-12 text-white lg:flex lg:flex-col lg:justify-between">
    <div className="absolute -right-28 -top-28 h-96 w-96 rounded-full bg-blue-500/20 blur-3xl"/><div className="relative flex items-center gap-3"><div className="grid h-12 w-12 place-items-center rounded-2xl bg-white text-[#091540]"><GraduationCap/></div><div><p className="text-xl font-bold">SchoolDB</p><p className="text-xs text-blue-200">Admissions Console</p></div></div>
