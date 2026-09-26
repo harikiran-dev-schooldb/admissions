@@ -43,7 +43,7 @@ export default function NewAdmissionModal({ open, onClose, reload }: Props) {
     try {
       setLoading(true);
 
-      const res = await fetch("/api/admissions/create", {
+      const res = await fetch("/api/admissions", {
         method: "POST",
 
         headers: {
