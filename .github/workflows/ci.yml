@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/admissions
-      NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
-      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: test-publishable-key
+      NEON_AUTH_BASE_URL: https://example.neonauth.us-east-1.aws.neon.tech/neondb/auth
+      NEON_AUTH_COOKIE_SECRET: ci-only-cookie-secret-at-least-32-characters
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
