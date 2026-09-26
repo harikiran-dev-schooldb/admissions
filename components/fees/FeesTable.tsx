@@ -67,7 +67,7 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
               {[
                 "Academic Year",
                 "Class",
-                "Term",
+                "Term Fee",
                 "Annual Fees",
                 "Age",
                 "Actions",
@@ -106,7 +106,7 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
 
                 <td className="px-6 py-5">{fee.className}</td>
 
-                <td className="px-6 py-5">Term {fee.term}</td>
+                <td className="px-6 py-5 font-semibold text-slate-700">₹{fee.termFee.toLocaleString()}</td>
 
                 <td
                   className="
