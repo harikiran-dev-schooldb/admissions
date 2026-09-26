@@ -24,17 +24,17 @@ export default function LoginPage() {
         password,
       });
 
-      console.log("LOGIN DATA:", data);
-      console.log("LOGIN ERROR:", error);
-
       if (error) {
-        console.error(error);
         throw error;
       }
 
+      if (!data.session?.access_token) throw new Error("No session returned");
+
+      document.cookie = `sb-access-token=${data.session.access_token}; Path=/; Max-Age=${data.session.expires_in ?? 3600}; SameSite=Lax; Secure`;
       router.push("/admissions");
-    } catch (err: any) {
-      setError(err.message || "Login failed");
+      router.refresh();
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Login failed");
     } finally {
       setLoading(false);
     }
