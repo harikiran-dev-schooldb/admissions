@@ -25,7 +25,7 @@ model EligibilityCheck {
 model Admission {
   id             String               @id @default(cuid())
   enquiryNo      String               @unique
-  academicYear   String
+  academicYear   String               @default("2026-27")
   /// *
   ///    * STUDENT DETAILS
   student        String
