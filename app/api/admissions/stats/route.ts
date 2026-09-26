@@ -1,16 +1,20 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
+    const { searchParams } = new URL(req.url);
+    const academicYear = searchParams.get("academicYear")?.trim();
+    const yearWhere = academicYear ? { academicYear } : {};
+
     const [total, admitted, cancelled, pending, applicationSubmitted, entrancePending, interviewPending] = await Promise.all([
-      prisma.admission.count(),
-      prisma.admission.count({ where: { finalAdmission: "ADMITTED" } }),
-      prisma.admission.count({ where: { finalAdmission: "CANCELLED" } }),
-      prisma.admission.count({ where: { finalAdmission: "PENDING" } }),
-      prisma.admission.count({ where: { application: "SUBMITTED" } }),
-      prisma.admission.count({ where: { entrance: "PENDING" } }),
-      prisma.admission.count({ where: { interview: "PENDING" } }),
+      prisma.admission.count({ where: yearWhere }),
+      prisma.admission.count({ where: { ...yearWhere, finalAdmission: "ADMITTED" } }),
+      prisma.admission.count({ where: { ...yearWhere, finalAdmission: "CANCELLED" } }),
+      prisma.admission.count({ where: { ...yearWhere, finalAdmission: "PENDING" } }),
+      prisma.admission.count({ where: { ...yearWhere, application: "SUBMITTED" } }),
+      prisma.admission.count({ where: { ...yearWhere, entrance: "PENDING" } }),
+      prisma.admission.count({ where: { ...yearWhere, interview: "PENDING" } }),
     ]);
 
     return NextResponse.json({
