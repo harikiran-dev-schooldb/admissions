@@ -9,9 +9,11 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q")?.trim();
     const finalAdmission = searchParams.get("status");
+    const academicYear = searchParams.get("academicYear")?.trim();
 
     const admissions = await prisma.admission.findMany({
       where: {
+        ...(academicYear ? { academicYear } : {}),
         ...(finalAdmission && finalAdmission !== "ALL"
           ? { finalAdmission: finalAdmission as "PENDING" | "ADMITTED" | "CANCELLED" }
           : {}),
@@ -48,6 +50,7 @@ export async function POST(req: Request) {
       try {
         const admission = await prisma.admission.create({
           data: {
+            academicYear: body.academicYear,
             enquiryNo: await createEnquiryNumber(),
             student: body.student.toUpperCase(),
             parent: body.parent.toUpperCase(),
