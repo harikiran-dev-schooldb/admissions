@@ -59,17 +59,17 @@ export default function NewFeeModal({ open, onClose, reload }: Props) {
   }
 
   const inputClass =
-    "w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none transition focus:border-slate-400 focus:bg-white";
+    "premium-input w-full rounded-2xl px-4 py-3 text-sm outline-none transition";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm">
-      <div className="w-full max-w-lg rounded-2xl border border-slate-200 bg-white shadow-2xl">
-        <div className="flex items-center justify-between border-b border-slate-200 px-6 py-5">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-[28px] border border-white/90 bg-white/92 shadow-[0_30px_90px_rgba(15,23,42,.24)] backdrop-blur-2xl">
+        <div className="flex items-center justify-between border-b border-indigo-100 bg-gradient-to-br from-white via-indigo-50 to-violet-100 px-6 py-5">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">New Fee Structure</h2>
+            <h2 className="text-xl font-black tracking-[-.03em] text-slate-950">New Fee Structure</h2>
             <p className="mt-1 text-sm text-slate-500">Create fee details for an academic year and class.</p>
           </div>
-          <button onClick={onClose} className="rounded-xl bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-200">
+          <button onClick={onClose} className="rounded-xl bg-white/80 px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm hover:bg-white">
             Close
           </button>
         </div>
@@ -140,7 +140,7 @@ export default function NewFeeModal({ open, onClose, reload }: Props) {
             <button onClick={onClose} className="rounded-xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
               Cancel
             </button>
-            <button onClick={handleSubmit} disabled={loading} className="rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white hover:bg-slate-800 disabled:opacity-50">
+            <button onClick={handleSubmit} disabled={loading} className="premium-button px-5 py-3 text-sm font-bold disabled:opacity-50">
               {loading ? "Saving..." : "Create Fee"}
             </button>
           </div>

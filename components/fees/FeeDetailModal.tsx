@@ -12,11 +12,11 @@ export default function FeeDetailModal({ fee, open, onClose }: Props) {
   if (!open || !fee) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-      <div className="w-full max-w-lg rounded-3xl bg-white p-6 shadow-2xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/35 p-4 backdrop-blur-sm">
+      <div className="w-full max-w-lg rounded-[28px] border border-white/90 bg-white/92 p-6 shadow-[0_30px_90px_rgba(15,23,42,.24)] backdrop-blur-2xl">
         <div className="mb-6 flex items-center justify-between">
           <h2 className="text-2xl font-bold text-slate-900">Fee Details</h2>
-          <button onClick={onClose} className="rounded-xl bg-slate-100 px-3 py-2 text-sm">Close</button>
+          <button onClick={onClose} className="rounded-xl bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100">Close</button>
         </div>
 
         <div className="grid gap-4 text-sm sm:grid-cols-2">
