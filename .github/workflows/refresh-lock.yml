@@ -1,0 +1,17 @@
+name: Refresh lockfile
+on:
+  workflow_dispatch:
+  push:
+    branches: ["feature/nextjs-admissions-redesign"]
+jobs:
+  lockfile:
+    if: contains(github.event.head_commit.message, 'upgrade Next.js')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --package-lock-only --ignore-scripts
+      - name: Export lockfile
+        run: gzip -c package-lock.json | base64 -w 0
