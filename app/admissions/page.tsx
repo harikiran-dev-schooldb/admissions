@@ -2,12 +2,13 @@
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { BarChart3, CircleDollarSign, GraduationCap, LayoutDashboard, Menu, Plus, Search, Users, X } from "lucide-react";
+import { BarChart3, CircleDollarSign, GraduationCap, Menu, Plus, Search, Users, X } from "lucide-react";
 import KPISection from "@/components/admissions/KPISection";
 import AdmissionsTable from "@/components/admissions/AdmissionsTable";
 import AdmissionDetailModal from "@/components/admissions/AdmissionDetailModal";
 import NewAdmissionModal from "@/components/admissions/NewAdmissionModal";
 import { useAdmissions } from "@/hooks/useAdmissions";
+import type { Admission } from "@/src/generated/prisma/client";
 
 const nav = [
   { label: "Admissions", href: "/admissions", icon: Users, active: true },
@@ -19,14 +20,14 @@ export default function AdmissionsPage() {
   const { students, loading, error, reload } = useAdmissions();
   const [search, setSearch] = useState("");
   const [openNew, setOpenNew] = useState(false);
-  const [selectedStudent, setSelectedStudent] = useState<any>(null);
+  const [selectedStudent, setSelectedStudent] = useState<Admission | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
   const [mobileNav, setMobileNav] = useState(false);
 
   const filteredStudents = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return students;
-    return students.filter((s: any) =>
+    return students.filter((s: Admission) =>
       [s.student, s.parent, s.mobile, s.enquiryNo, s.admClass].some((value) =>
         String(value ?? "").toLowerCase().includes(q),
       ),
@@ -75,7 +76,7 @@ export default function AdmissionsPage() {
               <div className="max-w-2xl"><span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-100">2026–27 ADMISSION DESK</span><h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">A clear view of every prospective student.</h2><p className="mt-3 max-w-xl text-sm leading-6 text-blue-100">Move enquiries through application, entrance, interview and confirmation without losing the parent conversation.</p></div>
               <div className="grid grid-cols-2 gap-3 sm:flex">
                 <div className="rounded-2xl bg-white/10 px-5 py-4"><p className="text-xs text-blue-200">Total enquiries</p><p className="mt-1 text-2xl font-bold">{students.length}</p></div>
-                <div className="rounded-2xl bg-white/10 px-5 py-4"><p className="text-xs text-blue-200">Admitted</p><p className="mt-1 text-2xl font-bold">{students.filter((s:any)=>s.finalAdmission==="ADMITTED").length}</p></div>
+                <div className="rounded-2xl bg-white/10 px-5 py-4"><p className="text-xs text-blue-200">Admitted</p><p className="mt-1 text-2xl font-bold">{students.filter((s: Admission)=>s.finalAdmission==="ADMITTED").length}</p></div>
               </div>
             </div>
           </section>
