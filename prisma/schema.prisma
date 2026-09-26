@@ -29,10 +29,10 @@ model Admission {
   /// *
   ///    * STUDENT DETAILS
   student        String
-  parent         String
+  parent         String?
   admClass       String
   mobile         String
-  dob            String
+  dob            String?
   age            String?
   eligibleStatus String?
   entrance       EntranceStatus       @default(NOT_STARTED)
