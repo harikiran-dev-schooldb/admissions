@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const admissionCreateSchema = z.object({
-  academicYear: z.string().trim().regex(/^\\d{4}-\\d{2}$/, "Use academic year format YYYY-YY"),
+  academicYear: z.string().trim().regex(/^\d{4}-\d{2}$/, "Use academic year format YYYY-YY"),
   student: z.string().trim().min(2).max(120),
   parent: z.string().trim().min(2).max(120),
   mobile: z.string().trim().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
