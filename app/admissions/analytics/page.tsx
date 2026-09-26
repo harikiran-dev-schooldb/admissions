@@ -1,49 +1,22 @@
 "use client";
-
 import dynamic from "next/dynamic";
-
-import AdmissionsHeader from "@/components/admissions/AdmissionsHeader";
-
+import Link from "next/link";
+import { useState } from "react";
+import { ArrowLeft, BarChart3 } from "lucide-react";
+import AppSidebar from "@/components/AppSidebar";
 import { useAdmissions } from "@/hooks/useAdmissions";
 
-const AdmissionsAnalytics = dynamic(
-  () => import("@/components/admissions/AdmissionsAnalytics"),
-  {
-    ssr: false,
-  },
-);
+const AdmissionsAnalytics=dynamic(()=>import("@/components/admissions/AdmissionsAnalytics"),{ssr:false});
+const academicYears=["2026-27","2025-26"] as const;
 
-export default function AdmissionsAnalyticsPage() {
-  const { students, loading } = useAdmissions();
-
-  if (loading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-slate-100">
-        Loading analytics...
-      </div>
-    );
-  }
-
-  return (
-    <div
-      className="
-        min-h-screen
-        bg-gradient-to-br
-        from-slate-100
-        via-slate-50
-        to-blue-50
-      "
-    >
-      <AdmissionsHeader
-        total={students.length}
-        isFullScreen={false}
-        onToggleFullScreen={() => {}}
-        onOpenNew={() => {}}
-      />
-
-      <main className="p-6">
-        <AdmissionsAnalytics students={students} />
-      </main>
-    </div>
-  );
+export default function AdmissionsAnalyticsPage(){
+ const [academicYear,setAcademicYear]=useState<string>("2026-27");
+ const {students,loading,error}=useAdmissions(academicYear);
+ return <div className="min-h-screen bg-[#f6f8fc] text-slate-950"><AppSidebar/><div className="lg:pl-72">
+  <header className="border-b border-slate-200 bg-white"><div className="flex min-h-20 items-center justify-between gap-4 px-4 sm:px-6 xl:px-10"><div><p className="text-sm font-semibold text-blue-700">Admissions intelligence</p><h1 className="text-2xl font-bold tracking-tight">Analytics</h1></div><div className="flex items-center gap-3"><select aria-label="Academic year" value={academicYear} onChange={(e)=>setAcademicYear(e.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 outline-none focus:border-blue-400">{academicYears.map((year)=><option key={year} value={year}>{year}</option>)}</select><Link href="/admissions" className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-4 py-2.5 text-sm font-semibold"><ArrowLeft className="h-4 w-4"/>Pipeline</Link></div></div></header>
+  <main className="mx-auto max-w-[1680px] space-y-6 p-4 sm:p-6 xl:p-10">
+   <section className="rounded-[32px] bg-[#091540] p-7 text-white shadow-xl shadow-slate-200"><div className="flex items-center gap-4"><div className="rounded-2xl bg-white/10 p-4"><BarChart3/></div><div><p className="text-sm text-blue-200">{academicYear.replace("-","–")} performance</p><h2 className="mt-1 text-3xl font-bold">Understand where enquiries convert—and where they stop.</h2></div></div></section>
+   {error&&<div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>}
+   {loading?<div className="grid min-h-72 place-items-center rounded-3xl border border-slate-200 bg-white text-sm text-slate-500">Loading admission analytics…</div>:<AdmissionsAnalytics students={students}/>}
+  </main></div></div>
 }

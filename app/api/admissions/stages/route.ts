@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
+import { admissionStageSchema, validationError } from "@/lib/validation/admissions";
 
 const allowedFields = [
   "application",
@@ -10,22 +11,15 @@ const allowedFields = [
   "finalAdmission",
 ] as const;
 
-type AllowedField =
-  (typeof allowedFields)[number];
-
 export async function PATCH(req: Request) {
   try {
-    const body = await req.json();
+    const parsed = admissionStageSchema.safeParse(await req.json());
 
-    const {
-      id,
-      field,
-      value,
-    }: {
-      id: string;
-      field: AllowedField;
-      value: string;
-    } = body;
+    if (!parsed.success) {
+      return NextResponse.json(validationError(parsed.error), { status: 400 });
+    }
+
+    const { id, field, value } = parsed.data;
 
     /*
       VALIDATE FIELD

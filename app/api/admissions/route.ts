@@ -1,112 +1,81 @@
 import { NextResponse } from "next/server";
-
+import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
+import { createEnquiryNumber, shouldSkipEntrance } from "@/lib/admissions";
+import { admissionCreateSchema, validationError } from "@/lib/validation/admissions";
 
-export async function GET() {
+export async function GET(req: Request) {
   try {
-    const admissions =
-      await prisma.admission.findMany({
-        orderBy: {
-          enquiryNo: "desc",
-        },
-      });
+    const { searchParams } = new URL(req.url);
+    const q = searchParams.get("q")?.trim();
+    const finalAdmission = searchParams.get("status");
+    const academicYear = searchParams.get("academicYear")?.trim();
 
-    return NextResponse.json(admissions);
-  } catch (error) {
-    console.error(error);
-
-    return NextResponse.json(
-      {
-        error: "Failed to fetch admissions",
+    const admissions = await prisma.admission.findMany({
+      where: {
+        ...(academicYear ? { academicYear } : {}),
+        ...(finalAdmission && finalAdmission !== "ALL"
+          ? { finalAdmission: finalAdmission as "PENDING" | "ADMITTED" | "CANCELLED" }
+          : {}),
+        ...(q
+          ? {
+              OR: [
+                { student: { contains: q, mode: "insensitive" } },
+                { parent: { contains: q, mode: "insensitive" } },
+                { mobile: { contains: q } },
+                { enquiryNo: { contains: q, mode: "insensitive" } },
+              ],
+            }
+          : {}),
       },
-      {
-        status: 500,
-      }
-    );
+      orderBy: { enquiryDate: "desc" },
+    });
+
+    return NextResponse.json({ data: admissions, total: admissions.length });
+  } catch (error) {
+    console.error("GET_ADMISSIONS_ERROR", error);
+    return NextResponse.json({ error: "Failed to fetch admissions" }, { status: 500 });
   }
 }
 
-export async function POST(
-  req: Request
-) {
+export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const parsed = admissionCreateSchema.safeParse(await req.json());
+    if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
 
-    const latest =
-      await prisma.admission.findFirst({
-        orderBy: {
-          enquiryDate: "desc",
-        },
-      });
+    const body = parsed.data;
+    const skipEntrance = shouldSkipEntrance(body.admClass);
 
-    const latestNo =
-      latest?.enquiryNo
-        ?.split("-")
-        ?.pop() || "1000";
-
-    const enquiryNo = `ENQ-${
-      Number(latestNo) + 1
-    }`;
-
-    const noEntrance = [
-      "PRE KG",
-      "LKG",
-    ].includes(body.admClass);
-
-    const admission =
-      await prisma.admission.create({
-        data: {
-          enquiryNo,
-
-          student: body.student,
-
-          parent: body.parent,
-
-          mobile: body.mobile,
-
-          dob: body.dob,
-
-          age: body.age,
-
-          admClass: body.admClass,
-
-          eligibleClass:
-            body.eligibleClass,
-
-          eligibleStatus:
-            "ELIGIBLE",
-
-          application: "NO",
-
-          entrance: noEntrance
-            ? "NOT_REQUIRED"
-            : "NOT_STARTED",
-
-          interview: "NOT_STARTED",
-
-          admissionGiven:
-            "NOT_GIVEN",
-
-          finalAdmission:
-            "PENDING",
-        },
-      });
-
-    return NextResponse.json({
-      success: true,
-      data: admission,
-    });
-  } catch (error) {
-    console.error(error);
-
-    return NextResponse.json(
-      {
-        error:
-          "Failed to create admission",
-      },
-      {
-        status: 500,
+    for (let attempt = 0; attempt < 3; attempt++) {
+      try {
+        const admission = await prisma.admission.create({
+          data: {
+            academicYear: body.academicYear,
+            enquiryNo: await createEnquiryNumber(),
+            student: body.student.toUpperCase(),
+            parent: body.parent.toUpperCase(),
+            mobile: body.mobile,
+            dob: body.dob,
+            age: body.age ?? null,
+            admClass: body.admClass,
+            eligibleClass: body.eligibleClass ?? null,
+            eligibleStatus: "ELIGIBLE",
+            application: "NO",
+            entrance: skipEntrance ? "NOT_REQUIRED" : "NOT_STARTED",
+            interview: "NOT_STARTED",
+            admissionGiven: "NOT_GIVEN",
+            finalAdmission: "PENDING",
+          },
+        });
+        return NextResponse.json({ data: admission }, { status: 201 });
+      } catch (error) {
+        if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002" || attempt === 2) throw error;
       }
-    );
+    }
+
+    return NextResponse.json({ error: "Could not allocate enquiry number" }, { status: 409 });
+  } catch (error) {
+    console.error("CREATE_ADMISSION_ERROR", error);
+    return NextResponse.json({ error: "Failed to create admission" }, { status: 500 });
   }
 }

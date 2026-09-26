@@ -33,7 +33,7 @@ export default function KPISection({ students }: Props) {
   ).length;
 
   const admitted = students.filter(
-    (s) => s.finalAdmission === "CONFIRMED",
+    (s) => s.finalAdmission === "ADMITTED",
   ).length;
 
   const cards = [

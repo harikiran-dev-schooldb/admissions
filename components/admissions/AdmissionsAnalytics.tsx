@@ -14,9 +14,10 @@ import {
 } from "recharts";
 
 import { TrendingUp, Users, GraduationCap } from "lucide-react";
+import type { Admission } from "@/src/generated/prisma/client";
 
 interface Props {
-  students: any[];
+  students: Admission[];
 }
 
 const COLORS = ["#2563eb", "#7c3aed", "#10b981", "#f59e0b", "#ef4444"];
@@ -91,7 +92,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
             border-slate-200
             bg-white
             p-6
-            shadow-lg
+            shadow-sm
           "
         >
           <div className="flex items-center justify-between">
@@ -125,7 +126,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
             border-slate-200
             bg-white
             p-6
-            shadow-lg
+            shadow-sm
           "
         >
           <div className="flex items-center justify-between">
@@ -159,7 +160,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
             border-slate-200
             bg-white
             p-6
-            shadow-lg
+            shadow-sm
           "
         >
           <div className="flex items-center justify-between">
@@ -198,7 +199,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
             border-slate-200
             bg-white
             p-6
-            shadow-lg
+            shadow-sm
           "
         >
           <div className="mb-6">
@@ -238,7 +239,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
             border-slate-200
             bg-white
             p-6
-            shadow-lg
+            shadow-sm
           "
         >
           <div className="mb-6">

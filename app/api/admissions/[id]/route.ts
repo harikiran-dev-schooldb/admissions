@@ -1,44 +1,43 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { admissionUpdateSchema, validationError } from "@/lib/validation/admissions";
 
-export async function PATCH(
-  req: NextRequest,
-  context: {
-    params: Promise<{ id: string }>;
-  }
-) {
+type Context = { params: Promise<{ id: string }> };
+
+export async function GET(_req: Request, { params }: Context) {
+  const { id } = await params;
+  const admission = await prisma.admission.findUnique({ where: { id } });
+  if (!admission) return NextResponse.json({ error: "Admission not found" }, { status: 404 });
+  return NextResponse.json({ data: admission });
+}
+
+export async function PATCH(req: Request, { params }: Context) {
   try {
-    const body = await req.json();
+    const { id } = await params;
+    const parsed = admissionUpdateSchema.safeParse(await req.json());
+    if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
 
-    const { id } = await context.params;
+    const data = {
+      ...parsed.data,
+      ...(parsed.data.student ? { student: parsed.data.student.toUpperCase() } : {}),
+      ...(parsed.data.parent ? { parent: parsed.data.parent.toUpperCase() } : {}),
+    };
 
-    return NextResponse.json({
-      success: true,
-      id,
-      body,
-    });
+    const admission = await prisma.admission.update({ where: { id }, data });
+    return NextResponse.json({ data: admission });
   } catch (error) {
-    console.error(error);
-
-    return NextResponse.json(
-      {
-        error: "Failed to update",
-      },
-      {
-        status: 500,
-      }
-    );
+    console.error("UPDATE_ADMISSION_ERROR", error);
+    return NextResponse.json({ error: "Failed to update admission" }, { status: 500 });
   }
 }
 
-export async function GET(
-  req: NextRequest,
-  context: {
-    params: Promise<{ id: string }>;
+export async function DELETE(_req: Request, { params }: Context) {
+  try {
+    const { id } = await params;
+    await prisma.admission.delete({ where: { id } });
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    console.error("DELETE_ADMISSION_ERROR", error);
+    return NextResponse.json({ error: "Failed to delete admission" }, { status: 500 });
   }
-) {
-  const { id } = await context.params;
-
-  return NextResponse.json({
-    id,
-  });
 }

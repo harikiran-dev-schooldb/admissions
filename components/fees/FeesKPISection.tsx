@@ -1,9 +1,11 @@
 "use client";
 
+import type { FeeRecord } from "@/src/generated/prisma/client";
+
 import { IndianRupee, Layers3, School, TrendingUp } from "lucide-react";
 
 interface Props {
-  fees: any[];
+  fees: FeeRecord[];
 }
 
 export default function FeesKPISection({ fees }: Props) {
@@ -65,7 +67,7 @@ export default function FeesKPISection({ fees }: Props) {
               border-slate-200
               bg-white
               p-6
-              shadow-lg
+              shadow-sm
             "
           >
             <div className="flex items-center justify-between">

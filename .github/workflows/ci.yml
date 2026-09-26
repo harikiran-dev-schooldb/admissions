@@ -1,0 +1,39 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "feature/nextjs-admissions-redesign"]
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: admissions
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d admissions"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/admissions
+      NEON_AUTH_BASE_URL: https://example.neonauth.us-east-1.aws.neon.tech/neondb/auth
+      NEON_AUTH_COOKIE_SECRET: ci-only-cookie-secret-at-least-32-characters
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx prisma generate
+      - run: npx eslint app/api lib proxy.ts app/admissions/page.tsx app/admissions/analytics/page.tsx app/fees/page.tsx app/login/page.tsx app/layout.tsx app/page.tsx components/AppSidebar.tsx components/admissions/AdmissionsAnalytics.tsx components/fees/FeesKPISection.tsx components/fees/FeesTable.tsx hooks/useAdmissions.ts hooks/useFees.ts
+      - run: npm run build

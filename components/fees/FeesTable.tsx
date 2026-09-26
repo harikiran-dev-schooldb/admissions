@@ -1,13 +1,14 @@
 "use client";
 
 import { Eye, Search } from "lucide-react";
+import type { FeeRecord } from "@/src/generated/prisma/client";
 
 interface Props {
-  fees: any[];
+  fees: FeeRecord[];
   loading: boolean;
   search: string;
   setSearch: (value: string) => void;
-  onView: (fee: any) => void;
+  onView: (fee: FeeRecord) => void;
   reload: () => void;
 }
 
@@ -19,7 +20,7 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
         border
         border-slate-200
         bg-white
-        shadow-xl
+        shadow-sm
       "
     >
       <div className="border-b border-slate-100 p-5">
