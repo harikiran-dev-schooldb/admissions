@@ -56,7 +56,7 @@ model FeeRecord {
 
   academicYear String
 
-  termFee Int
+  termFee Int @map("term")
 
   annualFees Int
 
