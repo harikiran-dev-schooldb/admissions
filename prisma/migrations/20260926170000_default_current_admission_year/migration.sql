@@ -1,0 +1,2 @@
+ALTER TABLE "Admission"
+ALTER COLUMN "academicYear" SET DEFAULT '2026-27';
