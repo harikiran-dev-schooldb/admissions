@@ -25,6 +25,7 @@ model EligibilityCheck {
 model Admission {
   id             String               @id @default(cuid())
   enquiryNo      String               @unique
+  academicYear   String
   /// *
   ///    * STUDENT DETAILS
   student        String
@@ -46,6 +47,8 @@ model Admission {
   /// *
   ///    * DATES
   enquiryDate    DateTime             @default(now())
+
+  @@index([academicYear])
 }
 
 model FeeRecord {
