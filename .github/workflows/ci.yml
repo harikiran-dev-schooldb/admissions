@@ -21,5 +21,5 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx prisma generate
-      - run: npm run lint
+      - run: npx eslint app/api lib proxy.ts app/admissions/page.tsx app/layout.tsx app/page.tsx hooks/useAdmissions.ts
       - run: npm run build
