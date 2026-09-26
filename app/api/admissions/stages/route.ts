@@ -11,9 +11,6 @@ const allowedFields = [
   "finalAdmission",
 ] as const;
 
-type AllowedField =
-  (typeof allowedFields)[number];
-
 export async function PATCH(req: Request) {
   try {
     const parsed = admissionStageSchema.safeParse(await req.json());
