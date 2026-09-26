@@ -16,8 +16,11 @@ const nav = [
   { label: "Fee Structure", href: "/fees", icon: CircleDollarSign },
 ];
 
+const academicYears = ["2026-27", "2025-26"] as const;
+
 export default function AdmissionsPage() {
-  const { students, loading, error, reload } = useAdmissions();
+  const [academicYear, setAcademicYear] = useState<string>("2026-27");
+  const { students, loading, error, reload } = useAdmissions(academicYear);
   const [search, setSearch] = useState("");
   const [openNew, setOpenNew] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Admission | null>(null);
@@ -66,14 +69,14 @@ export default function AdmissionsPage() {
               <button onClick={() => setMobileNav(true)} className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 lg:hidden"><Menu className="h-5 w-5"/></button>
               <div><h1 className="text-xl font-bold tracking-tight sm:text-2xl">Admissions</h1><p className="hidden text-sm text-slate-500 sm:block">Enquiries, eligibility and admission workflow</p></div>
             </div>
-            <button onClick={() => setOpenNew(true)} className="inline-flex items-center gap-2 rounded-2xl bg-[#091540] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:-translate-y-0.5 sm:px-5"><Plus className="h-4 w-4"/>New enquiry</button>
+            <div className="flex items-center gap-3"><select aria-label="Academic year" value={academicYear} onChange={(e)=>setAcademicYear(e.target.value)} className="h-11 rounded-2xl border border-slate-200 bg-white px-4 text-sm font-bold text-slate-700 outline-none focus:border-blue-400">{academicYears.map((year)=><option key={year} value={year}>{year}</option>)}</select><button onClick={() => setOpenNew(true)} className="inline-flex items-center gap-2 rounded-2xl bg-[#091540] px-4 py-3 text-sm font-bold text-white shadow-lg shadow-slate-300 transition hover:-translate-y-0.5 sm:px-5"><Plus className="h-4 w-4"/>New enquiry</button></div>
           </div>
         </header>
 
         <main className="mx-auto max-w-[1680px] space-y-6 p-4 sm:p-6 xl:p-10">
           <section className="overflow-hidden rounded-[32px] bg-[#091540] p-6 text-white shadow-xl shadow-slate-200 sm:p-8">
             <div className="flex flex-col gap-6 xl:flex-row xl:items-end xl:justify-between">
-              <div className="max-w-2xl"><span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-100">2026–27 ADMISSION DESK</span><h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">A clear view of every prospective student.</h2><p className="mt-3 max-w-xl text-sm leading-6 text-blue-100">Move enquiries through application, entrance, interview and confirmation without losing the parent conversation.</p></div>
+              <div className="max-w-2xl"><span className="rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-blue-100">{academicYear.replace("-", "–")} ADMISSION DESK</span><h2 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl">A clear view of every prospective student.</h2><p className="mt-3 max-w-xl text-sm leading-6 text-blue-100">Move enquiries through application, entrance, interview and confirmation without losing the parent conversation.</p></div>
               <div className="grid grid-cols-2 gap-3 sm:flex">
                 <div className="rounded-2xl bg-white/10 px-5 py-4"><p className="text-xs text-blue-200">Total enquiries</p><p className="mt-1 text-2xl font-bold">{students.length}</p></div>
                 <div className="rounded-2xl bg-white/10 px-5 py-4"><p className="text-xs text-blue-200">Admitted</p><p className="mt-1 text-2xl font-bold">{students.filter((s: Admission)=>s.finalAdmission==="ADMITTED").length}</p></div>
@@ -97,7 +100,7 @@ export default function AdmissionsPage() {
       </div>
 
       <AdmissionDetailModal student={selectedStudent} open={openDetail} onClose={() => setOpenDetail(false)} />
-      <NewAdmissionModal open={openNew} onClose={() => setOpenNew(false)} reload={reload} />
+      <NewAdmissionModal open={openNew} onClose={() => setOpenNew(false)} reload={reload} academicYear={academicYear} />
     </div>
   );
 }
