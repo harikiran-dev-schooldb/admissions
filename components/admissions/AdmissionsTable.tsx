@@ -47,12 +47,13 @@ export default function AdmissionTable({
 
       <div
         className="
-          rounded-[28px]
+          rounded-[26px]
           border
-          border-slate-200
-          bg-white
+          border-white/90
+          bg-white/78
           p-4
-          shadow-sm
+          shadow-[0_18px_50px_rgba(79,70,229,.07)]
+          backdrop-blur-xl
         "
       >
         <div className="relative">
@@ -77,8 +78,8 @@ export default function AdmissionTable({
               w-full
               rounded-2xl
               border
-              border-slate-200
-              bg-slate-50
+              border-slate-200/80
+              bg-white/80
               pl-14
               pr-5
               text-sm
@@ -100,9 +101,10 @@ export default function AdmissionTable({
           overflow-hidden
           rounded-[28px]
           border
-          border-slate-200
-          bg-white
-          shadow-sm
+          border-white/90
+          bg-white/82
+          shadow-[0_22px_60px_rgba(79,70,229,.08)]
+          backdrop-blur-xl
         "
       >
         {/* HEADER */}
@@ -113,8 +115,8 @@ export default function AdmissionTable({
             grid-cols-[120px_170px_130px_170px_90px_minmax(260px,1fr)_100px]
             gap-2
             border-b
-            border-slate-200
-            bg-slate-50
+            border-indigo-100
+            bg-indigo-50/65
             px-4
             py-4
             text-[11px]
@@ -165,7 +167,7 @@ export default function AdmissionTable({
               className="
                 transition-all
                 duration-200
-                hover:bg-slate-50/60
+                hover:bg-indigo-50/45
               "
             >
               {/* DESKTOP */}

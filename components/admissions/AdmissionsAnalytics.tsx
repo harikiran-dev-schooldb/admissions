@@ -87,12 +87,13 @@ export default function AdmissionsAnalytics({ students }: Props) {
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
         <div
           className="
-            rounded-3xl
+            rounded-[24px]
             border
-            border-slate-200
-            bg-white
+            border-white/90
+            bg-white/78
             p-6
-            shadow-sm
+            shadow-[0_16px_44px_rgba(79,70,229,.07)]
+            backdrop-blur-xl
           "
         >
           <div className="flex items-center justify-between">
@@ -101,7 +102,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
                 Conversion Rate
               </p>
 
-              <h2 className="mt-2 text-4xl font-bold text-slate-900">
+              <h2 className="mt-2 text-4xl font-black tracking-[-.04em] text-slate-950">
                 {conversion}%
               </h2>
             </div>
@@ -121,12 +122,13 @@ export default function AdmissionsAnalytics({ students }: Props) {
 
         <div
           className="
-            rounded-3xl
+            rounded-[24px]
             border
-            border-slate-200
-            bg-white
+            border-white/90
+            bg-white/78
             p-6
-            shadow-sm
+            shadow-[0_16px_44px_rgba(79,70,229,.07)]
+            backdrop-blur-xl
           "
         >
           <div className="flex items-center justify-between">
@@ -135,7 +137,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
                 Total Enquiries
               </p>
 
-              <h2 className="mt-2 text-4xl font-bold text-slate-900">
+              <h2 className="mt-2 text-4xl font-black tracking-[-.04em] text-slate-950">
                 {students.length}
               </h2>
             </div>
@@ -155,19 +157,20 @@ export default function AdmissionsAnalytics({ students }: Props) {
 
         <div
           className="
-            rounded-3xl
+            rounded-[24px]
             border
-            border-slate-200
-            bg-white
+            border-white/90
+            bg-white/78
             p-6
-            shadow-sm
+            shadow-[0_16px_44px_rgba(79,70,229,.07)]
+            backdrop-blur-xl
           "
         >
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">Admitted</p>
 
-              <h2 className="mt-2 text-4xl font-bold text-slate-900">
+              <h2 className="mt-2 text-4xl font-black tracking-[-.04em] text-slate-950">
                 {admitted}
               </h2>
             </div>
@@ -194,12 +197,13 @@ export default function AdmissionsAnalytics({ students }: Props) {
         <div
           className="
             min-w-0
-            rounded-3xl
+            rounded-[28px]
             border
-            border-slate-200
-            bg-white
+            border-white/90
+            bg-white/82
             p-6
-            shadow-sm
+            shadow-[0_22px_60px_rgba(79,70,229,.08)]
+            backdrop-blur-xl
           "
         >
           <div className="mb-6">
@@ -234,12 +238,13 @@ export default function AdmissionsAnalytics({ students }: Props) {
         <div
           className="
             min-w-0
-            rounded-3xl
+            rounded-[28px]
             border
-            border-slate-200
-            bg-white
+            border-white/90
+            bg-white/82
             p-6
-            shadow-sm
+            shadow-[0_22px_60px_rgba(79,70,229,.08)]
+            backdrop-blur-xl
           "
         >
           <div className="mb-6">

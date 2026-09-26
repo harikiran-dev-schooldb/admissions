@@ -86,12 +86,13 @@ function DetailCard({ children }: { children: React.ReactNode }) {
   return (
     <div
       className="
-        rounded-3xl
+        rounded-[24px]
         border
-        border-slate-200
-        bg-white
+        border-white/90
+        bg-white/82
         p-6
-        shadow-sm
+        shadow-[0_16px_44px_rgba(79,70,229,.07)]
+        backdrop-blur-xl
       "
     >
       {children}
@@ -114,7 +115,7 @@ export default function AdmissionDetailModal({
         z-50
         flex
         justify-end
-        bg-black/40
+        bg-slate-950/35
         backdrop-blur-sm
       "
     >
@@ -125,10 +126,12 @@ export default function AdmissionDetailModal({
           h-full
           w-full
           overflow-y-auto
+          border-l border-white/90
           bg-gradient-to-br
           from-white
-          to-slate-50
-          shadow-2xl
+          via-white
+          to-indigo-50
+          shadow-[0_0_90px_rgba(15,23,42,.22)]
           animate-in
           slide-in-from-right
           duration-300

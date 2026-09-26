@@ -114,7 +114,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
         flex
         items-center
         justify-center
-        bg-black/40
+        bg-slate-950/35
         backdrop-blur-sm
         p-4
       "
@@ -126,8 +126,10 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
           max-w-3xl
           overflow-hidden
           rounded-[32px]
-          bg-white
-          shadow-2xl
+          border border-white/90
+          bg-white/92
+          shadow-[0_30px_90px_rgba(15,23,42,.24)]
+          backdrop-blur-2xl
           animate-in
           zoom-in-95
           duration-300
@@ -142,12 +144,13 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
             justify-between
             border-b
             border-slate-200
-            bg-gradient-to-r
-            from-blue-600
-            to-blue-500
+            bg-gradient-to-br
+            from-white
+            via-indigo-50
+            to-violet-100
             px-8
             py-6
-            text-white
+            text-slate-950
           "
           >
             <div>
@@ -155,7 +158,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
                 New Admission
               </h2>
 
-              <p className="mt-1 text-sm text-blue-100">
+              <p className="mt-1 text-sm text-slate-600">
                 Create new enquiry & admission workflow
               </p>
             </div>
@@ -169,9 +172,11 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
               items-center
               justify-center
               rounded-2xl
-              bg-white/20
+              bg-white/80
+              text-indigo-700
+              shadow-sm
               transition-all
-              hover:bg-white/30
+              hover:bg-white
             "
             >
               <X className="h-5 w-5" />
@@ -187,8 +192,8 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
               className="
               rounded-3xl
               border
-              border-slate-200
-              bg-slate-50
+              border-indigo-100
+              bg-indigo-50/55
               p-6
             "
             >

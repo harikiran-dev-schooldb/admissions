@@ -16,15 +16,16 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
   return (
     <div
       className="
-        rounded-3xl
+        rounded-[28px]
         border
-        border-slate-200
-        bg-white
-        shadow-sm
+        border-white/90
+        bg-white/82
+        shadow-[0_22px_60px_rgba(79,70,229,.08)]
+        backdrop-blur-xl
       "
     >
-      <div className="border-b border-slate-100 p-5">
-        <div className="relative max-w-md">
+      <div className="border-b border-indigo-100/70 p-5">
+        <div className="relative max-w-lg">
           <Search
             className="
               absolute
@@ -45,16 +46,18 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
               w-full
               rounded-2xl
               border
-              border-slate-200
-              bg-slate-50
+              border-slate-200/80
+              bg-white/80
               py-3
               pl-11
               pr-4
               text-sm
               outline-none
               transition
-              focus:border-emerald-500
+              focus:border-indigo-400
               focus:bg-white
+              focus:ring-4
+              focus:ring-indigo-100
             "
           />
         </div>
@@ -62,7 +65,7 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
 
       <div className="overflow-x-auto">
         <table className="w-full min-w-[900px]">
-          <thead className="bg-slate-50">
+          <thead className="bg-indigo-50/65">
             <tr>
               {[
                 "Academic Year",
@@ -99,7 +102,7 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
                   border-t
                   border-slate-100
                   transition-colors
-                  hover:bg-slate-50
+                  hover:bg-indigo-50/45
                 "
               >
                 <td className="px-6 py-5 font-semibold">{fee.academicYear}</td>
@@ -126,10 +129,11 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
                     onClick={() => onView(fee)}
                     className="
                       rounded-xl
-                      bg-slate-100
+                      bg-indigo-50
+                      text-indigo-700
                       p-2
                       transition
-                      hover:bg-slate-200
+                      hover:bg-indigo-100
                     "
                   >
                     <Eye className="h-4 w-4" />

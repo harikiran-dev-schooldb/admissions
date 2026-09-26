@@ -90,11 +90,12 @@ export default function KPISection({ students }: Props) {
           <div
             key={card.title}
             className="
-              rounded-2xl
-              border border-slate-200/70
-              bg-white
-              px-4 py-3
-              shadow-sm
+              rounded-[22px]
+              border border-white/90
+              bg-white/78
+              px-4 py-4
+              shadow-[0_14px_38px_rgba(79,70,229,.07)]
+              backdrop-blur-xl
               transition-all
               hover:-translate-y-0.5
               hover:shadow-md
@@ -102,11 +103,11 @@ export default function KPISection({ students }: Props) {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                <p className="text-xs font-bold uppercase tracking-[.12em] text-slate-500">
                   {card.title}
                 </p>
 
-                <h2 className="mt-1 text-3xl font-bold tracking-tight text-slate-900">
+                <h2 className="mt-1 text-3xl font-black tracking-[-.04em] text-slate-950">
                   {card.value}
                 </h2>
               </div>
@@ -114,7 +115,7 @@ export default function KPISection({ students }: Props) {
               <div
                 className={`
                   flex h-10 w-10 items-center justify-center
-                  rounded-xl
+                  rounded-2xl
                   ${card.bg}
                   ${card.color}
                 `}

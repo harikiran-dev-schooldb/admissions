@@ -50,7 +50,7 @@ export default function FeesKPISection({ fees }: Props) {
       className="
         grid
         grid-cols-1
-        gap-5
+        gap-4
         md:grid-cols-2
         xl:grid-cols-4
       "
@@ -62,12 +62,13 @@ export default function FeesKPISection({ fees }: Props) {
           <div
             key={card.title}
             className="
-              rounded-3xl
+              rounded-[24px]
               border
-              border-slate-200
-              bg-white
+              border-white/90
+              bg-white/78
               p-6
-              shadow-sm
+              shadow-[0_16px_44px_rgba(79,70,229,.07)]
+              backdrop-blur-xl
             "
           >
             <div className="flex items-center justify-between">
@@ -78,8 +79,9 @@ export default function FeesKPISection({ fees }: Props) {
                   className="
                     mt-2
                     text-3xl
-                    font-bold
-                    text-slate-900
+                    font-black
+                    tracking-[-.04em]
+                    text-slate-950
                   "
                 >
                   {card.value}
