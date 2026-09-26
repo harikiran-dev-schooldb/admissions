@@ -32,8 +32,6 @@ export function useAdmissions(academicYear?: string) {
 
   useEffect(() => {
     let active = true;
-    setLoading(true);
-    setError("");
     fetchAdmissions(academicYear)
       .then((data) => { if (active) setStudents(data); })
       .catch((err: unknown) => { if (active) setError(err instanceof Error ? err.message : "Failed to load admissions"); })
