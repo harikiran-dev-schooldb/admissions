@@ -1,40 +1,28 @@
 "use client";
 
-import {
-  useEffect,
-  useState,
-} from "react";
+import { useCallback, useEffect, useState } from "react";
 
 export function useAdmissions() {
-  const [students, setStudents] =
-    useState<any[]>([]);
+  const [students, setStudents] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  const [loading, setLoading] =
-    useState(true);
-
-  async function loadAdmissions() {
+  const loadAdmissions = useCallback(async () => {
     try {
-      const res = await fetch(
-        "/api/admissions"
-      );
-
+      setLoading(true);
+      setError("");
+      const res = await fetch("/api/admissions", { cache: "no-store" });
       const json = await res.json();
-
-      setStudents(json);
+      if (!res.ok) throw new Error(json.error || "Failed to load admissions");
+      setStudents(json.data ?? []);
     } catch (err) {
-      console.error(err);
+      setError(err instanceof Error ? err.message : "Failed to load admissions");
     } finally {
       setLoading(false);
     }
-  }
-
-  useEffect(() => {
-    loadAdmissions();
   }, []);
 
-  return {
-    students,
-    loading,
-    reload: loadAdmissions,
-  };
+  useEffect(() => { void loadAdmissions(); }, [loadAdmissions]);
+
+  return { students, loading, error, reload: loadAdmissions };
 }
