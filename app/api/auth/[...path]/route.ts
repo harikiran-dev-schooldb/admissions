@@ -5,7 +5,11 @@ const handlers = auth.handler();
 
 export const GET = handlers.GET;
 
-export async function POST(request: Request) {
+type AuthRouteContext = {
+  params: Promise<{ path: string[] }>;
+};
+
+export async function POST(request: Request, context: AuthRouteContext) {
   const { pathname } = new URL(request.url);
 
   if (pathname.startsWith("/api/auth/sign-up")) {
@@ -15,5 +19,5 @@ export async function POST(request: Request) {
     );
   }
 
-  return handlers.POST(request);
+  return handlers.POST(request, context);
 }
