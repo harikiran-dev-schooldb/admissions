@@ -1,8 +1,21 @@
 import { auth } from "@/lib/auth/server";
+import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 
-export default auth.middleware({
+const authMiddleware = auth.middleware({
   loginUrl: "/login",
 });
+
+export default function proxy(request: NextRequest) {
+  if (
+    process.env.NODE_ENV !== "production" &&
+    process.env.LOCAL_AUTH_BYPASS === "true"
+  ) {
+    return NextResponse.next();
+  }
+
+  return authMiddleware(request);
+}
 
 export const config = {
   matcher: [

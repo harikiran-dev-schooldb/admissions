@@ -27,19 +27,19 @@ export type AggregateFeeRecord = {
 }
 
 export type FeeRecordAvgAggregateOutputType = {
-  term: number | null
+  termFee: number | null
   annualFees: number | null
 }
 
 export type FeeRecordSumAggregateOutputType = {
-  term: number | null
+  termFee: number | null
   annualFees: number | null
 }
 
 export type FeeRecordMinAggregateOutputType = {
   id: string | null
   academicYear: string | null
-  term: number | null
+  termFee: number | null
   annualFees: number | null
   age: string | null
   className: string | null
@@ -50,7 +50,7 @@ export type FeeRecordMinAggregateOutputType = {
 export type FeeRecordMaxAggregateOutputType = {
   id: string | null
   academicYear: string | null
-  term: number | null
+  termFee: number | null
   annualFees: number | null
   age: string | null
   className: string | null
@@ -61,7 +61,7 @@ export type FeeRecordMaxAggregateOutputType = {
 export type FeeRecordCountAggregateOutputType = {
   id: number
   academicYear: number
-  term: number
+  termFee: number
   annualFees: number
   age: number
   className: number
@@ -72,19 +72,19 @@ export type FeeRecordCountAggregateOutputType = {
 
 
 export type FeeRecordAvgAggregateInputType = {
-  term?: true
+  termFee?: true
   annualFees?: true
 }
 
 export type FeeRecordSumAggregateInputType = {
-  term?: true
+  termFee?: true
   annualFees?: true
 }
 
 export type FeeRecordMinAggregateInputType = {
   id?: true
   academicYear?: true
-  term?: true
+  termFee?: true
   annualFees?: true
   age?: true
   className?: true
@@ -95,7 +95,7 @@ export type FeeRecordMinAggregateInputType = {
 export type FeeRecordMaxAggregateInputType = {
   id?: true
   academicYear?: true
-  term?: true
+  termFee?: true
   annualFees?: true
   age?: true
   className?: true
@@ -106,7 +106,7 @@ export type FeeRecordMaxAggregateInputType = {
 export type FeeRecordCountAggregateInputType = {
   id?: true
   academicYear?: true
-  term?: true
+  termFee?: true
   annualFees?: true
   age?: true
   className?: true
@@ -204,7 +204,7 @@ export type FeeRecordGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type FeeRecordGroupByOutputType = {
   id: string
   academicYear: string
-  term: number
+  termFee: number
   annualFees: number
   age: string | null
   className: string
@@ -238,7 +238,7 @@ export type FeeRecordWhereInput = {
   NOT?: Prisma.FeeRecordWhereInput | Prisma.FeeRecordWhereInput[]
   id?: Prisma.StringFilter<"FeeRecord"> | string
   academicYear?: Prisma.StringFilter<"FeeRecord"> | string
-  term?: Prisma.IntFilter<"FeeRecord"> | number
+  termFee?: Prisma.IntFilter<"FeeRecord"> | number
   annualFees?: Prisma.IntFilter<"FeeRecord"> | number
   age?: Prisma.StringNullableFilter<"FeeRecord"> | string | null
   className?: Prisma.StringFilter<"FeeRecord"> | string
@@ -249,7 +249,7 @@ export type FeeRecordWhereInput = {
 export type FeeRecordOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   academicYear?: Prisma.SortOrder
-  term?: Prisma.SortOrder
+  termFee?: Prisma.SortOrder
   annualFees?: Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
   className?: Prisma.SortOrder
@@ -259,22 +259,23 @@ export type FeeRecordOrderByWithRelationInput = {
 
 export type FeeRecordWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  academicYear_className?: Prisma.FeeRecordAcademicYearClassNameCompoundUniqueInput
   AND?: Prisma.FeeRecordWhereInput | Prisma.FeeRecordWhereInput[]
   OR?: Prisma.FeeRecordWhereInput[]
   NOT?: Prisma.FeeRecordWhereInput | Prisma.FeeRecordWhereInput[]
   academicYear?: Prisma.StringFilter<"FeeRecord"> | string
-  term?: Prisma.IntFilter<"FeeRecord"> | number
+  termFee?: Prisma.IntFilter<"FeeRecord"> | number
   annualFees?: Prisma.IntFilter<"FeeRecord"> | number
   age?: Prisma.StringNullableFilter<"FeeRecord"> | string | null
   className?: Prisma.StringFilter<"FeeRecord"> | string
   createdAt?: Prisma.DateTimeFilter<"FeeRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FeeRecord"> | Date | string
-}, "id">
+}, "id" | "academicYear_className">
 
 export type FeeRecordOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   academicYear?: Prisma.SortOrder
-  term?: Prisma.SortOrder
+  termFee?: Prisma.SortOrder
   annualFees?: Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
   className?: Prisma.SortOrder
@@ -293,7 +294,7 @@ export type FeeRecordScalarWhereWithAggregatesInput = {
   NOT?: Prisma.FeeRecordScalarWhereWithAggregatesInput | Prisma.FeeRecordScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"FeeRecord"> | string
   academicYear?: Prisma.StringWithAggregatesFilter<"FeeRecord"> | string
-  term?: Prisma.IntWithAggregatesFilter<"FeeRecord"> | number
+  termFee?: Prisma.IntWithAggregatesFilter<"FeeRecord"> | number
   annualFees?: Prisma.IntWithAggregatesFilter<"FeeRecord"> | number
   age?: Prisma.StringNullableWithAggregatesFilter<"FeeRecord"> | string | null
   className?: Prisma.StringWithAggregatesFilter<"FeeRecord"> | string
@@ -304,7 +305,7 @@ export type FeeRecordScalarWhereWithAggregatesInput = {
 export type FeeRecordCreateInput = {
   id?: string
   academicYear: string
-  term: number
+  termFee: number
   annualFees: number
   age?: string | null
   className: string
@@ -315,7 +316,7 @@ export type FeeRecordCreateInput = {
 export type FeeRecordUncheckedCreateInput = {
   id?: string
   academicYear: string
-  term: number
+  termFee: number
   annualFees: number
   age?: string | null
   className: string
@@ -326,7 +327,7 @@ export type FeeRecordUncheckedCreateInput = {
 export type FeeRecordUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   academicYear?: Prisma.StringFieldUpdateOperationsInput | string
-  term?: Prisma.IntFieldUpdateOperationsInput | number
+  termFee?: Prisma.IntFieldUpdateOperationsInput | number
   annualFees?: Prisma.IntFieldUpdateOperationsInput | number
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   className?: Prisma.StringFieldUpdateOperationsInput | string
@@ -337,7 +338,7 @@ export type FeeRecordUpdateInput = {
 export type FeeRecordUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   academicYear?: Prisma.StringFieldUpdateOperationsInput | string
-  term?: Prisma.IntFieldUpdateOperationsInput | number
+  termFee?: Prisma.IntFieldUpdateOperationsInput | number
   annualFees?: Prisma.IntFieldUpdateOperationsInput | number
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   className?: Prisma.StringFieldUpdateOperationsInput | string
@@ -348,7 +349,7 @@ export type FeeRecordUncheckedUpdateInput = {
 export type FeeRecordCreateManyInput = {
   id?: string
   academicYear: string
-  term: number
+  termFee: number
   annualFees: number
   age?: string | null
   className: string
@@ -359,7 +360,7 @@ export type FeeRecordCreateManyInput = {
 export type FeeRecordUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   academicYear?: Prisma.StringFieldUpdateOperationsInput | string
-  term?: Prisma.IntFieldUpdateOperationsInput | number
+  termFee?: Prisma.IntFieldUpdateOperationsInput | number
   annualFees?: Prisma.IntFieldUpdateOperationsInput | number
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   className?: Prisma.StringFieldUpdateOperationsInput | string
@@ -370,7 +371,7 @@ export type FeeRecordUpdateManyMutationInput = {
 export type FeeRecordUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   academicYear?: Prisma.StringFieldUpdateOperationsInput | string
-  term?: Prisma.IntFieldUpdateOperationsInput | number
+  termFee?: Prisma.IntFieldUpdateOperationsInput | number
   annualFees?: Prisma.IntFieldUpdateOperationsInput | number
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   className?: Prisma.StringFieldUpdateOperationsInput | string
@@ -378,10 +379,15 @@ export type FeeRecordUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type FeeRecordAcademicYearClassNameCompoundUniqueInput = {
+  academicYear: string
+  className: string
+}
+
 export type FeeRecordCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   academicYear?: Prisma.SortOrder
-  term?: Prisma.SortOrder
+  termFee?: Prisma.SortOrder
   annualFees?: Prisma.SortOrder
   age?: Prisma.SortOrder
   className?: Prisma.SortOrder
@@ -390,14 +396,14 @@ export type FeeRecordCountOrderByAggregateInput = {
 }
 
 export type FeeRecordAvgOrderByAggregateInput = {
-  term?: Prisma.SortOrder
+  termFee?: Prisma.SortOrder
   annualFees?: Prisma.SortOrder
 }
 
 export type FeeRecordMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   academicYear?: Prisma.SortOrder
-  term?: Prisma.SortOrder
+  termFee?: Prisma.SortOrder
   annualFees?: Prisma.SortOrder
   age?: Prisma.SortOrder
   className?: Prisma.SortOrder
@@ -408,7 +414,7 @@ export type FeeRecordMaxOrderByAggregateInput = {
 export type FeeRecordMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   academicYear?: Prisma.SortOrder
-  term?: Prisma.SortOrder
+  termFee?: Prisma.SortOrder
   annualFees?: Prisma.SortOrder
   age?: Prisma.SortOrder
   className?: Prisma.SortOrder
@@ -417,7 +423,7 @@ export type FeeRecordMinOrderByAggregateInput = {
 }
 
 export type FeeRecordSumOrderByAggregateInput = {
-  term?: Prisma.SortOrder
+  termFee?: Prisma.SortOrder
   annualFees?: Prisma.SortOrder
 }
 
@@ -434,7 +440,7 @@ export type IntFieldUpdateOperationsInput = {
 export type FeeRecordSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   academicYear?: boolean
-  term?: boolean
+  termFee?: boolean
   annualFees?: boolean
   age?: boolean
   className?: boolean
@@ -445,7 +451,7 @@ export type FeeRecordSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type FeeRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   academicYear?: boolean
-  term?: boolean
+  termFee?: boolean
   annualFees?: boolean
   age?: boolean
   className?: boolean
@@ -456,7 +462,7 @@ export type FeeRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type FeeRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   academicYear?: boolean
-  term?: boolean
+  termFee?: boolean
   annualFees?: boolean
   age?: boolean
   className?: boolean
@@ -467,7 +473,7 @@ export type FeeRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type FeeRecordSelectScalar = {
   id?: boolean
   academicYear?: boolean
-  term?: boolean
+  termFee?: boolean
   annualFees?: boolean
   age?: boolean
   className?: boolean
@@ -475,7 +481,7 @@ export type FeeRecordSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FeeRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "academicYear" | "term" | "annualFees" | "age" | "className" | "createdAt" | "updatedAt", ExtArgs["result"]["feeRecord"]>
+export type FeeRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "academicYear" | "termFee" | "annualFees" | "age" | "className" | "createdAt" | "updatedAt", ExtArgs["result"]["feeRecord"]>
 
 export type $FeeRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FeeRecord"
@@ -483,7 +489,7 @@ export type $FeeRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     academicYear: string
-    term: number
+    termFee: number
     annualFees: number
     age: string | null
     className: string
@@ -914,7 +920,7 @@ export interface Prisma__FeeRecordClient<T, Null = never, ExtArgs extends runtim
 export interface FeeRecordFieldRefs {
   readonly id: Prisma.FieldRef<"FeeRecord", 'String'>
   readonly academicYear: Prisma.FieldRef<"FeeRecord", 'String'>
-  readonly term: Prisma.FieldRef<"FeeRecord", 'Int'>
+  readonly termFee: Prisma.FieldRef<"FeeRecord", 'Int'>
   readonly annualFees: Prisma.FieldRef<"FeeRecord", 'Int'>
   readonly age: Prisma.FieldRef<"FeeRecord", 'String'>
   readonly className: Prisma.FieldRef<"FeeRecord", 'String'>

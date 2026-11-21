@@ -7,13 +7,29 @@ import {
   ShieldCheck,
   UserCheck,
 } from "lucide-react";
+import type { Admission } from "@/src/generated/prisma/client";
+
+type WorkflowField =
+  | "application"
+  | "entrance"
+  | "interview"
+  | "admissionGiven"
+  | "finalAdmission";
+
+type Stage = {
+  key: WorkflowField;
+  label: string;
+  icon: typeof FileText;
+  completedValues: string[];
+  options: Array<{ label: string; value: string }>;
+};
 
 type Props = {
-  student: any;
+  student: Admission;
   reload: () => void;
 };
 
-const STAGES = [
+const STAGES: Stage[] = [
   {
     key: "application",
     label: "Application",
@@ -150,7 +166,7 @@ const STAGES = [
   },
 ];
 
-function getCurrentStage(student: any) {
+function getCurrentStage(student: Admission) {
   for (const stage of STAGES) {
     const value = student[stage.key];
 
@@ -163,7 +179,7 @@ function getCurrentStage(student: any) {
 }
 
 export default function AdmissionStages({ student, reload }: Props) {
-  async function updateStage(field: string, value: string) {
+  async function updateStage(field: WorkflowField, value: string) {
     try {
       const res = await fetch("/api/admissions/stages", {
         method: "PATCH",

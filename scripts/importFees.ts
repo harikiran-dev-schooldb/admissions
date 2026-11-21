@@ -5,18 +5,22 @@ import fs from "fs";
 import csv from "csv-parser";
 
 import { prisma } from "@/lib/prisma";
-const rows: any[] = [];
+import type { Prisma } from "@/src/generated/prisma/client";
+
+type CsvRow = Record<string, string>;
+
+const rows: Prisma.FeeRecordCreateManyInput[] = [];
 
 const csvPath = "/Users/harikiran/Downloads/feetable_rows.csv";
 
 fs.createReadStream(csvPath)
   .pipe(csv())
 
-  .on("data", (row) => {
+  .on("data", (row: CsvRow) => {
     rows.push({
       academicYear: row.academic_year,
 
-      term: Number(row.term),
+      termFee: Number(row.term),
 
       annualFees: Number(row.annualFees),
 

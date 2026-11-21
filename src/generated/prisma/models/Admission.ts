@@ -27,6 +27,7 @@ export type AggregateAdmission = {
 export type AdmissionMinAggregateOutputType = {
   id: string | null
   enquiryNo: string | null
+  academicYear: string | null
   student: string | null
   parent: string | null
   admClass: string | null
@@ -47,6 +48,7 @@ export type AdmissionMinAggregateOutputType = {
 export type AdmissionMaxAggregateOutputType = {
   id: string | null
   enquiryNo: string | null
+  academicYear: string | null
   student: string | null
   parent: string | null
   admClass: string | null
@@ -67,6 +69,7 @@ export type AdmissionMaxAggregateOutputType = {
 export type AdmissionCountAggregateOutputType = {
   id: number
   enquiryNo: number
+  academicYear: number
   student: number
   parent: number
   admClass: number
@@ -89,6 +92,7 @@ export type AdmissionCountAggregateOutputType = {
 export type AdmissionMinAggregateInputType = {
   id?: true
   enquiryNo?: true
+  academicYear?: true
   student?: true
   parent?: true
   admClass?: true
@@ -109,6 +113,7 @@ export type AdmissionMinAggregateInputType = {
 export type AdmissionMaxAggregateInputType = {
   id?: true
   enquiryNo?: true
+  academicYear?: true
   student?: true
   parent?: true
   admClass?: true
@@ -129,6 +134,7 @@ export type AdmissionMaxAggregateInputType = {
 export type AdmissionCountAggregateInputType = {
   id?: true
   enquiryNo?: true
+  academicYear?: true
   student?: true
   parent?: true
   admClass?: true
@@ -222,11 +228,12 @@ export type AdmissionGroupByArgs<ExtArgs extends runtime.Types.Extensions.Intern
 export type AdmissionGroupByOutputType = {
   id: string
   enquiryNo: string
+  academicYear: string
   student: string
-  parent: string
+  parent: string | null
   admClass: string
   mobile: string
-  dob: string
+  dob: string | null
   age: string | null
   eligibleStatus: string | null
   entrance: $Enums.EntranceStatus
@@ -263,11 +270,12 @@ export type AdmissionWhereInput = {
   NOT?: Prisma.AdmissionWhereInput | Prisma.AdmissionWhereInput[]
   id?: Prisma.StringFilter<"Admission"> | string
   enquiryNo?: Prisma.StringFilter<"Admission"> | string
+  academicYear?: Prisma.StringFilter<"Admission"> | string
   student?: Prisma.StringFilter<"Admission"> | string
-  parent?: Prisma.StringFilter<"Admission"> | string
+  parent?: Prisma.StringNullableFilter<"Admission"> | string | null
   admClass?: Prisma.StringFilter<"Admission"> | string
   mobile?: Prisma.StringFilter<"Admission"> | string
-  dob?: Prisma.StringFilter<"Admission"> | string
+  dob?: Prisma.StringNullableFilter<"Admission"> | string | null
   age?: Prisma.StringNullableFilter<"Admission"> | string | null
   eligibleStatus?: Prisma.StringNullableFilter<"Admission"> | string | null
   entrance?: Prisma.EnumEntranceStatusFilter<"Admission"> | $Enums.EntranceStatus
@@ -283,11 +291,12 @@ export type AdmissionWhereInput = {
 export type AdmissionOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   enquiryNo?: Prisma.SortOrder
+  academicYear?: Prisma.SortOrder
   student?: Prisma.SortOrder
-  parent?: Prisma.SortOrder
+  parent?: Prisma.SortOrderInput | Prisma.SortOrder
   admClass?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
-  dob?: Prisma.SortOrder
+  dob?: Prisma.SortOrderInput | Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
   eligibleStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   entrance?: Prisma.SortOrder
@@ -306,11 +315,12 @@ export type AdmissionWhereUniqueInput = Prisma.AtLeast<{
   AND?: Prisma.AdmissionWhereInput | Prisma.AdmissionWhereInput[]
   OR?: Prisma.AdmissionWhereInput[]
   NOT?: Prisma.AdmissionWhereInput | Prisma.AdmissionWhereInput[]
+  academicYear?: Prisma.StringFilter<"Admission"> | string
   student?: Prisma.StringFilter<"Admission"> | string
-  parent?: Prisma.StringFilter<"Admission"> | string
+  parent?: Prisma.StringNullableFilter<"Admission"> | string | null
   admClass?: Prisma.StringFilter<"Admission"> | string
   mobile?: Prisma.StringFilter<"Admission"> | string
-  dob?: Prisma.StringFilter<"Admission"> | string
+  dob?: Prisma.StringNullableFilter<"Admission"> | string | null
   age?: Prisma.StringNullableFilter<"Admission"> | string | null
   eligibleStatus?: Prisma.StringNullableFilter<"Admission"> | string | null
   entrance?: Prisma.EnumEntranceStatusFilter<"Admission"> | $Enums.EntranceStatus
@@ -326,11 +336,12 @@ export type AdmissionWhereUniqueInput = Prisma.AtLeast<{
 export type AdmissionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   enquiryNo?: Prisma.SortOrder
+  academicYear?: Prisma.SortOrder
   student?: Prisma.SortOrder
-  parent?: Prisma.SortOrder
+  parent?: Prisma.SortOrderInput | Prisma.SortOrder
   admClass?: Prisma.SortOrder
   mobile?: Prisma.SortOrder
-  dob?: Prisma.SortOrder
+  dob?: Prisma.SortOrderInput | Prisma.SortOrder
   age?: Prisma.SortOrderInput | Prisma.SortOrder
   eligibleStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   entrance?: Prisma.SortOrder
@@ -352,11 +363,12 @@ export type AdmissionScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AdmissionScalarWhereWithAggregatesInput | Prisma.AdmissionScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Admission"> | string
   enquiryNo?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  academicYear?: Prisma.StringWithAggregatesFilter<"Admission"> | string
   student?: Prisma.StringWithAggregatesFilter<"Admission"> | string
-  parent?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  parent?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   admClass?: Prisma.StringWithAggregatesFilter<"Admission"> | string
   mobile?: Prisma.StringWithAggregatesFilter<"Admission"> | string
-  dob?: Prisma.StringWithAggregatesFilter<"Admission"> | string
+  dob?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   age?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   eligibleStatus?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   entrance?: Prisma.EnumEntranceStatusWithAggregatesFilter<"Admission"> | $Enums.EntranceStatus
@@ -372,11 +384,12 @@ export type AdmissionScalarWhereWithAggregatesInput = {
 export type AdmissionCreateInput = {
   id?: string
   enquiryNo: string
+  academicYear?: string
   student: string
-  parent: string
+  parent?: string | null
   admClass: string
   mobile: string
-  dob: string
+  dob?: string | null
   age?: string | null
   eligibleStatus?: string | null
   entrance?: $Enums.EntranceStatus
@@ -392,11 +405,12 @@ export type AdmissionCreateInput = {
 export type AdmissionUncheckedCreateInput = {
   id?: string
   enquiryNo: string
+  academicYear?: string
   student: string
-  parent: string
+  parent?: string | null
   admClass: string
   mobile: string
-  dob: string
+  dob?: string | null
   age?: string | null
   eligibleStatus?: string | null
   entrance?: $Enums.EntranceStatus
@@ -412,11 +426,12 @@ export type AdmissionUncheckedCreateInput = {
 export type AdmissionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
   student?: Prisma.StringFieldUpdateOperationsInput | string
-  parent?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admClass?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  dob?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
@@ -432,11 +447,12 @@ export type AdmissionUpdateInput = {
 export type AdmissionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
   student?: Prisma.StringFieldUpdateOperationsInput | string
-  parent?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admClass?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  dob?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
@@ -452,11 +468,12 @@ export type AdmissionUncheckedUpdateInput = {
 export type AdmissionCreateManyInput = {
   id?: string
   enquiryNo: string
+  academicYear?: string
   student: string
-  parent: string
+  parent?: string | null
   admClass: string
   mobile: string
-  dob: string
+  dob?: string | null
   age?: string | null
   eligibleStatus?: string | null
   entrance?: $Enums.EntranceStatus
@@ -472,11 +489,12 @@ export type AdmissionCreateManyInput = {
 export type AdmissionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
   student?: Prisma.StringFieldUpdateOperationsInput | string
-  parent?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admClass?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  dob?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
@@ -492,11 +510,12 @@ export type AdmissionUpdateManyMutationInput = {
 export type AdmissionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
   student?: Prisma.StringFieldUpdateOperationsInput | string
-  parent?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admClass?: Prisma.StringFieldUpdateOperationsInput | string
   mobile?: Prisma.StringFieldUpdateOperationsInput | string
-  dob?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
@@ -512,6 +531,7 @@ export type AdmissionUncheckedUpdateManyInput = {
 export type AdmissionCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   enquiryNo?: Prisma.SortOrder
+  academicYear?: Prisma.SortOrder
   student?: Prisma.SortOrder
   parent?: Prisma.SortOrder
   admClass?: Prisma.SortOrder
@@ -532,6 +552,7 @@ export type AdmissionCountOrderByAggregateInput = {
 export type AdmissionMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   enquiryNo?: Prisma.SortOrder
+  academicYear?: Prisma.SortOrder
   student?: Prisma.SortOrder
   parent?: Prisma.SortOrder
   admClass?: Prisma.SortOrder
@@ -552,6 +573,7 @@ export type AdmissionMaxOrderByAggregateInput = {
 export type AdmissionMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   enquiryNo?: Prisma.SortOrder
+  academicYear?: Prisma.SortOrder
   student?: Prisma.SortOrder
   parent?: Prisma.SortOrder
   admClass?: Prisma.SortOrder
@@ -594,6 +616,7 @@ export type EnumApplicationStatusFieldUpdateOperationsInput = {
 export type AdmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   enquiryNo?: boolean
+  academicYear?: boolean
   student?: boolean
   parent?: boolean
   admClass?: boolean
@@ -614,6 +637,7 @@ export type AdmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
 export type AdmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   enquiryNo?: boolean
+  academicYear?: boolean
   student?: boolean
   parent?: boolean
   admClass?: boolean
@@ -634,6 +658,7 @@ export type AdmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type AdmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   enquiryNo?: boolean
+  academicYear?: boolean
   student?: boolean
   parent?: boolean
   admClass?: boolean
@@ -654,6 +679,7 @@ export type AdmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
 export type AdmissionSelectScalar = {
   id?: boolean
   enquiryNo?: boolean
+  academicYear?: boolean
   student?: boolean
   parent?: boolean
   admClass?: boolean
@@ -671,7 +697,7 @@ export type AdmissionSelectScalar = {
   enquiryDate?: boolean
 }
 
-export type AdmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "enquiryNo" | "student" | "parent" | "admClass" | "mobile" | "dob" | "age" | "eligibleStatus" | "entrance" | "interview" | "finalAdmission" | "updatedAt" | "admissionGiven" | "application" | "eligibleClass" | "enquiryDate", ExtArgs["result"]["admission"]>
+export type AdmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "enquiryNo" | "academicYear" | "student" | "parent" | "admClass" | "mobile" | "dob" | "age" | "eligibleStatus" | "entrance" | "interview" | "finalAdmission" | "updatedAt" | "admissionGiven" | "application" | "eligibleClass" | "enquiryDate", ExtArgs["result"]["admission"]>
 
 export type $AdmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Admission"
@@ -679,15 +705,16 @@ export type $AdmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalA
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     enquiryNo: string
+    academicYear: string
     /**
      * *
      * * STUDENT DETAILS
      */
     student: string
-    parent: string
+    parent: string | null
     admClass: string
     mobile: string
-    dob: string
+    dob: string | null
     age: string | null
     eligibleStatus: string | null
     entrance: $Enums.EntranceStatus
@@ -1131,6 +1158,7 @@ export interface Prisma__AdmissionClient<T, Null = never, ExtArgs extends runtim
 export interface AdmissionFieldRefs {
   readonly id: Prisma.FieldRef<"Admission", 'String'>
   readonly enquiryNo: Prisma.FieldRef<"Admission", 'String'>
+  readonly academicYear: Prisma.FieldRef<"Admission", 'String'>
   readonly student: Prisma.FieldRef<"Admission", 'String'>
   readonly parent: Prisma.FieldRef<"Admission", 'String'>
   readonly admClass: Prisma.FieldRef<"Admission", 'String'>

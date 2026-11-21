@@ -94,6 +94,7 @@ export type EligibilityCheckScalarFieldEnum = (typeof EligibilityCheckScalarFiel
 export const AdmissionScalarFieldEnum = {
   id: 'id',
   enquiryNo: 'enquiryNo',
+  academicYear: 'academicYear',
   student: 'student',
   parent: 'parent',
   admClass: 'admClass',
@@ -117,7 +118,7 @@ export type AdmissionScalarFieldEnum = (typeof AdmissionScalarFieldEnum)[keyof t
 export const FeeRecordScalarFieldEnum = {
   id: 'id',
   academicYear: 'academicYear',
-  term: 'term',
+  termFee: 'termFee',
   annualFees: 'annualFees',
   age: 'age',
   className: 'className',

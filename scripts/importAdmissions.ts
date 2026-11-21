@@ -5,11 +5,13 @@ import "dotenv/config";
 import fs from "fs";
 import csv from "csv-parser";
 import { prisma } from "@/lib/prisma";
+import type { Prisma } from "@/src/generated/prisma/client";
 
+type CsvRow = Record<string, string>;
 
-const results: any[] = [];
+const results: Prisma.AdmissionCreateManyInput[] = [];
 
-function mapApplication(row: any) {
+function mapApplication(row: CsvRow): Prisma.AdmissionCreateManyInput["application"] {
   if (row.applicationSubmitted === "YES") {
     return "SUBMITTED";
   }
@@ -21,23 +23,27 @@ function mapApplication(row: any) {
   return "NO";
 }
 
-function mapEntrance(value: string) {
+function mapEntrance(value: string): Prisma.AdmissionCreateManyInput["entrance"] {
   if (!value) return "NOT_STARTED";
 
-  return value
-    .replace(" ", "_")
-    .toUpperCase();
+  const normalized = value.replaceAll(" ", "_").toUpperCase();
+  if (["NOT_STARTED", "PASS", "FAIL", "PENDING", "NOT_REQUIRED"].includes(normalized)) {
+    return normalized as NonNullable<Prisma.AdmissionCreateManyInput["entrance"]>;
+  }
+  return "NOT_STARTED";
 }
 
-function mapInterview(value: string) {
+function mapInterview(value: string): Prisma.AdmissionCreateManyInput["interview"] {
   if (!value) return "NOT_STARTED";
 
-  return value
-    .replace(" ", "_")
-    .toUpperCase();
+  const normalized = value.replaceAll(" ", "_").toUpperCase();
+  if (["NOT_STARTED", "SELECTED", "REJECTED", "PENDING"].includes(normalized)) {
+    return normalized as NonNullable<Prisma.AdmissionCreateManyInput["interview"]>;
+  }
+  return "NOT_STARTED";
 }
 
-function mapFinal(value: string) {
+function mapFinal(value: string): Prisma.AdmissionCreateManyInput["finalAdmission"] {
   if (!value || value === "NO") {
     return "PENDING";
   }
@@ -46,7 +52,7 @@ function mapFinal(value: string) {
     return "ADMITTED";
   }
 
-  return value.toUpperCase();
+  return value.toUpperCase() === "CANCELLED" ? "CANCELLED" : "PENDING";
 }
 
 function parseDate(dateStr: string) {
@@ -69,7 +75,7 @@ fs.createReadStream(
   "/Users/harikiran/Downloads/admissions_rows.csv"
 )
   .pipe(csv())
-  .on("data", (row) => {
+  .on("data", (row: CsvRow) => {
     results.push({
       enquiryNo: row.enquiryNo,
 

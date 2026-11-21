@@ -1,15 +1,16 @@
 "use client";
 
 import { Eye, Phone, Search } from "lucide-react";
+import type { Admission } from "@/src/generated/prisma/client";
 
 import AdmissionStages from "./AdmissionStages";
 
 type Props = {
-  students: any[];
+  students: Admission[];
   loading: boolean;
   search: string;
   setSearch: (value: string) => void;
-  onView: (student: any) => void;
+  onView: (student: Admission) => void;
   reload: () => void;
 };
 
@@ -206,7 +207,9 @@ export default function AdmissionTable({
 
                 <div>
                   <div className="font-semibold text-slate-700">
-                    {new Date(student.dob).toLocaleDateString("en-GB")}
+                    {student.dob
+                      ? new Date(student.dob).toLocaleDateString("en-GB")
+                      : "—"}
                   </div>
 
                   <div className="mt-1 text-sm text-slate-500">
@@ -332,7 +335,9 @@ export default function AdmissionTable({
                     <div className="text-xs text-slate-400">DOB</div>
 
                     <div className="font-medium">
-                      {new Date(student.dob).toLocaleDateString("en-GB")}
+                      {student.dob
+                        ? new Date(student.dob).toLocaleDateString("en-GB")
+                        : "—"}
                     </div>
                   </div>
 

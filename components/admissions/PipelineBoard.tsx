@@ -1,7 +1,9 @@
 "use client";
 
+import type { Admission } from "@/src/generated/prisma/client";
+
 interface Props {
-  students: any[];
+  students: Admission[];
 }
 
 const columns = [
@@ -36,7 +38,7 @@ const columns = [
   },
 ];
 
-function getStudents(students: any[], key: string) {
+function getStudents(students: Admission[], key: string) {
   switch (key) {
     case "ENQUIRY":
       return students.filter((s) => s.application === "NO");

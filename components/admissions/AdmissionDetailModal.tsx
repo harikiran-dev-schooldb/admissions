@@ -4,13 +4,13 @@ import {
   Calendar,
   CheckCircle2,
   GraduationCap,
-  Phone,
   User,
   X,
 } from "lucide-react";
+import type { Admission } from "@/src/generated/prisma/client";
 
 type Props = {
-  student: any | null;
+  student: Admission | null;
   open: boolean;
   onClose: () => void;
 };

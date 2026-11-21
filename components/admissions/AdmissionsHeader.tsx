@@ -2,7 +2,7 @@
 
 "use client";
 
-import { Currency, School } from "lucide-react";
+import { Currency } from "lucide-react";
 import Link from "next/link";
 import { BarChart3, Home } from "lucide-react";
 
@@ -15,8 +15,6 @@ interface AdmissionsHeaderProps {
 
 export default function AdmissionsHeader({
   total,
-  isFullScreen,
-  onToggleFullScreen,
   onOpenNew,
 }: AdmissionsHeaderProps) {
   return (

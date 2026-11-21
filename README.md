@@ -33,7 +33,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 - Database: Neon Postgres via Prisma
 - Authentication: Neon Auth
-- Production migrations: `prisma migrate deploy` runs before the Next.js build
+- Production migrations: run `npm run migrate:deploy` as an explicit deployment step before `npm run build`
 - Admissions are scoped by academic year; migrated legacy admissions belong to `2025-26`
 - Supabase is no longer used by the application runtime
 

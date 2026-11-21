@@ -10,9 +10,10 @@ import {
   Users,
   UserCheck,
 } from "lucide-react";
+import type { Admission } from "@/src/generated/prisma/client";
 
 interface Props {
-  students: any[];
+  students: Admission[];
 }
 
 export default function KPISection({ students }: Props) {
