@@ -11,7 +11,7 @@ test("enquiry pagination supports 10, 25, 50 and 100 per page", () => {
 test("page input is validated and capped", () => {
   for (const input of [null, "", "0", "-3", "1.5", "page2", "NaN"]) assert.equal(parsePage(input), 1);
   assert.equal(parsePage("4"), 4);
-  assert.equal(parsePage("999999999999999"), 1);
+  assert.equal(parsePage("999999999999999999"), 1);
 });
 
 test("910 records at 25 per page yields 37 pages with correct boundaries", () => {

@@ -1,0 +1,36 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
+
+test("directory API counts and returns a bounded database page, filters before paginating", () => {
+  const source = readFileSync(resolve(process.cwd(), "app/api/admissions/route.ts"), "utf8");
+  assert.match(source, /searchParams\.has\("page"\)/);
+  assert.match(source, /prisma\.admission\.count\(\{ where \}\)/);
+  assert.match(source, /skip: pagination\.skip/);
+  assert.match(source, /take: pageSize/);
+  assert.match(source, /classFilter/);
+  assert.match(source, /applicationStatus/);
+});
+
+test("directory uses year-wide stats rather than paging the KPI counts", () => {
+  const page = readFileSync(resolve(process.cwd(), "app/admissions/page.tsx"), "utf8");
+  assert.match(page, /useAdmissionsDirectory\(/);
+  assert.match(page, /useAdmissionsSummary\(/);
+  assert.match(page, /<KPISection stats=\{summary\}/);
+});
+
+test("analytics retains full-year data for complete graphs", () => {
+  const source = readFileSync(resolve(process.cwd(), "app/admissions/analytics/page.tsx"), "utf8");
+  assert.match(source, /useAdmissions\(academicYear\)/);
+  assert.match(source, /selectDefaultAdmissionYear/);
+});
+
+test("responsive directory provides size selector and accessible previous/next buttons", () => {
+  const source = readFileSync(resolve(process.cwd(), "components/admissions/AdmissionsTable.tsx"), "utf8");
+  assert.match(source, /ADMISSION_PAGE_SIZES/);
+  assert.match(source, /aria-label="Admissions rows per page"/);
+  assert.match(source, /aria-label="Previous admissions page"/);
+  assert.match(source, /aria-label="Next admissions page"/);
+  assert.match(source, /aria-current=\{number === page \? "page"/);
+});
