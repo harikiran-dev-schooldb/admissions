@@ -1,4 +1,5 @@
 import { requireAccess } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -21,8 +22,9 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authz = await requireAuditActor("admin");
+  if (authz.error) return authz.error;
+  const actor = authz.actor;
   try {
     const parsed = feeCreateSchema.safeParse(await req.json());
     if (!parsed.success) {
@@ -31,7 +33,14 @@ export async function POST(req: Request) {
 
     const year = await prisma.academicYear.findUnique({ where: { academicYear: parsed.data.academicYear } });
     if (!year?.isActive) return NextResponse.json({ error: "Choose an active academic year" }, { status: 400 });
-    const fee = await prisma.feeRecord.create({ data: parsed.data });
+    const fee = await prisma.$transaction(async (tx) => {
+      const created = await tx.feeRecord.create({ data: parsed.data });
+      await recordActivity(tx, actor, {
+        entityType: "FEE", action: "CREATED", entityId: created.id,
+        entityLabel: `${created.academicYear} · ${created.className}`, after: created,
+      });
+      return created;
+    });
     return NextResponse.json({ data: fee }, { status: 201 });
   } catch (error) {
     if (error instanceof SyntaxError) {

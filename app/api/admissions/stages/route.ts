@@ -1,5 +1,6 @@
 import { validateStageTransition } from "@/lib/admissionTransitionRules";
 import { requireAccess } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
@@ -14,8 +15,9 @@ const allowedFields = [
 ] as const;
 
 export async function PATCH(req: Request) {
-  const accessError = await requireAccess("workflow");
-  if (accessError) return accessError;
+  const authz = await requireAuditActor("workflow");
+  if (authz.error) return authz.error;
+  const actor = authz.actor;
   try {
     const parsed = admissionStageSchema.safeParse(await req.json());
 
@@ -344,14 +346,15 @@ export async function PATCH(req: Request) {
       UPDATE DATABASE
     */
 
-    const updated =
-      await prisma.admission.update({
-        where: {
-          id,
-        },
-
-        data: updateData,
+    const updated = await prisma.$transaction(async (tx) => {
+      const before = await tx.admission.findUniqueOrThrow({ where: { id } });
+      const changed = await tx.admission.update({ where: { id }, data: updateData });
+      await recordActivity(tx, actor, {
+        entityType: "ADMISSION", action: "STAGE_CHANGED", entityId: id,
+        entityLabel: changed.enquiryNo, before, after: changed,
       });
+      return changed;
+    });
 
     /*
       REVALIDATE
