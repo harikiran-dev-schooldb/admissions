@@ -11,8 +11,8 @@ test("production checks migration status and never bypasses pending or failed mi
   const callsFile = join(directory, "calls.txt");
   writeFileSync(binary, String.raw`#!/bin/sh
 printf '%s\n' "$4" >> "$MIGRATION_CALLS_FILE"
-if [ "$4" = "status" ]; then exit "${MOCK_STATUS_EXIT:-0}"; fi
-if [ "$4" = "deploy" ]; then exit "${MOCK_DEPLOY_EXIT:-0}"; fi
+if [ "$4" = "status" ]; then exit "$MOCK_STATUS_EXIT"; fi
+if [ "$4" = "deploy" ]; then exit "$MOCK_DEPLOY_EXIT"; fi
 exit 2
 `);
   chmodSync(binary, 0o755);

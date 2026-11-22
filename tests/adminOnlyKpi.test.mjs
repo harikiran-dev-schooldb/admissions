@@ -26,7 +26,7 @@ test("staff never requests admin KPI statistics from the admissions page", () =>
   assert.match(hook, /if \(!academicYear \|\| !enabled\) return/);
   assert.match(page, /\{canManage && \(\s*<div className="space-y-2">/);
   assert.match(page, /<KPISection stats=\{summary\}/);
-  assert.match(page, /\{canManage && <div className="grid grid-cols-2 gap-3 sm:min-w-80"/);
+  assert.match(page, /\{canManage && <div className="grid min-w-0 grid-cols-2 gap-3"/);
   assert.match(page, /yearTotal=\{canManage \? summary\.yearTotal : undefined\}/);
   assert.match(page, /useAdmissionClassOptions\(academicYear, role === "staff" \|\| role === "admin"\)/);
 });
@@ -65,7 +65,8 @@ test("staff navigation exposes only Admissions and Fee Structure on desktop and 
   assert.match(sidebar, /const visibleNav = nav\.filter\(\(item\) => !item\.adminOnly \|\| role === "admin"\)/);
   assert.match(sidebar, /visibleGroups\.map\(\(group\)/);
   assert.match(sidebar, /mobilePrimary\.length === 2 \? "grid-cols-2"/);
-  assert.match(accountMenu, /role === "admin" && \(\s*<Link href="\/settings"/);
+  assert.doesNotMatch(accountMenu, /<Link href="\/(?:settings|users|audit-logs)"/);
+  assert.match(accountMenu, /aria-label="Your SchoolDB account"/);
   assert.match(source("app/api/fees/route.ts"), /requireAccess\("read"\)/);
   assert.match(source("app/api/fees/route.ts"), /requireAuditActor\("admin"\)/);
 });
