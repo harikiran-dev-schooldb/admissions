@@ -1,4 +1,5 @@
 import { buildStageUpdate, validateStageTransition } from "@/lib/admissionTransitionRules";
+import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/src/generated/prisma/client";
@@ -41,6 +42,24 @@ export async function PATCH(req: Request) {
         where: { id, updatedAt: current.updatedAt },
         data,
       });
+      const action = getNextAdmissionAction(changed);
+      if (changed.finalAdmission === "PENDING" && action.priority !== "complete") {
+        const taskMarker = `[WORKFLOW:${action.stage}]`;
+        const existing = await tx.admissionFollowUp.findFirst({
+          where: { admissionId: id, status: "OPEN", note: { startsWith: taskMarker } },
+          select: { id: true },
+        });
+        if (!existing) {
+          const dueAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+          const task = await tx.admissionFollowUp.create({
+            data: { admissionId: id, assignedToEmail: actor.email, dueAt,
+              note: `${taskMarker} ${action.title}. ${action.description}`,
+              createdByEmail: actor.email },
+          });
+          await recordActivity(tx, actor, { entityType: "FOLLOW_UP", action: "CREATED",
+            entityId: task.id, entityLabel: changed.enquiryNo, after: task });
+        }
+      }
       await recordActivity(tx, actor, {
         entityType: "ADMISSION",
         action: "STAGE_CHANGED",
