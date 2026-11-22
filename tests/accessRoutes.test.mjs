@@ -62,3 +62,24 @@ test("user management routes require login at proxy", () => {
   assert.match(proxy, /"\/users\/:path\*"/);
   assert.match(proxy, /"\/api\/users\/:path\*"/);
 });
+
+test("access endpoint exposes session-derived name, email and role without exposing allowlists", () => {
+  const endpoint = readFileSync(resolve(process.cwd(), "app/api/access/route.ts"), "utf8");
+  const serverAuth = readFileSync(resolve(process.cwd(), "lib/auth/requireAccess.ts"), "utf8");
+  const hook = readFileSync(resolve(process.cwd(), "hooks/useAccess.ts"), "utf8");
+  assert.match(endpoint, /\{ role, email, name, canManage:/);
+  assert.match(serverAuth, /data\.user\.name/);
+  assert.match(hook, /setName\(/);
+  assert.match(hook, /setEmail\(/);
+  assert.doesNotMatch(endpoint, /process\.env/);
+});
+
+test("sidebar shows signed-in identity and role and provides a real sign-out action", () => {
+  const sidebar = readFileSync(resolve(process.cwd(), "components/AppSidebar.tsx"), "utf8");
+  assert.match(sidebar, /authClient\.signOut\(\)/);
+  assert.match(sidebar, /router\.replace\("\/login"\)/);
+  assert.match(sidebar, /roleLabel/);
+  assert.match(sidebar, /displayName/);
+  assert.match(sidebar, /aria-label="Logout"/);
+  assert.match(sidebar, /"Signing out…" : "Logout"/);
+});
