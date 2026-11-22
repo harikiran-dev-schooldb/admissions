@@ -64,9 +64,9 @@ test("academic year dropdowns show years only, without admission or fee totals",
   assert.match(fees, /label: `\$\{year\}/);
 });
 
-test("academic year staff response omits KPI count values but retains a recommended year flag", () => {
+test("academic year staff response suggests the latest configured year without showing KPI count values", () => {
   const source = readFileSync(resolve(process.cwd(), "app/api/academic-years/route.ts"), "utf8");
   assert.match(source, /role === "admin"/);
   assert.match(source, /\{ admissionsCount: _count\.admissions \}/);
-  assert.match(source, /isSuggested: year\.academicYear === populated\?\.academicYear/);
+  assert.match(source, /isSuggested: year\.academicYear === latestYear/);
 });
