@@ -32,7 +32,7 @@ export default function FollowUpQueue({
   refreshToken: number;
   onOpenAdmission: (id: string) => void;
 }) {
-  const [tab, setTab] = useState<Tab>("today");
+  const [tab, setTab] = useState<Tab>("overdue");
   const [page, setPage] = useState(1);
   const [data, setData] = useState<FollowUpItem[]>([]);
   const [total, setTotal] = useState(0);
@@ -94,6 +94,7 @@ export default function FollowUpQueue({
           </button>
         ))}
       </div>
+      {tab === "overdue" && !loading && !error && total > 0 && <p role="status" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">{total} overdue follow-up{total === 1 ? "" : "s"} need attention. Open an enquiry or log the outcome below.</p>}
       {error && <p role="alert" className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
       <div className="mt-5 space-y-3" aria-live="polite">
         {loading && <p className="p-5 text-sm text-slate-500">Loading follow-ups…</p>}

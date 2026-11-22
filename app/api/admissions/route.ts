@@ -10,6 +10,7 @@ import { calculateAge, getEligibleClass } from "@/lib/eligibility";
 import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
 import { parsePage, parsePageSize, getPagination } from "@/lib/admissions/pagination";
 import { getAdmissionWhere } from "@/lib/admissions/filterQuery";
+import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 
 export async function GET(req: Request) {
   const accessError = await requireAccess("read");
@@ -98,6 +99,18 @@ export async function POST(req: Request) {
             finalAdmission: "PENDING",
           },
           });
+          const action = getNextAdmissionAction(created);
+          const task = await tx.admissionFollowUp.create({
+            data: {
+              admissionId: created.id,
+              assignedToEmail: actor.email,
+              dueAt: new Date(Date.now() + 48 * 60 * 60 * 1000),
+              note: `[WORKFLOW:${action.stage}] ${action.title}. ${action.description}`,
+              createdByEmail: actor.email,
+            },
+          });
+          await recordActivity(tx, actor, { entityType: "FOLLOW_UP", action: "CREATED",
+            entityId: task.id, entityLabel: created.enquiryNo, after: task });
           await recordActivity(tx, actor, {
             entityType: "ADMISSION", action: "CREATED", entityId: created.id,
             entityLabel: created.enquiryNo, after: created,

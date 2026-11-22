@@ -8,6 +8,7 @@ import { formatAdmissionDob } from "@/lib/admissions/formatAdmissionDob";
 import { downloadAdmissionCsv } from "@/services/export.service";
 import AdmissionFeePreview from "@/components/admissions/AdmissionFeePreview";
 import AdmissionFollowUpManager from "@/components/admissions/AdmissionFollowUpManager";
+import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 
 type Props = {
   student: Admission | null;
@@ -91,6 +92,7 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
 
   if (!open || !student) return null;
 
+  const nextAction = getNextAdmissionAction(student);
   const isAdmitted = student.finalAdmission === "ADMITTED";
   const statusLabel = isAdmitted ? "Admitted" : student.finalAdmission === "CANCELLED" ? "Cancelled" : "In progress";
   const contact = (student.mobile || "").replace(/\D/g, "");
@@ -179,6 +181,13 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
               <DataField label="Eligible class" value={student.eligibleClass} />
             </div>
           </DetailCard>
+
+          <section aria-label="Recommended next workflow action" className="rounded-[22px] border border-indigo-200 bg-indigo-50/70 p-4 sm:p-5">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-indigo-700">Next action · {nextAction.stage}</p>
+            <h3 className="mt-1 text-lg font-black text-slate-950">{nextAction.title}</h3>
+            <p className="mt-1 text-sm leading-6 text-slate-700">{nextAction.description}</p>
+            {student.finalAdmission === "PENDING" && <p className="mt-3 text-xs font-semibold text-indigo-700">Assign an owner and due date in Parent follow-ups below.</p>}
+          </section>
 
           <DetailCard title="Admission journey" description="Latest verified stage statuses" icon={GraduationCap}>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">

@@ -8,6 +8,7 @@ import {
   Settings2, ShieldCheck, UserRound, UserRoundCog,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import { useAccess } from "@/hooks/useAccess";
 
 export default function AccountMenu({ compact = false }: { compact?: boolean }) {
@@ -59,6 +60,7 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
   }
 
   return (
+    <div className="flex items-center gap-2"><NotificationBell />
     <div ref={menuRef} className="relative z-50 shrink-0">
       <button type="button" aria-label="Open account menu" aria-haspopup="true" aria-expanded={isOpen}
         onClick={() => setIsOpen((opened) => !opened)}
@@ -118,6 +120,7 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
           <p className="flex items-center gap-1.5 px-4 pb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400"><CheckCircle2 className="size-3" /> SchoolDB Admissions</p>
         </div>
       )}
+    </div>
     </div>
   );
 }
