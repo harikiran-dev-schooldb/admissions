@@ -48,7 +48,7 @@ test("directory and API default to ten rows with shared pagination constants", (
 
 test("academic year dropdowns show years only, without admission or fee totals", () => {
   const admissions = readFileSync(resolve(process.cwd(), "app/admissions/page.tsx"), "utf8");
-  const analytics = readFileSync(resolve(process.cwd(), "app/admissions/analytics/page.tsx"), "utf8");
+  const analytics = readFileSync(resolve(process.cwd(), "components/admissions/AdmissionsAnalyticsPageClient.tsx"), "utf8");
   const fees = readFileSync(resolve(process.cwd(), "app/fees/page.tsx"), "utf8");
   assert.doesNotMatch(admissions, /year\.academicYear\} \(\$\{year\.admissionsCount/);
   assert.doesNotMatch(analytics, /year\.academicYear\} \(\$\{year\.admissionsCount/);
