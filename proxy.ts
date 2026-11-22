@@ -29,5 +29,7 @@ export const config = {
     "/api/academic-years/:path*",
     "/api/settings/:path*",
     "/api/access/:path*",
+    "/users/:path*",
+    "/api/users/:path*",
   ],
 };
