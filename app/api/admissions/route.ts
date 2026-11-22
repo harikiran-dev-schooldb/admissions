@@ -50,6 +50,10 @@ export async function POST(req: Request) {
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
 
     const body = parsed.data;
+    const managedYear = await prisma.academicYear.findUnique({ where: { academicYear: body.academicYear } });
+    if (!managedYear?.isActive) {
+      return NextResponse.json({ error: "Choose an active academic year before creating an admission" }, { status: 400 });
+    }
     const skipEntrance = shouldSkipEntrance(body.admClass);
 
     for (let attempt = 0; attempt < 3; attempt++) {
