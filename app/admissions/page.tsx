@@ -48,13 +48,21 @@ export default function AdmissionsPage() {
     finalStatusFilter,
     applicationFilter,
   });
-  const { summary, loading: summaryLoading, error: summaryError, reload: reloadSummary } = useAdmissionsSummary(academicYear, canManage);
-  const { classOptions: staffClassOptions, error: classesError, reload: reloadClasses } = useAdmissionClassOptions(academicYear, role === "staff");
-  const classOptions = canManage ? summary.classOptions : staffClassOptions;
+  const activeFilters = {
+    academicYear,
+    search: debouncedSearch,
+    classFilter,
+    finalStatusFilter,
+    applicationFilter,
+  };
+  const { summary, loading: summaryLoading, error: summaryError, reload: reloadSummary } = useAdmissionsSummary(activeFilters, canManage);
+  // Keep class choices stable even while a KPI request for another filter is loading.
+  const { classOptions, error: classesError, reload: reloadClasses } = useAdmissionClassOptions(academicYear, role === "staff" || role === "admin");
+  const hasAppliedFilters = Boolean(debouncedSearch) || classFilter !== "ALL" || finalStatusFilter !== "ALL" || applicationFilter !== "ALL";
   const reload = useCallback(() => {
     reloadDirectory();
     if (canManage) reloadSummary();
-    if (role === "staff") reloadClasses();
+    if (role === "staff" || role === "admin") reloadClasses();
   }, [reloadDirectory, reloadSummary, reloadClasses, canManage, role]);
 
   function selectYear(value: string) {
@@ -128,13 +136,18 @@ export default function AdmissionsPage() {
             </div>
           </section>
 
-          {canManage && <KPISection stats={summary} loading={summaryLoading} />}
+          {canManage && (
+            <div className="space-y-2">
+              {hasAppliedFilters && <p className="text-sm font-semibold text-indigo-700" aria-live="polite">KPI totals reflect all matching admissions across every page.</p>}
+              <KPISection stats={summary} loading={summaryLoading} />
+            </div>
+          )}
           {(error || yearsError || (canManage && summaryError) || classesError) && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm font-semibold text-red-700 shadow-sm">{yearsError || error || (canManage && summaryError) || classesError}</div>}
           <AdmissionsTable
             canManageAdmissions={canManageAdmissions}
             students={students}
             totalCount={total}
-            yearTotal={canManage ? summary.total : undefined}
+            yearTotal={canManage ? summary.yearTotal : undefined}
             loading={loading || yearsLoading}
             search={search}
             setSearch={setSearchAndReset}

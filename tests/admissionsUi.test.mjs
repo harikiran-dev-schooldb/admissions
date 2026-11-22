@@ -13,10 +13,14 @@ test("directory API counts and returns a bounded database page, filters before p
   assert.match(source, /applicationStatus/);
 });
 
-test("directory uses year-wide stats rather than paging the KPI counts", () => {
+test("KPI summaries use active directory filters but not page or page size", () => {
   const page = readFileSync(resolve(process.cwd(), "app/admissions/page.tsx"), "utf8");
   assert.match(page, /useAdmissionsDirectory\(/);
-  assert.match(page, /useAdmissionsSummary\(/);
+  assert.match(page, /useAdmissionsSummary\(activeFilters, canManage\)/);
+  assert.match(page, /search: debouncedSearch/);
+  assert.match(page, /classFilter,/);
+  assert.match(page, /finalStatusFilter,/);
+  assert.match(page, /applicationFilter,/);
   assert.match(page, /<KPISection stats=\{summary\}/);
 });
 

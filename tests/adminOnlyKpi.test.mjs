@@ -21,12 +21,12 @@ test("staff cannot read KPI API but can still read directory and class filters",
 test("staff never requests admin KPI statistics from the admissions page", () => {
   const hook = source("hooks/useAdmissionsDirectory.ts");
   const page = source("app/admissions/page.tsx");
-  assert.match(page, /useAdmissionsSummary\(academicYear, canManage\)/);
+  assert.match(page, /useAdmissionsSummary\(activeFilters, canManage\)/);
   assert.match(hook, /if \(!academicYear \|\| !enabled\) return/);
   assert.match(page, /\{canManage && <KPISection stats=\{summary\}/);
   assert.match(page, /\{canManage && <div className="grid grid-cols-2 gap-3 sm:min-w-80"/);
   assert.match(page, /yearTotal=\{canManage \? summary\.total : undefined\}/);
-  assert.match(page, /useAdmissionClassOptions\(academicYear, role === "staff"\)/);
+  assert.match(page, /useAdmissionClassOptions\(academicYear, role === "staff" \|\| role === "admin"\)/);
 });
 
 test("fees aggregate cards and annual-total widget are administrator only", () => {
