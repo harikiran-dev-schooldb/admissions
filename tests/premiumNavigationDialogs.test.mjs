@@ -55,3 +55,13 @@ test("premium navigation groups admin-only destinations and keeps mobile menus u
   assert.match(menu, /const \{ name, email, role, loading, error, clearAccess, notifyAuthChange \} = useAccess\(\)/);
   assert.match(menu, /await authClient\.signOut\(\)/);
 });
+
+test("mobile notifications are viewport-bound and not duplicated in the admissions toolbar", () => {
+  const bell = source("components/notifications/NotificationBell.tsx");
+  const page = source("app/admissions/page.tsx");
+  assert.match(bell, /fixed inset-x-3 top-\[calc\(4\.5rem\+10px\)\]/);
+  assert.match(bell, /lg:absolute lg:inset-x-auto lg:right-0/);
+  assert.match(bell, /popoverRef\.current\?\.contains/);
+  assert.doesNotMatch(page, /<NotificationBell\s*\/>/);
+  assert.match(page, /md:flex-row md:items-center md:justify-between/);
+});
