@@ -45,11 +45,20 @@ export function validateStageTransition(
   if (field === "entrance" && value !== "NOT_STARTED" && current.application !== "SUBMITTED") {
     return "Submit the application before updating the entrance result.";
   }
-  if (field === "interview" && value !== "NOT_STARTED" && !["PASS", "NOT_REQUIRED"].includes(current.entrance)) {
-    return "Complete the entrance requirement before updating the interview.";
+  if (field === "interview" && value !== "NOT_STARTED") {
+    if (current.application !== "SUBMITTED") return "Submit the application before updating the interview.";
+    if (!["PASS", "NOT_REQUIRED"].includes(current.entrance)) {
+      return "Complete the entrance requirement before updating the interview.";
+    }
   }
-  if (field === "admissionGiven" && value === "GIVEN" && current.interview !== "SELECTED") {
-    return "Select the student in the interview before granting admission.";
+  if (field === "admissionGiven" && value === "GIVEN") {
+    if (current.application !== "SUBMITTED") return "Submit the application before approving admission.";
+    if (!["PASS", "NOT_REQUIRED"].includes(current.entrance)) {
+      return "Complete the entrance requirement before approving admission.";
+    }
+    if (current.interview !== "SELECTED") {
+      return "Select the student in the interview before granting admission.";
+    }
   }
   if (field === "finalAdmission" && value === "ADMITTED") {
     if (current.application !== "SUBMITTED") return "Application must be submitted before final admission.";
