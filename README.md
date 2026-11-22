@@ -205,3 +205,16 @@ The audit migration imports existing User Management role history from
 changes cannot be attributed retroactively and are not fabricated. New
 events are recorded from the deployment onward. Direct SQL changes and
 Neon Auth sign-ins are outside application API auditing.
+
+## Premium navigation and app notifications
+
+Navigation groups day-to-day workspace pages and administrator-only controls.
+On phones, four primary destinations are visible and other authorized pages
+are accessible via **More**. The account menu shows the verified user's name,
+role, email, settings and sign-out.
+
+Application-stage updates accept both CUID (new records) and UUID (legacy
+import) identifiers. Failed stage updates show actionable, nonblocking in-app
+notifications instead of browser alerts. Account role/activation changes and
+destructive actions use a styled confirmation dialog. Existing authorization
+checks, audit logging and stage-transition policies are unchanged.

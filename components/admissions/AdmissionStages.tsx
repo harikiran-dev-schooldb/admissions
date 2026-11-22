@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import {
   CheckCircle2,
   FileText,
@@ -8,6 +9,8 @@ import {
   UserCheck,
 } from "lucide-react";
 import type { Admission } from "@/src/generated/prisma/client";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/ui/getApiErrorMessage";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 
 type WorkflowField =
@@ -181,8 +184,10 @@ function getCurrentStage(student: Admission) {
 }
 
 export default function AdmissionStages({ student, reload, canManage }: Props) {
+  const [saving, setSaving] = useState(false);
   async function updateStage(field: WorkflowField, value: string) {
-    if (!canManage) return;
+    if (!canManage || saving || student[field] === value) return;
+    setSaving(true);
     try {
       const res = await fetch("/api/admissions/stages", {
         method: "PATCH",
@@ -201,16 +206,19 @@ export default function AdmissionStages({ student, reload, canManage }: Props) {
       const json = await res.json();
 
       if (!res.ok) {
-        alert(json.error || "Failed to update");
-
+        toast.error("Couldn’t update admission stage", {
+          description: getApiErrorMessage(json, "Please check the workflow requirements and try again."),
+        });
         return;
       }
 
       reload();
+      toast.success("Admission stage updated", { description: `${student.enquiryNo} · ${field.replaceAll("_", " ")} set to ${value.replaceAll("_", " ")}` });
     } catch (error) {
       console.error(error);
-
-      alert("Something went wrong");
+      toast.error("Couldn’t save changes", { description: "Check your connection and try again." });
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -241,7 +249,7 @@ export default function AdmissionStages({ student, reload, canManage }: Props) {
         <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200"><Icon className="size-4" /></div>
         <div className="min-w-24 flex-1"><p className="truncate text-sm font-black text-slate-900">{currentStage.label}</p><p className="mt-0.5 whitespace-nowrap text-xs font-semibold text-slate-500">Step {currentIndex + 1} of {STAGES.length}</p></div>
          <div className="w-36 shrink-0">{canManage
-          ? <SchoolDbSelect ariaLabel={`${currentStage.label} status`} value={value} onValueChange={(nextValue) => updateStage(currentStage.key, nextValue)} options={currentStage.options} className="font-bold" />
+          ? <SchoolDbSelect ariaLabel={`${currentStage.label} status`} value={value} onValueChange={(nextValue) => void updateStage(currentStage.key, nextValue)} options={currentStage.options} disabled={saving} className="font-bold" />
           : <span className="block rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-sm font-bold text-slate-700" aria-label={`${currentStage.label} status`}>{currentStage.options.find((option) => option.value === value)?.label ?? value.replaceAll("_", " ")}</span>}</div>
       </div>
       <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`${currentIndex} of ${STAGES.length} admission stages complete`}>

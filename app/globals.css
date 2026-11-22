@@ -51,8 +51,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .premium-page { min-height: 100vh; color: var(--foreground); }
 .premium-topbar {
   border-bottom: 1px solid color-mix(in oklab, var(--primary) 12%, var(--border));
-  background: color-mix(in oklab, var(--background) 80%, transparent);
-  box-shadow: 0 8px 30px rgb(15 23 42 / .035);
+  background: rgb(255 255 255 / .92);
+  box-shadow: 0 7px 24px rgb(15 23 42 / .045);
   backdrop-filter: blur(24px) saturate(150%);
 }
 .premium-topbar h1 { color: var(--foreground); }

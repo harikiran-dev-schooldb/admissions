@@ -17,6 +17,7 @@ import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import AccessNotice from "@/components/ui/AccessNotice";
 import { useAccess } from "@/hooks/useAccess";
 import { getFeeYearOptions, selectDefaultFeeYear } from "@/lib/fees/selectFeeYear";
+import { toast } from "sonner";
 
 export default function FeesPage() {
   const { role, canManage, error: accessError } = useAccess();
@@ -65,8 +66,9 @@ export default function FeesPage() {
       if (!response.ok) { const json = await response.json(); throw new Error(json.error || "Failed to delete fee structure"); }
       setDeletingFee(null);
       await reload();
+      toast.success("Fee structure deleted");
     } catch (caught) {
-      window.alert(caught instanceof Error ? caught.message : "Failed to delete fee structure");
+      toast.error("Couldn’t delete fee structure", { description: caught instanceof Error ? caught.message : "Please try again." });
     } finally { setDeleteLoading(false); }
   }
 

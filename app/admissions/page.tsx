@@ -99,22 +99,33 @@ export default function AdmissionsPage() {
       <AppSidebar />
       <div className="lg:pl-72">
         <header className="premium-topbar sticky top-18 z-30 lg:top-0">
-          <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-10">
-            <div>
-              <p className="premium-kicker">Admissions workspace</p>
-              <h1 className="mt-1 text-2xl font-black tracking-[-0.04em] text-slate-950">Admission pipeline</h1>
+          <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-9">
+            <div className="flex min-w-0 items-center gap-3.5">
+              <span className="hidden size-11 shrink-0 place-items-center rounded-[15px] border border-indigo-100 bg-indigo-50 text-indigo-600 lg:grid"><Users className="size-5" /></span>
+              <div className="min-w-0">
+                <p className="premium-kicker !text-[10px] !tracking-[.15em]">Workspace <span className="mx-1.5 text-slate-300">/</span> Admissions</p>
+                <h1 className="mt-0.5 truncate text-[19px] font-black tracking-[-.035em] text-slate-950 sm:text-[23px]">Admission pipeline</h1>
+              </div>
             </div>
-            <div className="flex items-center gap-2 sm:gap-3">
-              <div className="w-36">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+              <div className="hidden text-right xl:block">
+                <p className="text-[10px] font-extrabold uppercase tracking-[.13em] text-slate-400">Academic session</p>
+                <p className="mt-0.5 text-[11px] font-semibold text-slate-500">Admissions directory</p>
+              </div>
+              <div className="w-[118px] sm:w-[143px]">
                 <SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined} onValueChange={selectYear}
                   options={createdAcademicYears.map((year) => ({
                     label: `${year.academicYear}${!year.isActive ? " · Archived" : ""}`,
                     value: year.academicYear,
                   }))}
-                  placeholder={yearsLoading ? "Loading…" : "No academic years"}
-                  disabled={yearsLoading || createdAcademicYears.length === 0} className="font-bold" />
+                  placeholder={yearsLoading ? "Loading…" : "No years"}
+                  disabled={yearsLoading || createdAcademicYears.length === 0}
+                  className="!h-11 !rounded-[14px] !border-indigo-100 !bg-indigo-50/70 !font-extrabold !text-indigo-800" />
               </div>
-              {canManageAdmissions && <button onClick={() => setOpenNew(true)} disabled={!academicYear || !selectedYearIsActive} className="premium-button h-11 px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"><Plus className="size-4" /><span className="hidden sm:inline">New enquiry</span><span className="sm:hidden">New</span></button>}
+              {canManageAdmissions && <button onClick={() => setOpenNew(true)} disabled={!academicYear || !selectedYearIsActive}
+                className="premium-button h-11 rounded-[14px] px-3 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5 sm:text-sm">
+                <Plus className="size-4" /><span className="hidden sm:inline">New enquiry</span><span className="sm:hidden">New</span>
+              </button>}
               <div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div>
             </div>
           </div>

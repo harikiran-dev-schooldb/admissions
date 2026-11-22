@@ -8,6 +8,8 @@ import { calculateAge, getEligibleClass } from "@/lib/eligibility";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import NewFeeModal from "../fees/NewFeeModal";
 import { useAdmissionSettings } from "@/hooks/useAdmissionSettings";
+import { toast } from "sonner";
+import { getApiErrorMessage } from "@/lib/ui/getApiErrorMessage";
 
 type Props = {
   open: boolean;
@@ -70,12 +72,12 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
       const json = await res.json();
 
       if (!res.ok) {
-        alert(json.error || "Failed");
-
+        toast.error("Unable to create enquiry", { description: getApiErrorMessage(json, "Check the information entered and try again.") });
         return;
       }
 
       reload();
+      toast.success("Enquiry created successfully", { description: `${student.trim() || "Student"} has been added to the admissions directory.` });
 
       onClose();
       setShowFees(canManageFees);
@@ -89,7 +91,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
     } catch (error) {
       console.error(error);
 
-      alert("Something went wrong");
+      toast.error("Unable to create enquiry", { description: "A connection error occurred. Please try again." });
     } finally {
       setLoading(false);
     }

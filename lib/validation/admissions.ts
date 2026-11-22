@@ -27,7 +27,8 @@ const stageValues = {
 
 export const admissionStageSchema = z
   .object({
-    id: z.string().cuid(),
+    // Legacy imports use PostgreSQL UUIDs; freshly created enquiries use Prisma CUIDs.
+    id: z.union([z.cuid(), z.uuid()]),
     field: z.enum(["application", "entrance", "interview", "admissionGiven", "finalAdmission"]),
     value: z.string(),
   })
