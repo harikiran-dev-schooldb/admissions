@@ -9,11 +9,13 @@ import {
 } from "lucide-react";
 import type { Admission } from "@/src/generated/prisma/client";
 import { formatAdmissionDob } from "@/lib/admissions/formatAdmissionDob";
+import AdmissionFollowUpManager from "@/components/admissions/AdmissionFollowUpManager";
 
 type Props = {
   student: Admission | null;
   open: boolean;
   onClose: () => void;
+  onFollowUpChanged?: () => void;
 };
 
 function statusClass(value: string) {
@@ -105,6 +107,7 @@ export default function AdmissionDetailModal({
   student,
   open,
   onClose,
+  onFollowUpChanged,
 }: Props) {
   if (!open || !student) return null;
 
@@ -324,6 +327,9 @@ export default function AdmissionDetailModal({
               </div>
             </div>
           </DetailCard>
+
+          {/* FOLLOW-UP CRM */}
+          <AdmissionFollowUpManager key={student.id} admissionId={student.id} isOpenAdmission={student.finalAdmission === "PENDING"} onChanged={onFollowUpChanged} />
 
           {/* ACTIONS */}
 
