@@ -11,7 +11,7 @@ import NewAdmissionModal from "@/components/admissions/NewAdmissionModal";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import { useAdmissionsDirectory, useAdmissionsSummary } from "@/hooks/useAdmissionsDirectory";
 import { selectDefaultAdmissionYear } from "@/lib/admissions/selectAdmissionYear";
-import type { AdmissionPageSize } from "@/lib/admissions/pagination";
+import { DEFAULT_ADMISSION_PAGE_SIZE, type AdmissionPageSize } from "@/lib/admissions/pagination";
 import type { Admission } from "@/src/generated/prisma/client";
 import { useAcademicYears } from "@/hooks/useAcademicYears";
 import { useAccess } from "@/hooks/useAccess";
@@ -29,7 +29,7 @@ export default function AdmissionsPage() {
   const [finalStatusFilter, setFinalStatusFilter] = useState("ALL");
   const [applicationFilter, setApplicationFilter] = useState("ALL");
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState<AdmissionPageSize>(25);
+  const [pageSize, setPageSize] = useState<AdmissionPageSize>(DEFAULT_ADMISSION_PAGE_SIZE);
   const [openNew, setOpenNew] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Admission | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
@@ -97,7 +97,7 @@ export default function AdmissionsPage() {
               <div className="w-36">
                 <SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined} onValueChange={selectYear}
                   options={createdAcademicYears.map((year) => ({
-                    label: `${year.academicYear} (${year.admissionsCount ?? 0})${!year.isActive ? " · Archived" : ""}`,
+                    label: `${year.academicYear}${!year.isActive ? " · Archived" : ""}`,
                     value: year.academicYear,
                   }))}
                   placeholder={yearsLoading ? "Loading…" : "No academic years"}

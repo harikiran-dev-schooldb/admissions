@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Admission } from "@/src/generated/prisma/client";
-import type { AdmissionPageSize } from "@/lib/admissions/pagination";
+import { DEFAULT_ADMISSION_PAGE_SIZE, type AdmissionPageSize } from "@/lib/admissions/pagination";
 
 export type AdmissionDirectoryFilters = {
   academicYear: string;
@@ -32,7 +32,7 @@ export type AdmissionSummary = {
   classOptions: string[];
 };
 
-const emptyDirectory: DirectoryPayload = { data: [], total: 0, page: 1, pageSize: 25, totalPages: 1 };
+const emptyDirectory: DirectoryPayload = { data: [], total: 0, page: 1, pageSize: DEFAULT_ADMISSION_PAGE_SIZE, totalPages: 1 };
 export const emptySummary: AdmissionSummary = {
   total: 0,
   admitted: 0,
