@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/ui/getApiErrorMessage";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import { getAdmissionStageView } from "@/lib/admissionTransitionRules";
-import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 
 type WorkflowField =
   | "application"
@@ -211,7 +210,6 @@ export default function AdmissionStages({ student, reload, canManage }: Props) {
   }
 
   const view = getAdmissionStageView(student);
-  const nextAction = getNextAdmissionAction(student);
   const isClosed = view.kind !== "active";
   const legacyInconsistent = view.kind === "admitted" && (
     student.application !== "SUBMITTED" ||
@@ -278,11 +276,6 @@ export default function AdmissionStages({ student, reload, canManage }: Props) {
       </div>
       <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`${view.index} of ${STAGES.length} admission stages complete`}>
         {STAGES.map((stage, index) => (<span key={stage.key} title={stage.label} className={`h-1.5 rounded-full ${index < view.index ? "bg-emerald-400" : index === view.index ? "bg-indigo-500" : "bg-slate-200"}`} />))}
-      </div>
-      <div className="mt-3 rounded-xl border border-indigo-100 bg-white/90 p-3" aria-live="polite">
-        <p className="text-[11px] font-black uppercase tracking-wider text-indigo-600">Recommended next action</p>
-        <p className="mt-1 text-sm font-extrabold text-slate-900">{nextAction.title}</p>
-        <p className="mt-1 text-xs leading-5 text-slate-600">{saving ? "Saving stage…" : nextAction.description}</p>
       </div>
     </div>
   );
