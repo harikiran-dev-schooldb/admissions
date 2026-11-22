@@ -68,9 +68,9 @@ function StagePill({ label, value }: { label: string; value: string }) {
 }
 
 export default function AdmissionDetailModal({ student, open, onClose, onFollowUpChanged }: Props) {
-  const [showFees, setShowFees] = useState(false);
+  const [openFeeFor, setOpenFeeFor] = useState<string | null>(null);
+  const showFees = Boolean(student && openFeeFor === student.id);
   const closeRef = useRef<HTMLButtonElement>(null);
-  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!open || !student) return;
@@ -88,11 +88,6 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
       previouslyFocused?.focus();
     };
   }, [open, student, onClose]);
-
-  useEffect(() => {
-    setShowFees(false);
-    scrollRef.current?.scrollTo({ top: 0, behavior: "instant" });
-  }, [student?.id]);
 
   if (!open || !student) return null;
 
@@ -122,7 +117,7 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
   }
 
   function toggleFees() {
-    setShowFees((current) => !current);
+    setOpenFeeFor(showFees ? null : student?.id ?? null);
   }
 
   return (
@@ -150,7 +145,7 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
           </button>
         </header>
 
-        <div ref={scrollRef} className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-5 sm:space-y-6 sm:px-7 sm:py-6">
+        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-5 sm:space-y-6 sm:px-7 sm:py-6">
           <section className="rounded-[22px] border border-indigo-100 bg-gradient-to-r from-indigo-50 via-white to-violet-50 p-4 sm:p-5" aria-label="Admission quick actions">
             <div className="mb-3 flex items-center gap-2">
               <CheckCircle2 className="size-4 text-indigo-600" />
@@ -172,7 +167,7 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
             </div>
           </section>
 
-          {showFees && <AdmissionFeePreview key={student.id} student={student} onClose={() => setShowFees(false)} />}
+          {showFees && <AdmissionFeePreview key={student.id} student={student} onClose={() => setOpenFeeFor(null)} />}
 
           <DetailCard title="Student information" description="Enquiry details and eligibility" icon={UserRound}>
             <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
