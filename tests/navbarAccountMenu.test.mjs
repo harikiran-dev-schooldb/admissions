@@ -47,5 +47,6 @@ test("logout revokes Neon Auth session before navigation", () => {
   const source = readFileSync(resolve(process.cwd(), "components/AccountMenu.tsx"), "utf8");
   assert.match(source, /await authClient\.signOut\(\)/);
   assert.match(source, /router\.replace\("\/login"\)/);
-  assert.match(source, /role === "admin" &&/);
+  assert.match(source, /const roleName = role === "admin"/);
+  assert.match(source, /onClick=\{\(\) => void signOut\(\)\}/);
 });
