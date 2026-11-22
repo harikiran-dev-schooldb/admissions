@@ -146,3 +146,20 @@ If your existing production database is not registered in Prisma's
 `_prisma_migrations` history, `migrate deploy` may require manually
 baselining the schema first. Resolve those errors instead of bypassing
 migration safety checks.
+
+## Passwordless email OTP sign-in
+
+The Admissions login displays **only an email address and a six-digit OTP**.
+Neon Auth handles sending, expiry and code verification. The app checks the
+verified user against the protected bootstrap administrator, database
+WorkspaceMember records and the legacy staff list before it issues a code
+and before it accepts one. Unlisted or disabled users cannot sign in through
+the Admissions auth proxy; the sending endpoint does not disclose membership.
+The password login, public signup, and password reset routes are blocked.
+
+**Before disabling email/password in Neon Auth**, test OTP delivery and
+session creation using a real administrator account. Managed Neon Auth uses
+a shared mail provider unless SMTP is customized. Existing users are retained;
+their passwords are not deleted by this UI change. After verification, disable
+password sign-in in Neon Auth on the production branch, and confirm that
+passwordless sign-in still works. Check OTP delivery quota and spam folders.
