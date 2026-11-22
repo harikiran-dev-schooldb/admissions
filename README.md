@@ -33,7 +33,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 - Database: Neon Postgres via Prisma
 - Authentication: Neon Auth
-- Production migrations: run `npm run migrate:deploy` as an explicit deployment step before `npm run build`
+- Production migrations: the Vercel production build runs checked-in Prisma migrations before building Next.js, using a direct Neon connection. Local/preview builds skip migrations.
 - Admissions are scoped by academic year; migrated legacy admissions belong to `2025-26`
 - Supabase is no longer used by the application runtime
 
@@ -53,7 +53,8 @@ Set these Vercel **Production** environment variables before deploying:
 - `ADMISSIONS_ADMIN_EMAILS`: comma-separated administrator login email addresses (required).
 - `ADMISSIONS_STAFF_EMAILS`: optional comma-separated staff login email addresses.
 - `DATABASE_URL`: Neon pooled PostgreSQL URL ending in `sslmode=verify-full`
-  (keep any original `channel_binding=require` argument).
+  (keep any original `channel_binding=require` argument). This remains the application runtime connection.
+- `DATABASE_URL_UNPOOLED` (optional, preferred) or `DIRECT_URL`: a **direct** connection URL to the **same Neon branch and database** for Prisma CLI migrations. When neither is set, the Prisma config automatically derives the Neon direct hostname from the pooled `DATABASE_URL` by removing the `-pooler` hostname suffix. It preserves credentials, database name, and TLS settings. Never send migrations through the Neon transaction pooler. No second credential is required for the fallback.
 - `NEON_AUTH_BASE_URL` and `NEON_AUTH_COOKIE_SECRET`: existing Neon Auth configuration.
 
 Never commit real passwords or API keys. With an empty administrator allowlist,
@@ -72,8 +73,7 @@ staff addresses to `ADMISSIONS_STAFF_EMAILS` on Vercel, then redeploy.
 `LOCAL_AUTH_BYPASS` is permitted only when `NODE_ENV` is not production.
 This is a server-configured role list, not an in-app user-invitation system.
 
-**Migration order matters:** run `npm run migrate:deploy` against the intended
-database before deploying the updated Prisma client. The migration backfills
+**Migration order matters:** the production build runs `prisma migrate deploy` against the intended direct database connection before generating the updated Prisma client. For a manual migration, use `npm run migrate:deploy` with `DATABASE_URL_UNPOOLED` or `DIRECT_URL` set (or the Neon hostname fallback). The migration backfills
 previously-used year codes, adds the 2026-27 cohort, and enforces foreign keys;
 an academic year referenced by a fee or admission record cannot be deleted.
 Archive an academic year by changing `isActive` to false instead of deleting it.
