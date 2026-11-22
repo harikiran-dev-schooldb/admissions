@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isBootstrapAdmin } from "@/lib/auth/accessPolicy";
-import { requireAdminIdentity } from "@/lib/auth/requireAccess";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 
 type Context = { params: Promise<{ id: string }> };
