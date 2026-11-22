@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, BellRing, CheckCheck, Clock3, RefreshCw } from "lucide-react";
 import { useAccess } from "@/hooks/useAccess";
 
@@ -23,6 +23,7 @@ export default function NotificationBell() {
   const [total, setTotal] = useState(0);
   const [readIds, setReadIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
+  const alerted = useRef<Set<string>>(new Set());
   const [permission, setPermission] = useState<NotificationPermission>("default");
 
   useEffect(() => {
@@ -41,6 +42,19 @@ export default function NotificationBell() {
       const body: Feed = await response.json();
       setItems(body.data);
       setTotal(body.total);
+      if ("Notification" in window && Notification.permission === "granted") {
+        const now = Date.now();
+        for (const item of body.data) {
+          const due = new Date(item.dueAt).getTime();
+          if (due <= now + 60 * 60 * 1000 && !alerted.current.has(item.id)) {
+            alerted.current.add(item.id);
+            new Notification(due < now ? "Overdue admission follow-up" : "Admission follow-up due soon", {
+              body: `${item.admission.enquiryNo}: ${item.admission.student}`,
+              tag: `schooldb-follow-up-${item.id}`,
+            });
+          }
+        }
+      }
     } catch {
       // Keep the last successfully loaded feed on transient network errors.
     } finally { setLoading(false); }
@@ -97,7 +111,7 @@ export default function NotificationBell() {
         })}
       </div>
       {permission === "default" && <button type="button" onClick={() => void enableAlerts()} className="mt-3 w-full rounded-xl bg-indigo-50 p-2 text-xs font-bold text-indigo-700">Allow device notifications</button>}
-      <p className="mt-3 text-[10px] text-slate-400">Updates while signed in. Read state is saved on this device. Background push is not enabled.</p>
+      <p className="mt-3 text-[10px] text-slate-400">Updates while the app is open. Read state is saved on this device. Background push is not enabled.</p>
     </div>}
   </div>;
 }
