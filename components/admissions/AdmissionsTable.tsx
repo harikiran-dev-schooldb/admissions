@@ -6,6 +6,7 @@ import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import AdmissionStages from "./AdmissionStages";
 
 type Props = {
+  canManage: boolean;
   students: Admission[]; totalCount: number; loading: boolean; search: string; setSearch: (value: string) => void;
   classFilter: string; setClassFilter: (value: string) => void; classOptions: string[];
   finalStatusFilter: string; setFinalStatusFilter: (value: string) => void;
@@ -28,7 +29,7 @@ function prettyStatus(value: string) {
   return value.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export default function AdmissionTable({ students, totalCount, loading, search, setSearch, classFilter, setClassFilter, classOptions, finalStatusFilter, setFinalStatusFilter, applicationFilter, setApplicationFilter, onView, reload }: Props) {
+export default function AdmissionTable({ canManage, students, totalCount, loading, search, setSearch, classFilter, setClassFilter, classOptions, finalStatusFilter, setFinalStatusFilter, applicationFilter, setApplicationFilter, onView, reload }: Props) {
   const hasActiveFilters = Boolean(search.trim()) || classFilter !== "ALL" || finalStatusFilter !== "ALL" || applicationFilter !== "ALL";
 
   function clearFilters() {
@@ -88,7 +89,7 @@ export default function AdmissionTable({ students, totalCount, loading, search, 
 
                 <div><div className="flex items-center gap-2"><span className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-black text-indigo-700">{student.admClass}</span><span className="text-sm font-bold text-slate-700">{student.age || "—"}</span></div><p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-slate-500"><CalendarDays className="size-3.5" />DOB {student.dob ? new Date(student.dob).toLocaleDateString("en-GB") : "not set"}</p></div>
 
-                <AdmissionStages student={student} reload={reload} />
+                <AdmissionStages student={student} reload={reload} canManage={canManage} />
 
                 <div className="flex flex-col items-end gap-3"><span className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${statusStyle(student.finalAdmission)}`}>{prettyStatus(student.finalAdmission)}</span><div className="flex gap-2"><button onClick={() => onView(student)} aria-label={`View ${student.student}`} className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"><Eye className="size-4" /></button><a href={`https://wa.me/91${student.mobile}`} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${student.parent}`} className="grid size-10 place-items-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm transition hover:bg-emerald-100"><MessageCircle className="size-4" /></a></div></div>
               </div>
@@ -96,7 +97,7 @@ export default function AdmissionTable({ students, totalCount, loading, search, 
               <div className="space-y-5 p-5 xl:hidden">
                 <div className="flex items-start justify-between gap-4"><div className="flex min-w-0 items-center gap-3"><div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-black text-white shadow-lg shadow-indigo-200">{initials(student.student)}</div><div className="min-w-0"><h3 className="truncate text-lg font-black text-slate-950">{student.student}</h3><p className="mt-0.5 truncate text-sm font-semibold text-slate-500">{student.parent} · {student.mobile}</p></div></div><span className="shrink-0 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-black text-indigo-700">{student.admClass}</span></div>
                 <div className="grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-4 text-sm"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Enquiry</p><p className="mt-1 font-bold text-slate-800">{student.enquiryNo}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Age</p><p className="mt-1 font-bold text-slate-800">{student.age || "—"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Date of birth</p><p className="mt-1 font-bold text-slate-800">{student.dob ? new Date(student.dob).toLocaleDateString("en-GB") : "—"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Final status</p><span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-xs font-black ${statusStyle(student.finalAdmission)}`}>{prettyStatus(student.finalAdmission)}</span></div></div>
-                <AdmissionStages student={student} reload={reload} />
+                <AdmissionStages student={student} reload={reload} canManage={canManage} />
                 <div className="flex gap-3"><button onClick={() => onView(student)} className="premium-button h-11 flex-1 px-4 text-sm font-bold"><Eye className="size-4" />View profile</button><a href={`https://wa.me/91${student.mobile}`} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-bold text-emerald-700"><MessageCircle className="size-4" />WhatsApp</a></div>
               </div>
             </article>

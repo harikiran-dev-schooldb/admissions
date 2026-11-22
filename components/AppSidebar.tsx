@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useAccess } from "@/hooks/useAccess";
 import { BarChart3, CalendarRange, CircleDollarSign, GraduationCap, Search, Settings2, ShieldCheck, Users } from "lucide-react";
 
 const nav = [
@@ -14,6 +15,7 @@ const nav = [
 
 export default function AppSidebar() {
   const pathname = usePathname();
+  const { role, loading, error } = useAccess();
 
   return (
     <>
@@ -44,12 +46,13 @@ export default function AppSidebar() {
             <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 px-3 py-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700"><ShieldCheck className="size-4" />Workspace online</div>
               <p className="mt-1.5 text-xs leading-5 text-emerald-700/70">2026–27 admissions operations</p>
+              <p className="mt-2 text-xs font-black text-slate-700" aria-live="polite">{loading ? "Verifying role…" : role === "admin" ? "Administrator · Full control" : role === "staff" ? "Staff · View only" : error || "Access unavailable"}</p>
             </div>
           </div>
         </div>
       </aside>
 
-      <header className="fixed inset-x-0 top-0 z-40 flex h-18 items-center justify-between border-b border-indigo-100/70 bg-white/88 px-4 shadow-[0_8px_30px_rgba(15,23,42,.035)] backdrop-blur-2xl lg:hidden"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md"><GraduationCap className="size-5" /></div><div><p className="font-extrabold tracking-tight text-slate-900">SchoolDB</p><p className="text-xs font-bold uppercase tracking-[.12em] text-indigo-600">Admissions</p></div></div><span className="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700">2026–27</span></header>
+      <header className="fixed inset-x-0 top-0 z-40 flex h-18 items-center justify-between border-b border-indigo-100/70 bg-white/88 px-4 shadow-[0_8px_30px_rgba(15,23,42,.035)] backdrop-blur-2xl lg:hidden"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md"><GraduationCap className="size-5" /></div><div><p className="font-extrabold tracking-tight text-slate-900">SchoolDB</p><p className="text-xs font-bold uppercase tracking-[.12em] text-indigo-600">Admissions</p></div></div><span className="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700">{role === "admin" ? "Admin" : role === "staff" ? "Staff · View only" : "2026–27"}</span></header>
 
       <nav className="fixed inset-x-4 bottom-4 z-40 grid grid-cols-5 rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl lg:hidden">
         {nav.map(({ label, href, icon: Icon }) => { const active = pathname === href; return <Link key={href} href={href} aria-label={label} className={`flex h-14 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition ${active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}><Icon className="size-[18px]" /><span>{label === "Fee Structure" ? "Fees" : label === "Academic Years" ? "Years" : label}</span></Link>; })}
