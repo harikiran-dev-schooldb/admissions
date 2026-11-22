@@ -11,6 +11,7 @@ function academicYearError(error: unknown, action: string) {
   if (error instanceof Prisma.PrismaClientKnownRequestError) {
     if (error.code === "P2025") return NextResponse.json({ error: "Academic year not found" }, { status: 404 });
     if (error.code === "P2002") return NextResponse.json({ error: "This academic year already exists." }, { status: 409 });
+    if (error.code === "P2003") return NextResponse.json({ error: "This academic year is used by admissions or fees. Archive it instead of deleting it." }, { status: 409 });
   }
   console.error(`${action}_ACADEMIC_YEAR_ERROR`, error);
   return NextResponse.json({ error: `Failed to ${action.toLowerCase()} academic year` }, { status: 500 });
