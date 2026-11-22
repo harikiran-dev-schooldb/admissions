@@ -1,3 +1,4 @@
+import { requireAccess } from "@/lib/auth/requireAccess";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -16,6 +17,8 @@ function academicYearError(error: unknown, action: string) {
 }
 
 export async function GET(_req: Request, { params }: Context) {
+  const accessError = await requireAccess("read");
+  if (accessError) return accessError;
   try {
     const { id } = await params;
     const academicYear = await prisma.academicYear.findUnique({ where: { id } });
@@ -27,6 +30,8 @@ export async function GET(_req: Request, { params }: Context) {
 }
 
 export async function PUT(req: Request, { params }: Context) {
+  const accessError = await requireAccess("admin");
+  if (accessError) return accessError;
   try {
     const { id } = await params;
     const parsed = academicYearReplaceSchema.safeParse(await req.json());
@@ -39,6 +44,8 @@ export async function PUT(req: Request, { params }: Context) {
 }
 
 export async function PATCH(req: Request, { params }: Context) {
+  const accessError = await requireAccess("admin");
+  if (accessError) return accessError;
   try {
     const { id } = await params;
     const parsed = academicYearPatchSchema.safeParse(await req.json());
@@ -63,6 +70,8 @@ export async function PATCH(req: Request, { params }: Context) {
 }
 
 export async function DELETE(_req: Request, { params }: Context) {
+  const accessError = await requireAccess("admin");
+  if (accessError) return accessError;
   try {
     const { id } = await params;
     await prisma.academicYear.delete({ where: { id } });

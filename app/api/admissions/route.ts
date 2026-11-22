@@ -1,3 +1,4 @@
+import { requireAccess } from "@/lib/auth/requireAccess";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -6,6 +7,8 @@ import { admissionCreateSchema, validationError } from "@/lib/validation/admissi
 import { withDatabaseRetry } from "@/lib/dbRetry";
 
 export async function GET(req: Request) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   try {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q")?.trim();
@@ -40,6 +43,8 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   try {
     const parsed = admissionCreateSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });

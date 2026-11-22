@@ -1,3 +1,4 @@
+import { requireAccess } from "@/lib/auth/requireAccess";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { admissionUpdateSchema, validationError } from "@/lib/validation/admissions";
@@ -5,6 +6,8 @@ import { admissionUpdateSchema, validationError } from "@/lib/validation/admissi
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Context) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   const { id } = await params;
   const admission = await prisma.admission.findUnique({ where: { id } });
   if (!admission) return NextResponse.json({ error: "Admission not found" }, { status: 404 });
@@ -12,6 +15,8 @@ export async function GET(_req: Request, { params }: Context) {
 }
 
 export async function PATCH(req: Request, { params }: Context) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   try {
     const { id } = await params;
     const parsed = admissionUpdateSchema.safeParse(await req.json());
@@ -32,6 +37,8 @@ export async function PATCH(req: Request, { params }: Context) {
 }
 
 export async function DELETE(_req: Request, { params }: Context) {
+  const accessError = await requireAccess("admin");
+  if (accessError) return accessError;
   try {
     const { id } = await params;
     await prisma.admission.delete({ where: { id } });

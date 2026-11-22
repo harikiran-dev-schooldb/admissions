@@ -1,3 +1,4 @@
+import { requireAccess } from "@/lib/auth/requireAccess";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
@@ -12,6 +13,8 @@ const allowedFields = [
 ] as const;
 
 export async function PATCH(req: Request) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   try {
     const parsed = admissionStageSchema.safeParse(await req.json());
 
