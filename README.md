@@ -163,3 +163,20 @@ a shared mail provider unless SMTP is customized. Existing users are retained;
 their passwords are not deleted by this UI change. After verification, disable
 password sign-in in Neon Auth on the production branch, and confirm that
 passwordless sign-in still works. Check OTP delivery quota and spam folders.
+
+## Administrator-only KPIs
+
+The Admissions hero totals and funnel KPI cards, the Fee Structure KPI cards
+and annual-total summary, and the Analytics dashboard are **administrator only**.
+Staff can still browse paginated admission records, search/filter by class,
+enter enquiries, update admission stages, and view fee structures.
+
+The `GET /api/admissions/stats` API requires the `admin` permission (HTTP 403
+for staff); `GET /api/admissions/classes` is a staff-readable endpoint that
+returns **class names only** for filtering without exposing KPI aggregates.
+`GET /api/academic-years` includes counts only for admins and provides a
+suggested/default year flag to staff, so the right cohort still loads.
+The Analytics route checks the authenticated role on the server before
+rendering the admin analytics interface, and its navigation link is hidden
+for staff. Directory pagination still exposes the matching-record total
+needed to navigate the record list; this is distinct from aggregate KPI cards.
