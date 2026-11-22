@@ -52,7 +52,7 @@ export function validateStageTransition(
     return "Select the student in the interview before granting admission.";
   }
   if (field === "finalAdmission" && value === "ADMITTED") {
-    if (current.application !== "SUBMITTED") return "Submit the application before marking the student admitted.";
+    if (current.application !== "SUBMITTED") return "Application must be submitted before final admission.";
     if (!["PASS", "NOT_REQUIRED"].includes(current.entrance)) return "Complete the entrance requirement before final admission.";
     if (current.interview !== "SELECTED") return "Select the student in the interview before final admission.";
     if (current.admissionGiven !== "GIVEN") return "Mark admission as GIVEN before confirming final admission.";
