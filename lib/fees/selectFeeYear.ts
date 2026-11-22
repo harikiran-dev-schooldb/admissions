@@ -13,12 +13,17 @@ export function getFeeYearOptions(
   return [...names].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 }
 
-/** Latest academic year is the default, including a newly opened empty year. */
+/** Default to the latest *configured* academic year, regardless of fee records. */
 export function selectDefaultFeeYear(
   years: readonly YearRecord[],
   fees: readonly FeeYearRecord[],
   selectedYear: string,
 ): string {
   const options = getFeeYearOptions(years, fees);
-  return selectedYear && options.includes(selectedYear) ? selectedYear : (options[0] ?? "");
+  if (selectedYear && options.includes(selectedYear)) return selectedYear;
+  const latestManaged = [...years]
+    .map((year) => year.academicYear)
+    .filter(Boolean)
+    .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }))[0];
+  return latestManaged ?? options[0] ?? "";
 }

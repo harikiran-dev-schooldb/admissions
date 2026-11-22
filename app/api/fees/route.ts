@@ -6,15 +6,30 @@ import { prisma } from "@/lib/prisma";
 import { feeCreateSchema, validationError } from "@/lib/validation/fees";
 import { withDatabaseRetry } from "@/lib/dbRetry";
 
-export async function GET() {
+export async function GET(req: Request) {
   const accessError = await requireAccess("read");
   if (accessError) return accessError;
+  const searchParams = new URL(req.url).searchParams;
+  const academicYear = searchParams.get("academicYear")?.trim();
+  const yearsOnly = searchParams.get("yearsOnly") === "true";
+  if (!yearsOnly && (!academicYear || !/^\d{4}-\d{2}$/.test(academicYear))) {
+    return NextResponse.json({ error: "Choose a valid academic year" }, { status: 400 });
+  }
   try {
+    // The dropdown needs only year names, not every historical fee record.
+    if (yearsOnly) {
+      const years = await withDatabaseRetry(() => prisma.feeRecord.groupBy({
+        by: ["academicYear"],
+        orderBy: { academicYear: "desc" },
+      }));
+      return NextResponse.json({ data: years, total: years.length }, { headers: { "Cache-Control": "private, no-store" } });
+    }
     const fees = await withDatabaseRetry(() => prisma.feeRecord.findMany({
+      where: { academicYear },
       orderBy: [{ academicYear: "desc" }, { age: "asc" }, { className: "asc" }],
     }));
 
-    return NextResponse.json({ data: fees, total: fees.length });
+    return NextResponse.json({ data: fees, total: fees.length }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("GET_FEES_ERROR", error);
     return NextResponse.json({ error: "Failed to fetch fees" }, { status: 500 });

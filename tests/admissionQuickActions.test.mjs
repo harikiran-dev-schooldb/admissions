@@ -58,7 +58,7 @@ test("admission profile implements both formerly empty quick actions", () => {
 test("fee preview uses exact year and class, without confusing fees with payments", () => {
   const preview = source("components/admissions/AdmissionFeePreview.tsx");
   assert.match(preview, /fee\.academicYear === student\.academicYear && sameClass\(fee\.className, student\.admClass\)/);
-  assert.match(preview, /fetch\("\/api\/fees"/);
+  assert.match(preview, /fetch\("\/api\/fees\?academicYear=" \+ encodeURIComponent\(student\.academicYear\)/);
   assert.match(preview, /new URLSearchParams\(\{ year: student\.academicYear, class: student\.admClass \}\)/);
   assert.match(preview, /not the student.s payment history/);
   assert.match(preview, /No fee structure is configured/);

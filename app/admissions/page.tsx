@@ -156,8 +156,8 @@ export default function AdmissionsPage() {
                 <p className="mt-3 max-w-xl text-base leading-7">Move enquiries through application, entrance, interview and confirmation while keeping every parent conversation connected.</p>
               </div>
               {canManage && <div className="grid grid-cols-2 gap-3 sm:min-w-80">
-                <div className="hero-stat rounded-2xl p-4"><Users className="size-4 text-indigo-600" /><strong className="mt-3 block text-3xl font-black tabular-nums">{summaryLoading ? "…" : summary.total.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Total enquiries</p></div>
-                <div className="hero-stat rounded-2xl p-4"><CheckCircle2 className="size-4 text-emerald-300" /><strong className="mt-3 block text-3xl font-black tabular-nums">{summaryLoading ? "…" : summary.admitted.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Admitted</p></div>
+                <div className="hero-stat rounded-2xl p-4"><Users className="size-4 text-indigo-600" /><strong className="mt-3 block text-3xl font-black tabular-nums">{(summaryLoading || yearsLoading) ? "…" : summary.total.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Total enquiries</p></div>
+                <div className="hero-stat rounded-2xl p-4"><CheckCircle2 className="size-4 text-emerald-300" /><strong className="mt-3 block text-3xl font-black tabular-nums">{(summaryLoading || yearsLoading) ? "…" : summary.admitted.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Admitted</p></div>
               </div>}
             </div>
           </section>
@@ -165,7 +165,7 @@ export default function AdmissionsPage() {
           {canManage && (
             <div className="space-y-2">
               {hasAppliedFilters && <p className="text-sm font-semibold text-indigo-700" aria-live="polite">KPI totals reflect all matching admissions across every page.</p>}
-              <KPISection stats={summary} loading={summaryLoading} />
+              <KPISection stats={summary} loading={summaryLoading || yearsLoading} />
             </div>
           )}
           {(error || yearsError || (canManage && summaryError) || classesError) && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm font-semibold text-red-700 shadow-sm">{yearsError || error || (canManage && summaryError) || classesError}</div>}

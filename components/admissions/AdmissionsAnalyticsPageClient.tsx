@@ -48,7 +48,7 @@ export default function AdmissionsAnalyticsPageClient() {
             </div>
           </section>
           {(error || yearsError) && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{yearsError || error}</div>}
-          {loading ? <div className="premium-panel grid min-h-72 place-items-center rounded-[28px] text-sm font-semibold text-slate-500">Loading admission analytics…</div> : <AdmissionsAnalytics students={filteredStudents} />}
+          {yearsLoading || loading ? <div className="premium-panel grid min-h-72 place-items-center rounded-[28px] text-sm font-semibold text-slate-500">{yearsLoading ? "Loading academic years…" : "Loading admission analytics…"}</div> : <AdmissionsAnalytics students={filteredStudents} />}
         </main>
       </div>
     </div>
