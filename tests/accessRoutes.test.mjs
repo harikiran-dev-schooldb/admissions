@@ -80,7 +80,7 @@ test("access endpoint exposes session-derived name, email and role without expos
   assert.match(serverAuth, /data\.user\.name/);
   assert.match(hook, /useSharedAccess\(\)/);
   assert.match(provider, /typeof data\.name === "string"/);
-  assert.match(provider, /typeof data\.email === "string"/);
+  assert.match(provider, /typeof data\.email !== "string"/);
   assert.doesNotMatch(endpoint, /process\.env/);
 });
 
