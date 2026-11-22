@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, CircleHelp, IndianRupee, Plus, Sparkles, X } from "lucide-react";
 
@@ -21,11 +22,27 @@ import { getFeeYearOptions, selectDefaultFeeYear } from "@/lib/fees/selectFeeYea
 import { toast } from "sonner";
 
 export default function FeesPage() {
+  return (
+    <Suspense fallback={<main className="premium-page grid place-items-center p-8 text-sm font-semibold text-slate-600">Loading fee structures…</main>}>
+      <FeesPageContent />
+    </Suspense>
+  );
+}
+
+function FeesPageContent() {
+  const router = useRouter();
+  const params = useSearchParams();
+  const yearParam = params.get("year")?.trim();
+  const classParam = params.get("class")?.trim();
+  const linkedClass = yearParam && /^\\d{4}-\\d{2}$/.test(yearParam) && classParam && classParam.length <= 30
+    ? { year: yearParam, className: classParam }
+    : null;
   const { role, canManage, error: accessError } = useAccess();
   const { fees, loading, error, reload } = useFees();
   const { academicYears: managedAcademicYears, loading: yearsLoading, error: yearsError } = useAcademicYears();
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("ALL");
+  const effectiveClassFilter = linkedClass?.className ?? classFilter;
   const [ageFilter, setAgeFilter] = useState("ALL");
   const [openNew, setOpenNew] = useState(false);
   const [selectedFee, setSelectedFee] = useState<FeeRecord | null>(null);
@@ -34,29 +51,16 @@ export default function FeesPage() {
   const [deletingFee, setDeletingFee] = useState<FeeRecord | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [selectedAcademicYear, setSelectedAcademicYear] = useState("");
-  const [linkedClass, setLinkedClass] = useState<{ year: string; className: string } | null>(null);
-
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const year = params.get("year")?.trim();
-    const className = params.get("class")?.trim();
-    if (year && /^\d{4}-\d{2}$/.test(year) && className && className.length <= 30) {
-      setSelectedAcademicYear(year);
-      setClassFilter(className);
-      setLinkedClass({ year, className });
-    }
-  }, []);
-
   function clearAdmissionContext() {
-    setLinkedClass(null);
     setClassFilter("ALL");
     setAgeFilter("ALL");
-    window.history.replaceState(window.history.state, "", "/fees");
+    router.replace("/fees", { scroll: false });
   }
+
   // Include archived years and legacy FeeRecord years; never hide historical fees.
   const academicYears = useMemo(() => getFeeYearOptions(managedAcademicYears, fees), [managedAcademicYears, fees]);
   const activeAcademicYears = useMemo(() => managedAcademicYears.filter((year) => year.isActive).map((year) => year.academicYear), [managedAcademicYears]);
-  const academicYear = linkedClass && !academicYears.includes(linkedClass.year) ? linkedClass.year : selectDefaultFeeYear(managedAcademicYears, fees, selectedAcademicYear);
+  const academicYear = linkedClass?.year ?? selectDefaultFeeYear(managedAcademicYears, fees, selectedAcademicYear);
   const selectedYearIsActive = activeAcademicYears.includes(academicYear);
   const yearFees = useMemo(() => fees.filter((fee) => fee.academicYear === academicYear), [fees, academicYear]);
   const classOptions = useMemo(() => [...new Set(yearFees.map((fee) => fee.className).filter(Boolean))].sort(), [yearFees]);
@@ -65,7 +69,7 @@ export default function FeesPage() {
     const query = search.trim().toLowerCase();
     const matches = yearFees.filter((fee) => {
       const matchesSearch = !query || [fee.className, fee.termFee, fee.annualFees, fee.age].some((value) => String(value ?? "").toLowerCase().includes(query));
-      return matchesSearch && (classFilter === "ALL" || fee.className.trim().toLowerCase() === classFilter.trim().toLowerCase()) && (ageFilter === "ALL" || fee.age === ageFilter);
+      return matchesSearch && (effectiveClassFilter === "ALL" || fee.className.trim().toLowerCase() === effectiveClassFilter.trim().toLowerCase()) && (ageFilter === "ALL" || fee.age === ageFilter);
     });
 
     return [...matches].sort((a, b) => {
@@ -75,7 +79,7 @@ export default function FeesPage() {
       const safeAgeB = Number.isFinite(ageB) ? ageB : Number.POSITIVE_INFINITY;
       return safeAgeA - safeAgeB || a.className.localeCompare(b.className, undefined, { numeric: true });
     });
-  }, [ageFilter, classFilter, search, yearFees]);
+  }, [ageFilter, effectiveClassFilter, search, yearFees]);
   const annualTotal = yearFees.reduce((total, fee) => total + fee.annualFees, 0);
 
   async function deleteFee() {
@@ -97,7 +101,7 @@ export default function FeesPage() {
       <AppSidebar />
       <div className="lg:pl-72">
         <header className="premium-topbar sticky top-18 z-30 lg:top-0">
-          <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-10"><div><p className="premium-kicker">Admissions configuration</p><h1 className="mt-1 text-2xl font-black tracking-[-0.04em]">Fee structure</h1></div><div className="flex items-center gap-3"><div className="w-36"><SchoolDbSelect ariaLabel="Fee academic year" value={academicYear || undefined} onValueChange={(value) => { setSelectedAcademicYear(value); setLinkedClass(null); setClassFilter("ALL"); setAgeFilter("ALL"); }} options={academicYears.map((year) => ({ label: `${year}${!activeAcademicYears.includes(year) ? " · Archived" : ""}`, value: year }))} placeholder={yearsLoading ? "Loading…" : "No academic years"} disabled={yearsLoading || academicYears.length === 0} className="font-bold" /></div>{canManage && <button onClick={() => setOpenNew(true)} disabled={!academicYear || !selectedYearIsActive} className="premium-button h-11 px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"><Plus className="size-4" /><span className="hidden sm:inline">Add fee</span><span className="sm:hidden">Add</span></button>}<div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div></div>
+          <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-10"><div><p className="premium-kicker">Admissions configuration</p><h1 className="mt-1 text-2xl font-black tracking-[-0.04em]">Fee structure</h1></div><div className="flex items-center gap-3"><div className="w-36"><SchoolDbSelect ariaLabel="Fee academic year" value={academicYear || undefined} onValueChange={(value) => { setSelectedAcademicYear(value); setClassFilter("ALL"); setAgeFilter("ALL"); if (linkedClass) router.replace("/fees", { scroll: false }); }} options={academicYears.map((year) => ({ label: `${year}${!activeAcademicYears.includes(year) ? " · Archived" : ""}`, value: year }))} placeholder={yearsLoading ? "Loading…" : "No academic years"} disabled={yearsLoading || academicYears.length === 0} className="font-bold" /></div>{canManage && <button onClick={() => setOpenNew(true)} disabled={!academicYear || !selectedYearIsActive} className="premium-button h-11 px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"><Plus className="size-4" /><span className="hidden sm:inline">Add fee</span><span className="sm:hidden">Add</span></button>}<div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div></div>
         </header>
         <main className="mx-auto max-w-[1680px] space-y-6 p-4 sm:p-6 xl:p-10">
           <AccessNotice role={role} error={accessError} />
@@ -130,7 +134,7 @@ export default function FeesPage() {
           {!canManage && <p className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600"><CircleHelp className="size-4 text-indigo-500" /> Fee structures are view-only for staff. Payments and balances are not recorded here.</p>}
           {academicYear && <p className="text-sm font-semibold text-slate-500">Showing {yearFees.length} fee structures for {academicYear}.{!selectedYearIsActive && " Historical academic year — new fees can only be added to an active year."}</p>}
           {canManage && <FeesKPISection fees={yearFees} />}
-          <FeesTable canManage={canManage} fees={filteredFees} loading={loading} search={search} setSearch={setSearch} classFilter={classFilter} setClassFilter={setClassFilter} classOptions={classOptions} ageFilter={ageFilter} setAgeFilter={setAgeFilter} ageOptions={ageOptions} onView={(fee) => { setSelectedFee(fee); setOpen(true); }} onEdit={setEditingFee} onDelete={setDeletingFee} />
+          <FeesTable canManage={canManage} fees={filteredFees} loading={loading} search={search} setSearch={setSearch} classFilter={effectiveClassFilter} setClassFilter={(value) => { setClassFilter(value); if (linkedClass) router.replace("/fees", { scroll: false }); }} classOptions={classOptions} ageFilter={ageFilter} setAgeFilter={setAgeFilter} ageOptions={ageOptions} onView={(fee) => { setSelectedFee(fee); setOpen(true); }} onEdit={setEditingFee} onDelete={setDeletingFee} />
         </main>
       </div>
       <FeeDetailModal fee={selectedFee} open={open} onClose={() => setOpen(false)} />
