@@ -44,3 +44,8 @@ test("latest configured archived year remains default and historical options sta
   assert.equal(selectDefaultFeeYear(archived, fees, ""), "2028-29");
   assert.equal(selectDefaultFeeYear(archived, fees, "2026-27"), "2026-27");
 });
+
+test("latest configured academic year wins even if legacy fee rows have a later year", () => {
+  assert.equal(selectDefaultFeeYear(years, [...fees, { academicYear: "2030-31" }], ""), "2027-28");
+  assert.equal(selectDefaultFeeYear(years, [...fees, { academicYear: "2030-31" }], "2030-31"), "2030-31");
+});
