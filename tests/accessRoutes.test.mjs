@@ -81,5 +81,5 @@ test("sidebar shows signed-in identity and role and provides a real sign-out act
   assert.match(sidebar, /roleLabel/);
   assert.match(sidebar, /displayName/);
   assert.match(sidebar, /aria-label="Logout"/);
-  assert.match(sidebar, />Logout</);
+  assert.match(sidebar, /"Signing out…" : "Logout"/);
 });
