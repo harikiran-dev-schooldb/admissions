@@ -39,6 +39,8 @@ jobs:
           cache: npm
       # Normalize the existing lockfile until its transitive dependency graph is regenerated and committed.
       - run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Inspect regenerated lockfile
+        run: git diff -- package-lock.json
       - run: npm ci
       - run: npx prisma validate
       - run: npx prisma migrate deploy
