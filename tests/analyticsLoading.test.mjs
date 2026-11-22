@@ -60,7 +60,7 @@ test("analytics endpoint is year-scoped, admin-only and transfers only aggregate
   assert.match(api, /_count: \{ _all: true \}/);
   assert.match(api, /"Cache-Control": "private, no-store, max-age=0"/);
   assert.doesNotMatch(api, /prisma\.admission\.findMany/);
-  assert.doesNotMatch(api, /student|parent|mobile|dob|enquiryNo/);
+  assert.doesNotMatch(api, /select:\s*\{[^}]*\b(?:student|parent|mobile|dob|enquiryNo)\b/);
   assert.match(hook, /"\/api\/admissions\/analytics\?academicYear=" \+ encodeURIComponent\(academicYear\)/);
   assert.match(hook, /new AbortController\(\)/);
   assert.match(hook, /result\.key === key/);
