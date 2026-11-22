@@ -34,3 +34,26 @@ test("responsive directory provides size selector and accessible previous/next b
   assert.match(source, /aria-label="Next admissions page"/);
   assert.match(source, /aria-current=\{number === page \? "page"/);
 });
+
+test("directory and API default to ten rows with shared pagination constants", () => {
+  const ui = readFileSync(resolve(process.cwd(), "app/admissions/page.tsx"), "utf8");
+  const hook = readFileSync(resolve(process.cwd(), "hooks/useAdmissionsDirectory.ts"), "utf8");
+  const api = readFileSync(resolve(process.cwd(), "app/api/admissions/route.ts"), "utf8");
+  assert.match(ui, /useState<AdmissionPageSize>\(DEFAULT_ADMISSION_PAGE_SIZE\)/);
+  assert.match(hook, /pageSize: DEFAULT_ADMISSION_PAGE_SIZE/);
+  assert.match(api, /parsePageSize\(searchParams\.get\("pageSize"\)\)/);
+  assert.match(api, /skip: pagination\.skip/);
+  assert.match(api, /take: pageSize/);
+});
+
+test("academic year dropdowns show years only, without admission or fee totals", () => {
+  const admissions = readFileSync(resolve(process.cwd(), "app/admissions/page.tsx"), "utf8");
+  const analytics = readFileSync(resolve(process.cwd(), "app/admissions/analytics/page.tsx"), "utf8");
+  const fees = readFileSync(resolve(process.cwd(), "app/fees/page.tsx"), "utf8");
+  assert.doesNotMatch(admissions, /year\.academicYear\} \(\$\{year\.admissionsCount/);
+  assert.doesNotMatch(analytics, /year\.academicYear\} \(\$\{year\.admissionsCount/);
+  assert.doesNotMatch(fees, /feeYearsCount/);
+  assert.match(admissions, /label: `\$\{year\.academicYear\}/);
+  assert.match(analytics, /label: year\.academicYear/);
+  assert.match(fees, /label: `\$\{year\}/);
+});

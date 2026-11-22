@@ -33,7 +33,7 @@ export default function AdmissionsAnalyticsPage() {
         <header className="premium-topbar sticky top-18 z-30 lg:top-0">
           <div className="flex min-h-20 items-center justify-between gap-4 px-4 sm:px-6 xl:px-10">
             <div><p className="premium-kicker">Admissions intelligence</p><h1 className="mt-1 text-2xl font-black tracking-[-0.04em]">Analytics</h1></div>
-            <div className="flex items-center gap-3"><div className="w-36"><SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined} onValueChange={setSelectedAcademicYear} options={createdAcademicYears.map((year) => ({ label: `${year.academicYear} (${year.admissionsCount ?? 0})`, value: year.academicYear }))} placeholder={yearsLoading ? "Loading…" : "No academic years"} disabled={yearsLoading || createdAcademicYears.length === 0} className="font-bold" /></div><div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div>
+            <div className="flex items-center gap-3"><div className="w-36"><SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined} onValueChange={setSelectedAcademicYear} options={createdAcademicYears.map((year) => ({ label: year.academicYear, value: year.academicYear }))} placeholder={yearsLoading ? "Loading…" : "No academic years"} disabled={yearsLoading || createdAcademicYears.length === 0} className="font-bold" /></div><div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div>
           </div>
         </header>
         <main className="mx-auto max-w-[1680px] space-y-6 p-4 sm:p-6 xl:p-10">

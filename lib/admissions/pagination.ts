@@ -2,6 +2,9 @@
 export const ADMISSION_PAGE_SIZES = [10, 25, 50, 100] as const;
 export type AdmissionPageSize = typeof ADMISSION_PAGE_SIZES[number];
 
+/** Shared default for the admissions directory and paginated API requests. */
+export const DEFAULT_ADMISSION_PAGE_SIZE: AdmissionPageSize = 10;
+
 export function parsePage(value: string | null | undefined): number {
   const parsed = Number(value);
   return value && /^\d+$/.test(value) && Number.isSafeInteger(parsed) && parsed > 0
@@ -11,7 +14,7 @@ export function parsePage(value: string | null | undefined): number {
 
 export function parsePageSize(value: string | null | undefined): AdmissionPageSize {
   const parsed = Number(value);
-  return ADMISSION_PAGE_SIZES.find((size) => size === parsed) ?? 25;
+  return ADMISSION_PAGE_SIZES.find((size) => size === parsed) ?? DEFAULT_ADMISSION_PAGE_SIZE;
 }
 
 export function getPagination(total: number, requestedPage: number, pageSize: number) {

@@ -1,11 +1,14 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { parsePage, parsePageSize, getPagination } from "../lib/admissions/pagination.ts";
+import { DEFAULT_ADMISSION_PAGE_SIZE, parsePage, parsePageSize, getPagination } from "../lib/admissions/pagination.ts";
 import { selectDefaultAdmissionYear } from "../lib/admissions/selectAdmissionYear.ts";
 
 test("enquiry pagination supports 10, 25, 50 and 100 per page", () => {
   for (const size of [10, 25, 50, 100]) assert.equal(parsePageSize(String(size)), size);
-  assert.equal(parsePageSize("9999"), 25);
+  assert.equal(DEFAULT_ADMISSION_PAGE_SIZE, 10);
+  assert.equal(parsePageSize("9999"), 10);
+  assert.equal(parsePageSize(null), 10);
+  assert.equal(parsePageSize(""), 10);
 });
 
 test("page input is validated and capped", () => {
@@ -14,7 +17,13 @@ test("page input is validated and capped", () => {
   assert.equal(parsePage("999999999999999999"), 1);
 });
 
-test("910 records at 25 per page yields 37 pages with correct boundaries", () => {
+test("910 records at default 10 per page yields 91 pages with correct boundaries", () => {
+  assert.deepEqual(getPagination(910, 1, DEFAULT_ADMISSION_PAGE_SIZE), {page:1,pageSize:10,total:910,totalPages:91,start:1,end:10,skip:0});
+  assert.deepEqual(getPagination(910, 91, DEFAULT_ADMISSION_PAGE_SIZE), {page:91,pageSize:10,total:910,totalPages:91,start:901,end:910,skip:900});
+  assert.equal(getPagination(910, 99, DEFAULT_ADMISSION_PAGE_SIZE).page, 91);
+});
+
+test("optional 25-per-page selection remains supported", () => {
   assert.deepEqual(getPagination(910, 1, 25), {page:1,pageSize:25,total:910,totalPages:37,start:1,end:25,skip:0});
   assert.deepEqual(getPagination(910, 37, 25), {page:37,pageSize:25,total:910,totalPages:37,start:901,end:910,skip:900});
   assert.equal(getPagination(910, 99, 25).page, 37);
