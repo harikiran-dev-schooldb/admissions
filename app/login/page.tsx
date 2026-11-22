@@ -4,11 +4,13 @@ import { FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, ArrowRight, GraduationCap, KeyRound, Loader2, Mail, ShieldCheck } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
+import { useAccess } from "@/hooks/useAccess";
 
 const RESEND_SECONDS = 60;
 
 export default function LoginPage() {
   const router = useRouter();
+  const { refreshAccess, notifyAuthChange } = useAccess();
   const [email, setEmail] = useState("");
   const [code, setCode] = useState("");
   const [step, setStep] = useState<"email" | "otp">("email");
@@ -62,6 +64,10 @@ export default function LoginPage() {
     try {
       const { error: signInError } = await authClient.signIn.emailOtp({ email, otp });
       if (signInError) throw new Error(signInError.message || "Verification failed");
+      // Resolve the authenticated user's workspace role once before entering the app.
+      // A valid OTP alone must never grant workspace access.
+      await refreshAccess();
+      notifyAuthChange("login");
       const next = new URLSearchParams(window.location.search).get("next");
       router.replace(next && next.startsWith("/") && !next.startsWith("//") && !next.includes("\\") ? next : "/admissions");
       router.refresh();
