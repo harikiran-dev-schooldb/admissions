@@ -1,5 +1,4 @@
 import { validateStageTransition } from "@/lib/admissionTransitionRules";
-import { requireAccess } from "@/lib/auth/requireAccess";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
