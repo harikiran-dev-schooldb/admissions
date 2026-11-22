@@ -26,7 +26,7 @@ const staffActions = {
 test("all data API handlers check the required read, staff workflow, or admin permissions", () => {
   for (const path of protectedRoutes) {
     const source = readFileSync(resolve(process.cwd(), path), "utf8");
-    const methods = [...source.matchAll(/export async function (GET|POST|PUT|PATCH|DELETE)\([^\n]*\) \{\s*const accessError = await requireAccess\("(read|enquiry|workflow|admin)"\)/g)];
+    const methods = [...source.matchAll(/export async function (GET|POST|PUT|PATCH|DELETE)\([^\n]*\) \{\s*const (?:accessError = await requireAccess|authz = await requireAuditActor|authorization = await requireAuditActor)\("(read|enquiry|workflow|admin)"\)/g)];
     assert.ok(methods.length, `No access-guarded handlers found in ${path}`);
     for (const match of methods) {
       const [, method, level] = match;
@@ -55,7 +55,7 @@ test("proxy requires login on the role endpoint", () => {
 test("user access management endpoints are admin-only", () => {
   for (const path of ["app/api/users/route.ts", "app/api/users/[id]/route.ts", "app/api/users/audit/route.ts"]) {
     const source = readFileSync(resolve(process.cwd(), path), "utf8");
-    assert.match(source, /requireAdminIdentity\(\)|requireAccess\("admin"\)/, path);
+    assert.match(source, /requireAdminIdentity\(\)|requireAccess\("admin"\)|requireAuditActor\("admin"\)/, path);
     assert.doesNotMatch(source, /requireAccess\("read"\)/, path);
   }
 });

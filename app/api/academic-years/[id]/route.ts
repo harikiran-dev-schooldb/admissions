@@ -1,4 +1,5 @@
 import { requireAccess } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -31,13 +32,22 @@ export async function GET(_req: Request, { params }: Context) {
 }
 
 export async function PUT(req: Request, { params }: Context) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authorization = await requireAuditActor("admin");
+  if (authorization.error) return authorization.error;
+  const actor = authorization.actor;
   try {
     const { id } = await params;
     const parsed = academicYearReplaceSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
-    const academicYear = await prisma.academicYear.update({ where: { id }, data: { ...parsed.data, startDate: parsed.data.startDate ?? null, endDate: parsed.data.endDate ?? null, isActive: parsed.data.isActive ?? true } });
+    const academicYear = await prisma.$transaction(async (tx) => {
+      const before = await tx.academicYear.findUniqueOrThrow({ where: { id } });
+      const updated = await tx.academicYear.update({ where: { id }, data: { ...parsed.data, startDate: parsed.data.startDate ?? null, endDate: parsed.data.endDate ?? null, isActive: parsed.data.isActive ?? true } });
+      await recordActivity(tx, actor, {
+        entityType: "ACADEMIC_YEAR", action: "UPDATED", entityId: id,
+        entityLabel: updated.academicYear, before, after: updated,
+      });
+      return updated;
+    });
     return NextResponse.json({ data: academicYear });
   } catch (error) {
     return academicYearError(error, "UPDATE");
@@ -45,8 +55,9 @@ export async function PUT(req: Request, { params }: Context) {
 }
 
 export async function PATCH(req: Request, { params }: Context) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authorization = await requireAuditActor("admin");
+  if (authorization.error) return authorization.error;
+  const actor = authorization.actor;
   try {
     const { id } = await params;
     const parsed = academicYearPatchSchema.safeParse(await req.json());
@@ -63,7 +74,15 @@ export async function PATCH(req: Request, { params }: Context) {
       );
     }
 
-    const academicYear = await prisma.academicYear.update({ where: { id }, data: parsed.data });
+    const academicYear = await prisma.$transaction(async (tx) => {
+      const before = await tx.academicYear.findUniqueOrThrow({ where: { id } });
+      const updated = await tx.academicYear.update({ where: { id }, data: parsed.data });
+      await recordActivity(tx, actor, {
+        entityType: "ACADEMIC_YEAR", action: "UPDATED", entityId: id,
+        entityLabel: updated.academicYear, before, after: updated,
+      });
+      return updated;
+    });
     return NextResponse.json({ data: academicYear });
   } catch (error) {
     return academicYearError(error, "UPDATE");
@@ -71,11 +90,18 @@ export async function PATCH(req: Request, { params }: Context) {
 }
 
 export async function DELETE(_req: Request, { params }: Context) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authorization = await requireAuditActor("admin");
+  if (authorization.error) return authorization.error;
+  const actor = authorization.actor;
   try {
     const { id } = await params;
-    await prisma.academicYear.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      const deleted = await tx.academicYear.delete({ where: { id } });
+      await recordActivity(tx, actor, {
+        entityType: "ACADEMIC_YEAR", action: "DELETED", entityId: id,
+        entityLabel: deleted.academicYear, before: deleted,
+      });
+    });
     return new Response(null, { status: 204 });
   } catch (error) {
     return academicYearError(error, "DELETE");

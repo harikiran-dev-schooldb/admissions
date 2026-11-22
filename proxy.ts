@@ -31,5 +31,7 @@ export const config = {
     "/api/access/:path*",
     "/users/:path*",
     "/api/users/:path*",
+    "/audit-logs/:path*",
+    "/api/audit-logs/:path*",
   ],
 };

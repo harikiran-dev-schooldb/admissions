@@ -162,3 +162,24 @@ enum FinalAdmissionStatus {
   ADMITTED
   CANCELLED
 }
+
+/**
+ * Append-only, administrator-readable audit history for record mutations.
+ * It excludes phone numbers, dates of birth, and other high-risk personal fields.
+ */
+model ActivityLog {
+  id          String   @id @default(cuid())
+  actorEmail  String
+  actorName   String?
+  actorRole   String
+  action      String
+  entityType  String
+  entityId    String
+  entityLabel String
+  changes     Json
+  createdAt   DateTime @default(now())
+
+  @@index([createdAt(sort: Desc), id(sort: Desc)])
+  @@index([actorEmail, createdAt(sort: Desc)])
+  @@index([entityType, createdAt(sort: Desc)])
+}

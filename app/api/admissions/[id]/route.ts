@@ -1,4 +1,5 @@
 import { requireAccess } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { admissionUpdateSchema, validationError } from "@/lib/validation/admissions";
@@ -17,8 +18,9 @@ export async function GET(_req: Request, { params }: Context) {
 }
 
 export async function PATCH(req: Request, { params }: Context) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authz = await requireAuditActor("admin");
+  if (authz.error) return authz.error;
+  const actor = authz.actor;
   try {
     const { id } = await params;
     const parsed = admissionUpdateSchema.safeParse(await req.json());
@@ -54,7 +56,15 @@ export async function PATCH(req: Request, { params }: Context) {
       });
     }
 
-    const admission = await prisma.admission.update({ where: { id }, data });
+    const admission = await prisma.$transaction(async (tx) => {
+      const before = await tx.admission.findUniqueOrThrow({ where: { id } });
+      const updated = await tx.admission.update({ where: { id }, data });
+      await recordActivity(tx, actor, {
+        entityType: "ADMISSION", action: "UPDATED", entityId: id,
+        entityLabel: updated.enquiryNo, before, after: updated,
+      });
+      return updated;
+    });
     return NextResponse.json({ data: admission });
   } catch (error) {
     console.error("UPDATE_ADMISSION_ERROR", error);
@@ -63,11 +73,18 @@ export async function PATCH(req: Request, { params }: Context) {
 }
 
 export async function DELETE(_req: Request, { params }: Context) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authz = await requireAuditActor("admin");
+  if (authz.error) return authz.error;
+  const actor = authz.actor;
   try {
     const { id } = await params;
-    await prisma.admission.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      const deleted = await tx.admission.delete({ where: { id } });
+      await recordActivity(tx, actor, {
+        entityType: "ADMISSION", action: "DELETED", entityId: id,
+        entityLabel: deleted.enquiryNo, before: deleted,
+      });
+    });
     return new Response(null, { status: 204 });
   } catch (error) {
     console.error("DELETE_ADMISSION_ERROR", error);

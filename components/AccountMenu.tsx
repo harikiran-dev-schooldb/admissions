@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  CheckCircle2, ChevronDown, Loader2, LogOut, Settings2,
+  CheckCircle2, ChevronDown, History, Loader2, LogOut, Settings2,
   ShieldCheck, UserRound, UserRoundCog,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
@@ -109,6 +109,12 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
               <Link href="/users" onClick={() => setIsOpen(false)}
                 className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-700">
                 <UserRoundCog className="size-4" /> Users &amp; roles
+              </Link>
+            )}
+            {role === "admin" && (
+              <Link href="/audit-logs" onClick={() => setIsOpen(false)}
+                className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-indigo-50 hover:text-indigo-700">
+                <History className="size-4" /> Audit logs
               </Link>
             )}
           </div>

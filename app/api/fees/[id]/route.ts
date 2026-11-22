@@ -1,4 +1,5 @@
 import { requireAccess } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -32,13 +33,22 @@ export async function GET(_req: Request, { params }: Context) {
 }
 
 export async function PUT(req: Request, { params }: Context) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authz = await requireAuditActor("admin");
+  if (authz.error) return authz.error;
+  const actor = authz.actor;
   try {
     const { id } = await params;
     const parsed = feeReplaceSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
-    const fee = await prisma.feeRecord.update({ where: { id }, data: { ...parsed.data, age: parsed.data.age ?? null } });
+    const fee = await prisma.$transaction(async (tx) => {
+      const before = await tx.feeRecord.findUniqueOrThrow({ where: { id } });
+      const updated = await tx.feeRecord.update({ where: { id }, data: { ...parsed.data, age: parsed.data.age ?? null } });
+      await recordActivity(tx, actor, {
+        entityType: "FEE", action: "UPDATED", entityId: id,
+        entityLabel: `${updated.academicYear} · ${updated.className}`, before, after: updated,
+      });
+      return updated;
+    });
     return NextResponse.json({ data: fee });
   } catch (error) {
     return feeError(error, "UPDATE");
@@ -46,13 +56,22 @@ export async function PUT(req: Request, { params }: Context) {
 }
 
 export async function PATCH(req: Request, { params }: Context) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authz = await requireAuditActor("admin");
+  if (authz.error) return authz.error;
+  const actor = authz.actor;
   try {
     const { id } = await params;
     const parsed = feePatchSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
-    const fee = await prisma.feeRecord.update({ where: { id }, data: parsed.data });
+    const fee = await prisma.$transaction(async (tx) => {
+      const before = await tx.feeRecord.findUniqueOrThrow({ where: { id } });
+      const updated = await tx.feeRecord.update({ where: { id }, data: parsed.data });
+      await recordActivity(tx, actor, {
+        entityType: "FEE", action: "UPDATED", entityId: id,
+        entityLabel: `${updated.academicYear} · ${updated.className}`, before, after: updated,
+      });
+      return updated;
+    });
     return NextResponse.json({ data: fee });
   } catch (error) {
     return feeError(error, "UPDATE");
@@ -60,11 +79,18 @@ export async function PATCH(req: Request, { params }: Context) {
 }
 
 export async function DELETE(_req: Request, { params }: Context) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authz = await requireAuditActor("admin");
+  if (authz.error) return authz.error;
+  const actor = authz.actor;
   try {
     const { id } = await params;
-    await prisma.feeRecord.delete({ where: { id } });
+    await prisma.$transaction(async (tx) => {
+      const deleted = await tx.feeRecord.delete({ where: { id } });
+      await recordActivity(tx, actor, {
+        entityType: "FEE", action: "DELETED", entityId: id,
+        entityLabel: `${deleted.academicYear} · ${deleted.className}`, before: deleted,
+      });
+    });
     return new Response(null, { status: 204 });
   } catch (error) {
     return feeError(error, "DELETE");

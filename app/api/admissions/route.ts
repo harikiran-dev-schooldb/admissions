@@ -1,4 +1,5 @@
 import { requireAccess } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -52,8 +53,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const accessError = await requireAccess("enquiry");
-  if (accessError) return accessError;
+  const authz = await requireAuditActor("enquiry");
+  if (authz.error) return authz.error;
+  const actor = authz.actor;
   try {
     const parsed = admissionCreateSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
@@ -71,7 +73,8 @@ export async function POST(req: Request) {
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
-        const admission = await prisma.admission.create({
+        const admission = await prisma.$transaction(async (tx) => {
+          const created = await tx.admission.create({
           data: {
             academicYear: body.academicYear,
             enquiryNo: await createEnquiryNumber(),
@@ -89,6 +92,12 @@ export async function POST(req: Request) {
             admissionGiven: "NOT_GIVEN",
             finalAdmission: "PENDING",
           },
+          });
+          await recordActivity(tx, actor, {
+            entityType: "ADMISSION", action: "CREATED", entityId: created.id,
+            entityLabel: created.enquiryNo, after: created,
+          });
+          return created;
         });
         return NextResponse.json({ data: admission }, { status: 201 });
       } catch (error) {
