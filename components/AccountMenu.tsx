@@ -12,7 +12,7 @@ import { useAccess } from "@/hooks/useAccess";
 
 export default function AccountMenu({ compact = false }: { compact?: boolean }) {
   const router = useRouter();
-  const { name, email, role, loading, error } = useAccess();
+  const { name, email, role, loading, error, clearAccess, notifyAuthChange } = useAccess();
   const [isOpen, setIsOpen] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
@@ -45,6 +45,8 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
     try {
       const { error: logoutFailure } = await authClient.signOut();
       if (logoutFailure) throw new Error(logoutFailure.message || "Unable to sign out");
+      clearAccess();
+      notifyAuthChange("logout");
       setIsOpen(false);
       router.replace("/login");
       router.refresh();

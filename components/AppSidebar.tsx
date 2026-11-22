@@ -53,7 +53,7 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
 export default function AppSidebar() {
   const pathname = usePathname();
   const router = useRouter();
-  const { role, name, email, loading, error } = useAccess();
+  const { role, name, email, loading, error, clearAccess, notifyAuthChange } = useAccess();
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState("");
   const [moreOpen, setMoreOpen] = useState(false);
@@ -88,6 +88,8 @@ export default function AppSidebar() {
     try {
       const { error: logoutError } = await authClient.signOut();
       if (logoutError) throw new Error(logoutError.message || "Could not sign out");
+      clearAccess();
+      notifyAuthChange("logout");
       router.replace("/login");
       router.refresh();
     } catch (caught) {

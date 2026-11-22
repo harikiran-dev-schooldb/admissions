@@ -28,7 +28,7 @@ test("mobile navbar exposes the same dropdown", () => {
 
 test("dropdown shows server-derived name, role and email without hardcoded identity", () => {
   const source = readFileSync(resolve(process.cwd(), "components/AccountMenu.tsx"), "utf8");
-  assert.match(source, /const \{ name, email, role, loading, error \} = useAccess\(\)/);
+  assert.match(source, /const \{ name, email, role, loading, error, clearAccess, notifyAuthChange \} = useAccess\(\)/);
   assert.match(source, /Administrator/);
   assert.match(source, /Staff/);
   assert.match(source, /displayName/);
