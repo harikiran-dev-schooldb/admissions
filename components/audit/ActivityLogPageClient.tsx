@@ -236,7 +236,7 @@ export default function ActivityLogPageClient() {
                 ))}
                 {visiblePages.at(-1) !== totalPages && (
                   <>
-                    {visiblePages.at(-1)! < totalPages - 1 && <span className="px-1 text-sm text-slate-400" aria-hidden="true">…</span>}
+                    {(visiblePages.at(-1) ?? 0) < totalPages - 1 && <span className="px-1 text-sm text-slate-400" aria-hidden="true">…</span>}
                     <button type="button" onClick={() => setPage(totalPages)} disabled={loading}
                       aria-label={`Audit page ${totalPages}`} className="min-w-10 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-600 disabled:opacity-40">{totalPages}</button>
                   </>
