@@ -1,12 +1,12 @@
 "use client";
 
-import { CalendarDays, Eye, Hash, MessageCircle, Phone, Search, SlidersHorizontal, UserRound } from "lucide-react";
+import { CalendarDays, Eye, Hash, MessageCircle, Phone, Search, SlidersHorizontal, UserRound, UsersRound, X } from "lucide-react";
 import type { Admission } from "@/src/generated/prisma/client";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import AdmissionStages from "./AdmissionStages";
 
 type Props = {
-  students: Admission[]; loading: boolean; search: string; setSearch: (value: string) => void;
+  students: Admission[]; totalCount: number; loading: boolean; search: string; setSearch: (value: string) => void;
   classFilter: string; setClassFilter: (value: string) => void; classOptions: string[];
   finalStatusFilter: string; setFinalStatusFilter: (value: string) => void;
   applicationFilter: string; setApplicationFilter: (value: string) => void;
@@ -28,10 +28,27 @@ function prettyStatus(value: string) {
   return value.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
-export default function AdmissionTable({ students, loading, search, setSearch, classFilter, setClassFilter, classOptions, finalStatusFilter, setFinalStatusFilter, applicationFilter, setApplicationFilter, onView, reload }: Props) {
+export default function AdmissionTable({ students, totalCount, loading, search, setSearch, classFilter, setClassFilter, classOptions, finalStatusFilter, setFinalStatusFilter, applicationFilter, setApplicationFilter, onView, reload }: Props) {
+  const hasActiveFilters = Boolean(search.trim()) || classFilter !== "ALL" || finalStatusFilter !== "ALL" || applicationFilter !== "ALL";
+
+  function clearFilters() {
+    setSearch("");
+    setClassFilter("ALL");
+    setFinalStatusFilter("ALL");
+    setApplicationFilter("ALL");
+  }
+
   return (
     <div className="space-y-5">
-      <div className="premium-panel rounded-[26px] p-4">
+      <div className="premium-panel overflow-hidden rounded-[26px]">
+        <div className="flex flex-col gap-3 border-b border-indigo-100/70 bg-gradient-to-r from-indigo-50/80 via-white to-violet-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center gap-3">
+            <div className="grid size-10 place-items-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-200"><UsersRound className="size-4" /></div>
+            <div><h3 className="text-lg font-black tracking-[-.02em] text-slate-950">Student directory</h3><p className="mt-0.5 text-sm font-semibold text-slate-500">{loading ? "Updating records…" : `${students.length} of ${totalCount} students shown`}</p></div>
+          </div>
+          {hasActiveFilters && <button onClick={clearFilters} className="inline-flex h-9 items-center justify-center gap-2 self-start rounded-xl border border-indigo-200 bg-white px-3 text-sm font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-50 sm:self-auto"><X className="size-4" />Clear filters</button>}
+        </div>
+        <div className="p-4">
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <div className="relative min-w-0 flex-1">
             <Search className="absolute left-5 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
@@ -43,6 +60,7 @@ export default function AdmissionTable({ students, loading, search, setSearch, c
             <SchoolDbSelect ariaLabel="Filter by application status" value={applicationFilter} onValueChange={setApplicationFilter} options={[{ label: "All applications", value: "ALL" }, { label: "Not started", value: "NO" }, { label: "Started", value: "YES" }, { label: "Submitted", value: "SUBMITTED" }]} />
           </div>
           <SlidersHorizontal className="hidden size-5 shrink-0 text-indigo-500 xl:block" />
+        </div>
         </div>
       </div>
 

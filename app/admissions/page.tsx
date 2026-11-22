@@ -77,7 +77,7 @@ export default function AdmissionsPage() {
 
           <KPISection students={students} />
           {(error || yearsError) && <div className="rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm font-semibold text-red-700 shadow-sm">{yearsError || error}</div>}
-          <AdmissionsTable students={filteredStudents} loading={loading} search={search} setSearch={setSearch} classFilter={classFilter} setClassFilter={setClassFilter} classOptions={classOptions} finalStatusFilter={finalStatusFilter} setFinalStatusFilter={setFinalStatusFilter} applicationFilter={applicationFilter} setApplicationFilter={setApplicationFilter} onView={(student) => { setSelectedStudent(student); setOpenDetail(true); }} reload={reload} />
+          <AdmissionsTable students={filteredStudents} totalCount={students.length} loading={loading} search={search} setSearch={setSearch} classFilter={classFilter} setClassFilter={setClassFilter} classOptions={classOptions} finalStatusFilter={finalStatusFilter} setFinalStatusFilter={setFinalStatusFilter} applicationFilter={applicationFilter} setApplicationFilter={setApplicationFilter} onView={(student) => { setSelectedStudent(student); setOpenDetail(true); }} reload={reload} />
         </main>
       </div>
 
