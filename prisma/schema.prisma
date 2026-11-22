@@ -220,3 +220,26 @@ enum FollowUpOutcome {
   NOT_INTERESTED
   OTHER
 }
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  email     String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([email])
+}
+
+model PushDelivery {
+  id             String   @id @default(cuid())
+  subscriptionId String
+  followUpId     String
+  reminderKind   String
+  sentAt         DateTime @default(now())
+
+  @@unique([subscriptionId, followUpId, reminderKind])
+  @@index([sentAt])
+}

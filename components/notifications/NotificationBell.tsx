@@ -24,6 +24,8 @@ export default function NotificationBell() {
   const [readIds, setReadIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const alerted = useRef<Set<string>>(new Set());
+  const [pushEnabled, setPushEnabled] = useState(false);
+  const [pushError, setPushError] = useState("");
   const [permission, setPermission] = useState<NotificationPermission>("default");
 
   useEffect(() => {
@@ -31,6 +33,10 @@ export default function NotificationBell() {
     try { setReadIds(JSON.parse(localStorage.getItem(storageKey(email)) || "[]")); }
     catch { setReadIds([]); }
     if ("Notification" in window) setPermission(Notification.permission);
+    if ("serviceWorker" in navigator) void navigator.serviceWorker.getRegistration("/push-sw.js").then(async (registration) => {
+      const subscription = await registration?.pushManager.getSubscription();
+      setPushEnabled(Boolean(subscription));
+    }).catch(() => setPushEnabled(false));
   }, [email]);
 
   const refresh = useCallback(async () => {
@@ -77,9 +83,53 @@ export default function NotificationBell() {
     localStorage.setItem(storageKey(email), JSON.stringify(next));
   }
   async function enableAlerts() {
-    if (!("Notification" in window)) return;
-    const result = await Notification.requestPermission();
-    setPermission(result);
+    setPushError("");
+    try {
+      if (!("Notification" in window) || !("serviceWorker" in navigator) || !("PushManager" in window)) {
+        throw new Error("Background notifications are not supported on this device or browser.");
+      }
+      const permissionResult = await Notification.requestPermission();
+      setPermission(permissionResult);
+      if (permissionResult !== "granted") return;
+      const keyResponse = await fetch("/api/notifications/subscriptions", { cache: "no-store" });
+      if (!keyResponse.ok) throw new Error("Push setup unavailable");
+      const { publicKey } = await keyResponse.json();
+      if (!publicKey) throw new Error("Push server keys are not configured yet.");
+      const registration = await navigator.serviceWorker.register("/push-sw.js", { scope: "/" });
+      const base64 = publicKey.replace(/-/g, "+").replace(/_/g, "/");
+      const padded = base64.padEnd(Math.ceil(base64.length / 4) * 4, "=");
+      const key = Uint8Array.from(atob(padded), (character) => character.charCodeAt(0));
+      const existing = await registration.pushManager.getSubscription();
+      const subscription = existing ?? await registration.pushManager.subscribe({
+        userVisibleOnly: true, applicationServerKey: key,
+      });
+      const response = await fetch("/api/notifications/subscriptions", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(subscription.toJSON()),
+      });
+      if (!response.ok) throw new Error("Could not save push subscription.");
+      setPushEnabled(true);
+    } catch (error) {
+      setPushError(error instanceof Error ? error.message : "Unable to enable notifications");
+    }
+  }
+  async function disableAlerts() {
+    setPushError("");
+    try {
+      const registration = await navigator.serviceWorker.getRegistration("/push-sw.js");
+      const subscription = await registration?.pushManager.getSubscription();
+      if (subscription) {
+        const response = await fetch("/api/notifications/subscriptions", {
+          method: "DELETE", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ endpoint: subscription.endpoint }),
+        });
+        if (!response.ok) throw new Error("Could not remove push subscription.");
+        await subscription.unsubscribe();
+      }
+      setPushEnabled(false);
+    } catch (error) {
+      setPushError(error instanceof Error ? error.message : "Unable to disable notifications");
+    }
   }
 
   if (!email || (role !== "admin" && role !== "staff")) return null;
@@ -110,8 +160,10 @@ export default function NotificationBell() {
           </button>;
         })}
       </div>
-      {permission === "default" && <button type="button" onClick={() => void enableAlerts()} className="mt-3 w-full rounded-xl bg-indigo-50 p-2 text-xs font-bold text-indigo-700">Allow device notifications</button>}
-      <p className="mt-3 text-[10px] text-slate-400">Updates while the app is open. Read state is saved on this device. Background push is not enabled.</p>
+      {!pushEnabled && <button type="button" onClick={() => void enableAlerts()} className="mt-3 w-full rounded-xl bg-indigo-50 p-2 text-xs font-bold text-indigo-700">Enable background push notifications</button>}
+      {pushEnabled && <button type="button" onClick={() => void disableAlerts()} className="mt-3 w-full rounded-xl bg-slate-50 p-2 text-xs font-bold text-slate-700">Disable background push notifications</button>}
+      {pushError && <p role="alert" className="mt-2 text-xs text-rose-600">{pushError}</p>}
+      <p className="mt-3 text-[10px] text-slate-400">Background reminders require notification permission and server setup. Read state is saved on this device.</p>
     </div>}
   </div>;
 }

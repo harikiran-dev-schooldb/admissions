@@ -14,11 +14,10 @@ test("workflow guidance uses existing verified stage engine without writing stat
   assert.doesNotMatch(source, /fetch\(|prisma\.|updateStage\(/);
 });
 
-test("stage and profile views show recommended next action and existing assignment workflow", () => {
+test("stage view omits recommendation card while profile retains follow-up assignment", () => {
   const stage = readFileSync("components/admissions/AdmissionStages.tsx", "utf8");
   const detail = readFileSync("components/admissions/AdmissionDetailModal.tsx", "utf8");
-  assert.match(stage, /getNextAdmissionAction\(student\)/);
-  assert.match(stage, /Recommended next action/);
+  assert.doesNotMatch(stage, /Recommended next action/);
   assert.match(detail, /getNextAdmissionAction\(student\)/);
   assert.match(detail, /AdmissionFollowUpManager/);
   assert.match(detail, /Assign an owner and due date/);
