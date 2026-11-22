@@ -1,3 +1,5 @@
+import { validateStageTransition } from "@/lib/admissionTransitionRules";
+import { requireAccess } from "@/lib/auth/requireAccess";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
@@ -12,6 +14,8 @@ const allowedFields = [
 ] as const;
 
 export async function PATCH(req: Request) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   try {
     const parsed = admissionStageSchema.safeParse(await req.json());
 
@@ -74,6 +78,9 @@ export async function PATCH(req: Request) {
     /*
       UPDATE PAYLOAD
     */
+
+    const transitionError = validateStageTransition(existing, field, value);
+    if (transitionError) return NextResponse.json({ error: transitionError }, { status: 409 });
 
     const updateData: Record<
       string,
@@ -142,6 +149,9 @@ export async function PATCH(req: Request) {
           skipEntrance
             ? "NOT_REQUIRED"
             : "PENDING";
+        updateData.interview = "NOT_STARTED";
+        updateData.admissionGiven = "NOT_GIVEN";
+        updateData.finalAdmission = "PENDING";
       }
     }
 
@@ -157,6 +167,8 @@ export async function PATCH(req: Request) {
       if (value === "PASS") {
         updateData.interview =
           "PENDING";
+        updateData.admissionGiven = "NOT_GIVEN";
+        updateData.finalAdmission = "PENDING";
       }
 
       /*
@@ -217,6 +229,7 @@ export async function PATCH(req: Request) {
       ) {
         updateData.admissionGiven =
           "GIVEN";
+        updateData.finalAdmission = "PENDING";
       }
 
       /*

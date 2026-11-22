@@ -26,6 +26,7 @@ model Admission {
   id             String               @id @default(cuid())
   enquiryNo      String               @unique
   academicYear   String               @default("2026-27")
+  year           AcademicYear         @relation(fields: [academicYear], references: [academicYear], onUpdate: Cascade, onDelete: Restrict)
   /// *
   ///    * STUDENT DETAILS
   student        String
@@ -55,6 +56,7 @@ model FeeRecord {
   id String @id @default(cuid())
 
   academicYear String
+  year AcademicYear @relation(fields: [academicYear], references: [academicYear], onUpdate: Cascade, onDelete: Restrict)
 
   termFee Int @map("term")
 
@@ -72,6 +74,8 @@ model FeeRecord {
 }
 
 model AcademicYear {
+  admissions Admission[]
+  feeRecords FeeRecord[]
   id           String    @id @default(cuid())
   academicYear String    @unique
   startDate    DateTime?
@@ -79,6 +83,12 @@ model AcademicYear {
   isActive     Boolean   @default(true)
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+}
+
+model AdmissionConfig {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }
 
 model Eligibility {

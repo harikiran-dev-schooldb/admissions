@@ -1,31 +1,50 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { ADMISSION_SETTINGS_EVENT, ADMISSION_SETTINGS_KEY, defaultAdmissionSettings, type AdmissionSettings } from "@/lib/admissionSettings";
+import { ADMISSION_SETTINGS_EVENT, defaultAdmissionSettings, type AdmissionSettings } from "@/lib/admissionSettings";
 
-function readSettings(): AdmissionSettings {
-  if (typeof window === "undefined") return defaultAdmissionSettings;
-  try {
-    const stored = JSON.parse(window.localStorage.getItem(ADMISSION_SETTINGS_KEY) ?? "{}") as Partial<AdmissionSettings>;
-    return { ageAsOfDate: /^\d{4}-\d{2}-\d{2}$/.test(stored.ageAsOfDate ?? "") ? stored.ageAsOfDate! : defaultAdmissionSettings.ageAsOfDate };
-  } catch {
-    return defaultAdmissionSettings;
-  }
+async function readSettings(): Promise<AdmissionSettings> {
+  const response = await fetch("/api/settings", { cache: "no-store" });
+  const json = await response.json();
+  if (!response.ok) throw new Error(json.error || "Unable to load admission settings");
+  return json.data as AdmissionSettings;
 }
 
 export function useAdmissionSettings() {
   const [settings, setSettingsState] = useState<AdmissionSettings>(defaultAdmissionSettings);
-  useEffect(() => {
-    const sync = () => setSettingsState(readSettings());
-    sync();
-    window.addEventListener("storage", sync);
-    window.addEventListener(ADMISSION_SETTINGS_EVENT, sync);
-    return () => { window.removeEventListener("storage", sync); window.removeEventListener(ADMISSION_SETTINGS_EVENT, sync); };
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const reload = useCallback(async () => {
+    try {
+      setError("");
+      const value = await readSettings();
+      setSettingsState(value);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to load settings");
+    } finally {
+      setLoading(false);
+    }
   }, []);
-  const saveSettings = useCallback((next: AdmissionSettings) => {
-    window.localStorage.setItem(ADMISSION_SETTINGS_KEY, JSON.stringify(next));
-    setSettingsState(next);
+
+  useEffect(() => {
+    void reload();
+    const sync = () => { void reload(); };
+    window.addEventListener(ADMISSION_SETTINGS_EVENT, sync);
+    return () => window.removeEventListener(ADMISSION_SETTINGS_EVENT, sync);
+  }, [reload]);
+
+  const saveSettings = useCallback(async (next: AdmissionSettings) => {
+    const response = await fetch("/api/settings", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(next),
+    });
+    const json = await response.json();
+    if (!response.ok) throw new Error(json.error || "Unable to save admission settings");
+    setSettingsState(json.data as AdmissionSettings);
     window.dispatchEvent(new Event(ADMISSION_SETTINGS_EVENT));
   }, []);
-  return { settings, saveSettings };
+
+  return { settings, saveSettings, loading, error, reload };
 }

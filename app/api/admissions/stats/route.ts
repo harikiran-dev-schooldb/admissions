@@ -1,7 +1,10 @@
+import { requireAccess } from "@/lib/auth/requireAccess";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   try {
     const { searchParams } = new URL(req.url);
     const academicYear = searchParams.get("academicYear")?.trim();

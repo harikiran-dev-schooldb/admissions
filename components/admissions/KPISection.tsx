@@ -20,7 +20,7 @@ export default function KPISection({ students }: Props) {
   const enquiries = students.length;
 
   const applicationsTaken = students.filter(
-    (s) => s.application === "YES",
+    (s) => s.application === "YES" || s.application === "SUBMITTED",
   ).length;
 
   const applicationsSubmitted = students.filter(

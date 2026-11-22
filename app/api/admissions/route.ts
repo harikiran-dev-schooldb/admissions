@@ -1,11 +1,16 @@
+import { requireAccess } from "@/lib/auth/requireAccess";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createEnquiryNumber, shouldSkipEntrance } from "@/lib/admissions";
 import { admissionCreateSchema, validationError } from "@/lib/validation/admissions";
 import { withDatabaseRetry } from "@/lib/dbRetry";
+import { calculateAge, getEligibleClass } from "@/lib/eligibility";
+import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
 
 export async function GET(req: Request) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   try {
     const { searchParams } = new URL(req.url);
     const q = searchParams.get("q")?.trim();
@@ -40,11 +45,21 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
+  const accessError = await requireAccess("staff");
+  if (accessError) return accessError;
   try {
     const parsed = admissionCreateSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
 
     const body = parsed.data;
+    const managedYear = await prisma.academicYear.findUnique({ where: { academicYear: body.academicYear } });
+    if (!managedYear?.isActive) {
+      return NextResponse.json({ error: "Choose an active academic year before creating an admission" }, { status: 400 });
+    }
+    const config = await prisma.admissionConfig.findUnique({ where: { key: "ageAsOfDate" } });
+    const ageData = calculateAge(body.dob, config?.value ?? getDefaultAgeAsOfDate(body.academicYear));
+    const eligibleClass = ageData ? getEligibleClass(ageData.years) : "NOT ELIGIBLE";
+    const eligibleStatus = eligibleClass === body.admClass.trim().toUpperCase() ? "ELIGIBLE" : "NOT ELIGIBLE";
     const skipEntrance = shouldSkipEntrance(body.admClass);
 
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -57,10 +72,10 @@ export async function POST(req: Request) {
             parent: body.parent.toUpperCase(),
             mobile: body.mobile,
             dob: body.dob,
-            age: body.age ?? null,
+            age: ageData?.text ?? null,
             admClass: body.admClass,
-            eligibleClass: body.eligibleClass ?? null,
-            eligibleStatus: "ELIGIBLE",
+            eligibleClass,
+            eligibleStatus,
             application: "NO",
             entrance: skipEntrance ? "NOT_REQUIRED" : "NOT_STARTED",
             interview: "NOT_STARTED",

@@ -6,6 +6,10 @@ on:
   pull_request:
     branches: ["main"]
 
+concurrency:
+  group: admissions-ci-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 jobs:
   verify:
     runs-on: ubuntu-latest
@@ -34,6 +38,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - run: npx prisma validate
+      - run: npx prisma migrate deploy
       - run: npx prisma generate
+      - run: node --experimental-strip-types --test tests/*.test.mjs
       - run: npx eslint app/api lib proxy.ts app/admissions/page.tsx app/admissions/analytics/page.tsx app/fees/page.tsx app/login/page.tsx app/layout.tsx app/page.tsx components/AppSidebar.tsx components/admissions/AdmissionsAnalytics.tsx components/fees/FeesKPISection.tsx components/fees/FeesTable.tsx hooks/useAdmissions.ts hooks/useFees.ts
       - run: npm run build

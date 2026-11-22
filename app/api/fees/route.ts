@@ -1,3 +1,4 @@
+import { requireAccess } from "@/lib/auth/requireAccess";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -5,6 +6,8 @@ import { feeCreateSchema, validationError } from "@/lib/validation/fees";
 import { withDatabaseRetry } from "@/lib/dbRetry";
 
 export async function GET() {
+  const accessError = await requireAccess("read");
+  if (accessError) return accessError;
   try {
     const fees = await withDatabaseRetry(() => prisma.feeRecord.findMany({
       orderBy: [{ academicYear: "desc" }, { age: "asc" }, { className: "asc" }],
@@ -18,12 +21,16 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
+  const accessError = await requireAccess("admin");
+  if (accessError) return accessError;
   try {
     const parsed = feeCreateSchema.safeParse(await req.json());
     if (!parsed.success) {
       return NextResponse.json(validationError(parsed.error), { status: 400 });
     }
 
+    const year = await prisma.academicYear.findUnique({ where: { academicYear: parsed.data.academicYear } });
+    if (!year?.isActive) return NextResponse.json({ error: "Choose an active academic year" }, { status: 400 });
     const fee = await prisma.feeRecord.create({ data: parsed.data });
     return NextResponse.json({ data: fee }, { status: 201 });
   } catch (error) {
