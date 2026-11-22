@@ -44,7 +44,8 @@ test("audit API read access and audit screen both require admin role", () => {
   const proxy=src("proxy.ts");
   assert.match(api, /requireAccess\("admin"\)/);
   assert.doesNotMatch(api, /export async function (PUT|POST|PATCH|DELETE)/);
-  assert.match(api, /take: PAGE_SIZE/);
+  assert.match(api, /take: pagination\.pageSize/);
+  assert.match(api, /getAuditPagination\(total, requestedPage, pageSize\)/);
   assert.match(api, /"Cache-Control": "private, no-store, max-age=0"/);
   assert.match(page, /role !== "admin"/);
   assert.match(nav, /Audit Logs"[^\n]+adminOnly: true/);

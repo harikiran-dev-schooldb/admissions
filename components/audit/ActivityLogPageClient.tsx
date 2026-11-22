@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Clock3, History, Loader2, RefreshCw, Search,
 import AppSidebar from "@/components/AppSidebar";
 import AccountMenu from "@/components/AccountMenu";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
+import { AUDIT_PAGE_SIZES, DEFAULT_AUDIT_PAGE_SIZE, getAuditPageWindow, type AuditPageSize } from "@/lib/audit/pagination";
 
 type ChangedValue = string | number | boolean | null;
 type Change = { from: ChangedValue; to: ChangedValue };
@@ -65,6 +66,7 @@ export default function ActivityLogPageClient() {
   const [search, setSearch] = useState("");
   const [query, setQuery] = useState("");
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState<AuditPageSize>(DEFAULT_AUDIT_PAGE_SIZE);
   const [refresh, setRefresh] = useState(0);
   const [state, setState] = useState<{key: string; payload: Payload | null; error: string}>({ key:"", payload:null, error:"" });
 
@@ -73,7 +75,7 @@ export default function ActivityLogPageClient() {
     return () => window.clearTimeout(t);
   }, [search]);
 
-  const params = new URLSearchParams({ page: String(page) });
+  const params = new URLSearchParams({ page: String(page), pageSize: String(pageSize) });
   if (type !== "ALL") params.set("type", type);
   if (action !== "ALL") params.set("action", action);
   if (query) params.set("q", query);
@@ -87,7 +89,11 @@ export default function ActivityLogPageClient() {
         if (!response.ok) throw new Error(json.error ?? "Failed to load activity");
         return json as Payload;
       })
-      .then((payload) => { if (!controller.signal.aborted) setState({key:requestKey,payload,error:""}); })
+      .then((payload) => {
+        if (controller.signal.aborted) return;
+        setState({key:requestKey,payload,error:""});
+        if (payload.page !== page) setPage(payload.page);
+      })
       .catch((caught: unknown) => {
         if (!controller.signal.aborted) setState({key:requestKey,payload:null,error:caught instanceof Error ? caught.message : "Unable to load audit history"});
       });
@@ -99,6 +105,12 @@ export default function ActivityLogPageClient() {
   const loading = state.key !== requestKey;
   const payload = loading ? null : state.payload;
   const entries = payload?.data ?? [];
+  const currentPage = payload?.page ?? page;
+  const totalPages = payload?.pages ?? 1;
+  const totalRecords = payload?.total ?? 0;
+  const firstRecord = totalRecords === 0 ? 0 : (currentPage - 1) * pageSize + 1;
+  const lastRecord = Math.min(totalRecords, currentPage * pageSize);
+  const visiblePages = getAuditPageWindow(currentPage, totalPages);
 
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -184,13 +196,59 @@ export default function ActivityLogPageClient() {
                 })}
               </div>
             }
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-indigo-100 bg-indigo-50/40 px-5 py-4">
-              <p className="text-sm font-semibold text-slate-600">{payload?.total ?? 0} events · Page {payload?.page ?? page} of {payload?.pages ?? 1}</p>
-              <div className="flex items-center gap-2">
-                <button type="button" onClick={()=>setPage((current)=>Math.max(1,current-1))} disabled={loading || page<=1} aria-label="Previous audit page" className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 disabled:opacity-40"><ChevronLeft className="size-4" /></button>
-                <button type="button" onClick={()=>setPage((current)=>Math.min(payload?.pages ?? 1,current+1))} disabled={loading || page >= (payload?.pages ?? 1)} aria-label="Next audit page" className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 disabled:opacity-40"><ChevronRight className="size-4" /></button>
+            <footer className="flex flex-col gap-4 border-t border-indigo-100 bg-gradient-to-r from-indigo-50/75 via-white to-violet-50/75 px-4 py-4 sm:px-5" aria-label="Audit pagination">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-sm font-semibold text-slate-600" aria-live="polite">
+                  {loading ? "Loading page…" : totalRecords === 0
+                    ? "No matching audit events"
+                    : <>Showing <strong className="tabular-nums text-slate-900">{firstRecord.toLocaleString("en-IN")}–{lastRecord.toLocaleString("en-IN")}</strong> of <strong className="tabular-nums text-slate-900">{totalRecords.toLocaleString("en-IN")}</strong> events</>}
+                </p>
+                <div className="flex items-center gap-2">
+                  <span className="whitespace-nowrap text-xs font-bold text-slate-500">Rows per page</span>
+                  <div className="w-24">
+                    <SchoolDbSelect ariaLabel="Audit rows per page" value={String(pageSize)}
+                      onValueChange={(value) => { setPageSize(Number(value) as AuditPageSize); setPage(1); }}
+                      options={AUDIT_PAGE_SIZES.map((size) => ({ value: String(size), label: String(size) }))} />
+                  </div>
+                </div>
               </div>
-            </div>
+              <nav aria-label="Audit result pages" className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-end">
+                <button type="button" onClick={() => setPage((current) => Math.max(1, current - 1))}
+                  disabled={loading || currentPage <= 1} aria-label="Previous audit page"
+                  className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-indigo-300 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
+                  <ChevronLeft className="size-4" />
+                </button>
+                {visiblePages[0] > 1 && (
+                  <>
+                    <button type="button" onClick={() => setPage(1)} disabled={loading}
+                      aria-label="Audit page 1" className="min-w-10 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-600 disabled:opacity-40">1</button>
+                    {visiblePages[0] > 2 && <span className="px-1 text-sm text-slate-400" aria-hidden="true">…</span>}
+                  </>
+                )}
+                {visiblePages.map((number) => (
+                  <button type="button" key={number} onClick={() => setPage(number)}
+                    aria-label={`Audit page ${number}`} aria-current={number === currentPage ? "page" : undefined} disabled={loading}
+                    className={`min-w-10 rounded-xl px-3 py-2.5 text-sm font-extrabold tabular-nums transition disabled:opacity-40 ${number === currentPage
+                      ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-100"
+                      : "border border-slate-200 bg-white text-slate-600 hover:border-indigo-300 hover:text-indigo-700"}`}>
+                    {number}
+                  </button>
+                ))}
+                {visiblePages.at(-1) !== totalPages && (
+                  <>
+                    {(visiblePages.at(-1) ?? 0) < totalPages - 1 && <span className="px-1 text-sm text-slate-400" aria-hidden="true">…</span>}
+                    <button type="button" onClick={() => setPage(totalPages)} disabled={loading}
+                      aria-label={`Audit page ${totalPages}`} className="min-w-10 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-600 disabled:opacity-40">{totalPages}</button>
+                  </>
+                )}
+                <button type="button" onClick={() => setPage((current) => Math.min(totalPages, current + 1))}
+                  disabled={loading || currentPage >= totalPages} aria-label="Next audit page"
+                  className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-indigo-300 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
+                  <ChevronRight className="size-4" />
+                </button>
+                <span className="ml-2 hidden whitespace-nowrap text-xs font-semibold text-slate-500 md:inline">Page {currentPage} of {totalPages}</span>
+              </nav>
+            </footer>
           </section>
         </main>
       </div>
