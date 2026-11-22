@@ -83,41 +83,29 @@ export default function KPISection({ stats, loading = false }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-6">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-6" aria-label="Admissions funnel">
       {cards.map((card) => {
         const Icon = card.icon;
-        const progress = enquiries ? Math.round((card.value / enquiries) * 100) : 0;
-
+        const progress = enquiries ? Math.min(100, Math.max(0, Math.round((card.value / enquiries) * 100))) : 0;
         return (
           <div
             key={card.title}
-            className={`metric-card bg-gradient-to-br ${card.wash} to-white rounded-[22px] px-4 py-4`}
+            className={`metric-card min-w-0 rounded-[20px] bg-gradient-to-br ${card.wash} to-white px-3.5 py-4 sm:px-4 ${card.title === "Admitted" ? "border-emerald-200/80 ring-1 ring-emerald-100" : ""}`}
           >
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-bold uppercase tracking-[.08em] text-slate-500">
-                  {card.title}
-                </p>
-
-                <h2 className="mt-1 text-3xl font-black tracking-[-.04em] text-slate-950">
-                  {loading ? "…" : card.value.toLocaleString("en-IN")}
-                </h2>
-              </div>
-
-              <div
-                className={`
-                  flex h-10 w-10 items-center justify-center
-                  rounded-2xl
-                  ${card.bg}
-                  ${card.color}
-                `}
-              >
-                <Icon className="h-4 w-4" />
+            <div className="flex min-w-0 items-start justify-between gap-2">
+              <p className="min-w-0 text-[11px] font-extrabold uppercase tracking-[.07em] text-slate-500 sm:text-xs">{card.title}</p>
+              <div className={`grid size-9 shrink-0 place-items-center rounded-[12px] ${card.bg} ${card.color}`} aria-hidden="true">
+                <Icon className="size-4" />
               </div>
             </div>
-            <div className="mt-4 flex items-center gap-2">
-              <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-slate-200/80"><div className={`h-full rounded-full ${card.rail} transition-all duration-500`} style={{ width: `${progress}%` }} /></div>
-              <span className="min-w-9 text-right text-xs font-black text-slate-500">{progress}%</span>
+            <p className="mt-2 text-[32px] font-black leading-none tracking-[-.045em] tabular-nums text-slate-950 sm:text-4xl" aria-label={`${card.title}: ${loading ? "Loading" : card.value.toLocaleString("en-IN")}`}>
+              {loading ? "…" : card.value.toLocaleString("en-IN")}
+            </p>
+            <div className="mt-3 flex items-center gap-2">
+              <div className="h-1.5 min-w-0 flex-1 overflow-hidden rounded-full bg-slate-200/80" role="progressbar" aria-label={`${card.title} percentage of enquiries`} aria-valuenow={loading ? undefined : progress} aria-valuemin={0} aria-valuemax={100}>
+                <div className={`h-full rounded-full ${card.rail} transition-[width] duration-500`} style={{ width: loading ? "0%" : `${progress}%` }} />
+              </div>
+              <span className="min-w-9 text-right text-[11px] font-extrabold tabular-nums text-slate-500">{loading ? "…" : `${progress}%`}</span>
             </div>
           </div>
         );
