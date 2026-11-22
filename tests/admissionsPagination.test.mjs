@@ -30,39 +30,31 @@ test("optional 25-per-page selection remains supported", () => {
   assert.deepEqual(getPagination(0, 9, 25), {page:1,pageSize:25,total:0,totalPages:1,start:0,end:0,skip:0});
 });
 
-test("defaults to the biggest active cohort instead of a newer one-record year", () => {
+test("defaults to the latest academic year even if the older year has more admissions", () => {
   const years = [
-    {academicYear:"2027-28",isActive:true,admissionsCount:1},
-    {academicYear:"2026-27",isActive:true,admissionsCount:910},
-    {academicYear:"2025-26",isActive:true,admissionsCount:0},
+    { academicYear: "2025-26", isActive: true, admissionsCount: 0 },
+    { academicYear: "2027-28", isActive: true, admissionsCount: 1 },
+    { academicYear: "2026-27", isActive: true, admissionsCount: 910 },
   ];
-  assert.equal(selectDefaultAdmissionYear(years, ""), "2026-27");
-  assert.equal(selectDefaultAdmissionYear(years, "2027-28"), "2027-28");
-  assert.equal(selectDefaultAdmissionYear(years.map(y=>({...y, admissionsCount:0})), ""), "2027-28");
+  assert.equal(selectDefaultAdmissionYear(years, ""), "2027-28");
+  assert.equal(selectDefaultAdmissionYear(years, "2026-27"), "2026-27");
   assert.equal(selectDefaultAdmissionYear([], ""), "");
 });
 
-test("tie on enrolled cohort size prefers the more recent academic year", () => {
-  const years = [
-    {academicYear:"2025-26",isActive:true,admissionsCount:10},
-    {academicYear:"2026-27",isActive:true,admissionsCount:10},
-  ];
-  assert.equal(selectDefaultAdmissionYear(years, ""), "2026-27");
-});
-test("explicitly selected newest year stays selected even with only one enquiry", () => {
-  const years = [
-    {academicYear:"2027-28",isActive:true,admissionsCount:1},
-    {academicYear:"2026-27",isActive:true,admissionsCount:910},
-  ];
-  assert.equal(selectDefaultAdmissionYear(years, "2027-28"), "2027-28");
-});
-
-test("staff receives no year counts but server-recommended year still selects the 910-record cohort", () => {
+test("latest year wins despite old server recommendation and missing enrolments", () => {
   const years = [
     { academicYear: "2027-28", isActive: true, isSuggested: false },
     { academicYear: "2026-27", isActive: true, isSuggested: true },
-    { academicYear: "2025-26", isActive: true, isSuggested: false },
   ];
-  assert.equal(selectDefaultAdmissionYear(years, ""), "2026-27");
+  assert.equal(selectDefaultAdmissionYear(years, ""), "2027-28");
+});
+
+test("explicit archived selection remains viewable and invalid year falls back to newest", () => {
+  const years = [
+    { academicYear: "2028-29", isActive: false, admissionsCount: 0 },
+    { academicYear: "2027-28", isActive: true, admissionsCount: 50 },
+  ];
+  assert.equal(selectDefaultAdmissionYear(years, ""), "2028-29");
   assert.equal(selectDefaultAdmissionYear(years, "2027-28"), "2027-28");
+  assert.equal(selectDefaultAdmissionYear(years, "2040-41"), "2028-29");
 });
