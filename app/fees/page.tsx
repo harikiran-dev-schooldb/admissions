@@ -34,7 +34,7 @@ function FeesPageContent() {
   const params = useSearchParams();
   const yearParam = params.get("year")?.trim();
   const classParam = params.get("class")?.trim();
-  const linkedClass = yearParam && /^\\d{4}-\\d{2}$/.test(yearParam) && classParam && classParam.length <= 30
+  const linkedClass = yearParam && /^\d{4}-\d{2}$/.test(yearParam) && classParam && classParam.length <= 30
     ? { year: yearParam, className: classParam }
     : null;
   const { role, canManage, error: accessError } = useAccess();
