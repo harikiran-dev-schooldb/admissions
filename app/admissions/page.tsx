@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import FollowUpQueue from "@/components/admissions/FollowUpQueue";
 import AppSidebar from "@/components/AppSidebar";
 import AccountMenu from "@/components/AccountMenu";
-import NotificationBell from "@/components/notifications/NotificationBell";
 import AdmissionDetailModal from "@/components/admissions/AdmissionDetailModal";
 import AdmissionsTable from "@/components/admissions/AdmissionsTable";
 import KPISection from "@/components/admissions/KPISection";
@@ -115,7 +114,7 @@ export default function AdmissionsPage() {
       <AppSidebar />
       <div className="lg:pl-72">
         <header className="premium-topbar sticky top-18 z-30 lg:top-0">
-          <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-9">
+          <div className="flex min-h-20 flex-col items-stretch justify-center gap-3 px-4 py-3 md:flex-row md:items-center md:justify-between sm:px-6 xl:px-9">
             <div className="flex min-w-0 items-center gap-3.5">
               <span className="hidden size-11 shrink-0 place-items-center rounded-[15px] border border-indigo-100 bg-indigo-50 text-indigo-600 lg:grid"><Users className="size-5" /></span>
               <div className="min-w-0">
@@ -123,7 +122,7 @@ export default function AdmissionsPage() {
                 <h1 className="mt-0.5 truncate text-[19px] font-black tracking-[-.035em] text-slate-950 sm:text-[23px]">Admission pipeline</h1>
               </div>
             </div>
-            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="flex min-w-0 items-center justify-end gap-2 sm:gap-3">
               <div className="hidden text-right xl:block">
                 <p className="text-[10px] font-extrabold uppercase tracking-[.13em] text-slate-400">Academic session</p>
                 <p className="mt-0.5 text-[11px] font-semibold text-slate-500">Admissions directory</p>
@@ -142,23 +141,23 @@ export default function AdmissionsPage() {
                 className="premium-button h-11 rounded-[14px] px-3 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5 sm:text-sm">
                 <Plus className="size-4" /><span className="hidden sm:inline">New enquiry</span><span className="sm:hidden">New</span>
               </button>}
-              <div className="border-l border-slate-200 pl-2 lg:pl-3"><div className="lg:hidden"><NotificationBell /></div><div className="hidden lg:block"><AccountMenu /></div></div>
+              <div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div>
             </div>
           </div>
         </header>
 
-        <main className="mx-auto max-w-[1680px] space-y-6 p-4 sm:p-6 xl:p-10">
+        <main className="mx-auto max-w-[1680px] space-y-4 p-3 sm:space-y-6 sm:p-6 xl:p-10">
           <AccessNotice role={role} error={accessError} />
-          <section className="premium-hero rounded-[32px] p-6 sm:p-9">
-            <div className="relative z-10 flex flex-col gap-7 xl:flex-row xl:items-end xl:justify-between">
+          <section className="premium-hero rounded-[26px] p-5 sm:rounded-[32px] sm:p-9">
+            <div className="relative z-10 flex flex-col gap-5 sm:gap-7 xl:flex-row xl:items-end xl:justify-between">
               <div className="max-w-2xl">
                 <p className="premium-kicker flex items-center gap-2"><Sparkles className="size-4" />{academicYear ? `${academicYear.replace("-", "–")} admission desk` : "Create an academic year"}</p>
-                <h2 className="mt-4 text-3xl font-black tracking-[-0.045em] sm:text-4xl">Every prospective student, clearly in view.</h2>
-                <p className="mt-3 max-w-xl text-base leading-7">Move enquiries through application, entrance, interview and confirmation while keeping every parent conversation connected.</p>
+                <h2 className="mt-3 text-2xl font-black leading-tight tracking-[-0.045em] sm:mt-4 sm:text-4xl">Every prospective student, clearly in view.</h2>
+                <p className="mt-3 max-w-xl text-sm leading-6 sm:text-base sm:leading-7">Move enquiries through application, entrance, interview and confirmation while keeping every parent conversation connected.</p>
               </div>
               {canManage && <div className="grid grid-cols-2 gap-3 sm:min-w-80">
-                <div className="hero-stat rounded-2xl p-4"><Users className="size-4 text-indigo-600" /><strong className="mt-3 block text-3xl font-black tabular-nums">{(summaryLoading || yearsLoading) ? "…" : summary.total.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Total enquiries</p></div>
-                <div className="hero-stat rounded-2xl p-4"><CheckCircle2 className="size-4 text-emerald-300" /><strong className="mt-3 block text-3xl font-black tabular-nums">{(summaryLoading || yearsLoading) ? "…" : summary.admitted.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Admitted</p></div>
+                <div className="hero-stat rounded-2xl p-3 sm:p-4"><Users className="size-4 text-indigo-600" /><strong className="mt-3 block text-2xl font-black tabular-nums sm:text-3xl">{(summaryLoading || yearsLoading) ? "…" : summary.total.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Total enquiries</p></div>
+                <div className="hero-stat rounded-2xl p-3 sm:p-4"><CheckCircle2 className="size-4 text-emerald-300" /><strong className="mt-3 block text-2xl font-black tabular-nums sm:text-3xl">{(summaryLoading || yearsLoading) ? "…" : summary.admitted.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Admitted</p></div>
               </div>}
             </div>
           </section>

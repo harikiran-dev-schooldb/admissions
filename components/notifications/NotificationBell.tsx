@@ -24,6 +24,7 @@ export default function NotificationBell() {
   const [readIds, setReadIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
   const alerted = useRef<Set<string>>(new Set());
+  const popoverRef = useRef<HTMLDivElement>(null);
   const [pushEnabled, setPushEnabled] = useState(false);
   const [pushError, setPushError] = useState("");
   const [permission, setPermission] = useState<NotificationPermission>("default");
@@ -38,6 +39,22 @@ export default function NotificationBell() {
       setPushEnabled(Boolean(subscription));
     }).catch(() => setPushEnabled(false));
   }, [email]);
+
+  useEffect(() => {
+    if (!open) return;
+    const onPointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Node && !popoverRef.current?.contains(event.target)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpen(false);
+    };
+    document.addEventListener("pointerdown", onPointerDown);
+    document.addEventListener("keydown", onKeyDown);
+    return () => {
+      document.removeEventListener("pointerdown", onPointerDown);
+      document.removeEventListener("keydown", onKeyDown);
+    };
+  }, [open]);
 
   const refresh = useCallback(async () => {
     if (!email || (role !== "staff" && role !== "admin")) return;
@@ -133,13 +150,13 @@ export default function NotificationBell() {
   }
 
   if (!email || (role !== "admin" && role !== "staff")) return null;
-  return <div className="relative z-50">
+  return <div ref={popoverRef} className="relative z-50">
     <button type="button" onClick={() => setOpen((value) => !value)} aria-label={`Notifications, ${count} unread`}
       aria-expanded={open} className="relative grid size-11 place-items-center rounded-[15px] border border-indigo-100 bg-white text-indigo-700 shadow-sm hover:bg-indigo-50">
       {count ? <BellRing className="size-5" /> : <Bell className="size-5" />}
       {count > 0 && <span className="absolute -right-1 -top-1 grid min-w-5 place-items-center rounded-full bg-rose-600 px-1 text-[10px] font-bold text-white">{count > 9 ? "9+" : count}</span>}
     </button>
-    {open && <div className="absolute right-0 top-[calc(100%+10px)] w-[min(360px,calc(100vw-24px))] rounded-[22px] border border-indigo-100 bg-white p-4 shadow-[0_20px_70px_rgba(15,23,42,.2)]">
+    {open && <div role="dialog" aria-label="Notifications" className="fixed inset-x-3 top-[calc(4.5rem+10px)] z-[80] max-h-[calc(100dvh-9rem)] overflow-y-auto rounded-[22px] border border-indigo-100 bg-white p-4 shadow-[0_20px_70px_rgba(15,23,42,.2)] lg:absolute lg:inset-x-auto lg:right-0 lg:top-[calc(100%+10px)] lg:w-[min(360px,calc(100vw-24px))] lg:max-h-[min(80dvh,620px)]">
       <div className="flex items-center justify-between gap-2"><h2 className="text-sm font-black text-slate-900">Notifications</h2>
         <div className="flex gap-2">
           <button type="button" onClick={() => void refresh()} aria-label="Refresh notifications" className="rounded-lg p-2 hover:bg-slate-100"><RefreshCw className={`size-4 ${loading ? "animate-spin" : ""}`} /></button>
@@ -163,7 +180,7 @@ export default function NotificationBell() {
       {!pushEnabled && <button type="button" onClick={() => void enableAlerts()} className="mt-3 w-full rounded-xl bg-indigo-50 p-2 text-xs font-bold text-indigo-700">Enable background push notifications</button>}
       {pushEnabled && <button type="button" onClick={() => void disableAlerts()} className="mt-3 w-full rounded-xl bg-slate-50 p-2 text-xs font-bold text-slate-700">Disable background push notifications</button>}
       {pushError && <p role="alert" className="mt-2 text-xs text-rose-600">{pushError}</p>}
-      <p className="mt-3 text-[10px] text-slate-400">Background reminders require notification permission and server setup. Read state is saved on this device.</p>
+      <p className="mt-3 text-[11px] text-slate-500">{pushEnabled ? "Push alerts are subscribed on this device." : "Enable push alerts to receive follow-up reminders."} Read status is stored on this device.</p>
     </div>}
   </div>;
 }
