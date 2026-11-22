@@ -13,21 +13,12 @@ export function getFeeYearOptions(
   return [...names].sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 }
 
-/** Prefer the most recent *active* academic year that actually has fees. */
+/** Latest academic year is the default, including a newly opened empty year. */
 export function selectDefaultFeeYear(
   years: readonly YearRecord[],
   fees: readonly FeeYearRecord[],
   selectedYear: string,
 ): string {
   const options = getFeeYearOptions(years, fees);
-  if (selectedYear && options.includes(selectedYear)) return selectedYear;
-  const existingFeeYears = new Set(fees.map((fee) => fee.academicYear));
-  const activeYears = new Set(years.filter((year) => year.isActive).map((year) => year.academicYear));
-  return (
-    options.find((year) => activeYears.has(year) && existingFeeYears.has(year)) ??
-    options.find((year) => existingFeeYears.has(year)) ??
-    options.find((year) => activeYears.has(year)) ??
-    options[0] ??
-    ""
-  );
+  return selectedYear && options.includes(selectedYear) ? selectedYear : (options[0] ?? "");
 }

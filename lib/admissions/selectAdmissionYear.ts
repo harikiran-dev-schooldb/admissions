@@ -6,25 +6,15 @@ export type AdmissionYearOption = {
 };
 
 /**
- * Prefer the active cohort with the most enquiries, breaking ties by newest year.
- * This prevents a newly opened future year (with 1 record) hiding a 910-record cohort.
+ * Always default to the newest configured academic year, whether populated or not.
+ * An explicit valid historical selection remains respected.
+ * Archived years remain available for viewing, but cannot receive new admissions.
  */
 export function selectDefaultAdmissionYear(
   years: readonly AdmissionYearOption[],
   selectedYear: string,
 ): string {
   if (selectedYear && years.some((year) => year.academicYear === selectedYear)) return selectedYear;
-  const sorted = [...years].sort((a, b) => b.academicYear.localeCompare(a.academicYear, undefined, { numeric: true }));
-  const mostPopulated = (options: readonly AdmissionYearOption[]) =>
-    options.reduce<AdmissionYearOption | null>((best, year) =>
-      (year.admissionsCount ?? 0) > (best?.admissionsCount ?? 0) ? year : best, null);
-
-  return (
-    sorted.find((year) => year.isSuggested)?.academicYear ??
-    mostPopulated(sorted.filter((year) => year.isActive))?.academicYear ??
-    mostPopulated(sorted)?.academicYear ??
-    sorted.find((year) => year.isActive)?.academicYear ??
-    sorted[0]?.academicYear ??
-    ""
-  );
+  return [...years]
+    .sort((a, b) => b.academicYear.localeCompare(a.academicYear, undefined, { numeric: true }))[0]?.academicYear ?? "";
 }

@@ -13,15 +13,15 @@ export async function GET() {
   if (roleError) return roleError;
   try {
     const academicYears = await withDatabaseRetry(() => prisma.academicYear.findMany({ orderBy: { academicYear: "desc" }, include: { _count: { select: { admissions: true } } } }));
-    const populated = [...academicYears]
-      .filter((year) => year.isActive)
-      .sort((a, b) => b._count.admissions - a._count.admissions || b.academicYear.localeCompare(a.academicYear))[0];
+    // Admissions, Analytics and Fees default to the latest configured year,
+    // even if it has not received enrolments or fee structures yet.
+    const latestYear = academicYears[0]?.academicYear;
     return NextResponse.json({
       data: academicYears.map(({ _count, ...year }) => ({
         ...year,
         ...(role === "admin"
           ? { admissionsCount: _count.admissions }
-          : { isSuggested: year.academicYear === populated?.academicYear }),
+          : { isSuggested: year.academicYear === latestYear }),
       })),
       total: academicYears.length,
     }, { headers: { "Cache-Control": "private, no-store" } });
