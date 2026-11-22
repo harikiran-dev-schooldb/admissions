@@ -66,14 +66,9 @@ export default function UserManagementPage() {
   const refreshData = useCallback(() => setRefresh((value) => value + 1), []);
 
   useEffect(() => {
-    if (!canManage) {
-      setLoading(false);
-      return;
-    }
+    if (!canManage) return;
     let disposed = false;
     async function load() {
-      setLoading(true);
-      setError("");
       try {
         const [listing, history] = await Promise.all([
           fetch(`/api/users?page=${page}&q=${encodeURIComponent(query)}`, { cache: "no-store" }).then(readJson) as Promise<Listing>,
@@ -215,7 +210,7 @@ export default function UserManagementPage() {
 
               <section className="premium-card rounded-[28px] p-6 sm:p-7">
                 <div className="flex items-center gap-3"><KeyRound className="size-5 text-indigo-600" />
-                  <div><h3 className="text-xl font-black text-slate-950">Protected recovery admins</h3><p className="text-sm text-slate-500">Can't be demoted or disabled here</p></div>
+                  <div><h3 className="text-xl font-black text-slate-950">Protected recovery admins</h3><p className="text-sm text-slate-500">Cannot be demoted or disabled here</p></div>
                 </div>
                 <div className="mt-5 space-y-2">
                   {bootstrapAdmins.map((email) => <div key={email} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-indigo-100 bg-indigo-50/50 px-4 py-3">
