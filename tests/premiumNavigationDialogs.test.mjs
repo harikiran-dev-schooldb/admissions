@@ -65,3 +65,25 @@ test("mobile notifications are viewport-bound and not duplicated in the admissio
   assert.doesNotMatch(page, /<NotificationBell\s*\/>/);
   assert.match(page, /md:flex-row md:items-center md:justify-between/);
 });
+
+test("account menu stays compact and does not duplicate sidebar administration navigation", () => {
+  const account = source("components/AccountMenu.tsx");
+  const sidebar = source("components/AppSidebar.tsx");
+  assert.ok(account.includes("w-[min(272px,calc(100vw-24px))]"));
+  assert.ok(account.includes("Signed in securely"));
+  assert.ok(account.includes("void signOut()"));
+  for (const path of ["/settings", "/users", "/audit-logs"]) {
+    assert.ok(sidebar.includes(`href: "${path}"`), `sidebar missing ${path}`);
+    assert.ok(!account.includes(`href="${path}"`), `duplicate account menu link: ${path}`);
+  }
+});
+
+test("admissions hero prioritizes summary totals without exposing staff-only metrics", () => {
+  const page = source("app/admissions/page.tsx");
+  const metrics = source("components/admissions/KPISection.tsx");
+  assert.ok(page.includes('{canManage && <div className="grid min-w-0 grid-cols-2 gap-3"'));
+  assert.ok(page.includes("xl:grid-cols-[minmax(0,1fr)_minmax(0,360px)]"));
+  assert.ok(metrics.includes("xl:grid-cols-6"));
+  assert.ok(metrics.includes('aria-label="Admissions funnel"'));
+  assert.ok(metrics.includes('width: loading ? "0%" :'));
+});

@@ -1,11 +1,9 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  CheckCircle2, ChevronDown, History, Loader2, LogOut,
-  Settings2, ShieldCheck, UserRound, UserRoundCog,
+  ChevronDown, Loader2, LogOut, ShieldCheck, UserRound,
 } from "lucide-react";
 import { authClient } from "@/lib/auth/client";
 import NotificationBell from "@/components/notifications/NotificationBell";
@@ -77,47 +75,27 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 top-[calc(100%+10px)] z-[90] w-[min(328px,calc(100vw-24px))] overflow-hidden rounded-[24px] border border-indigo-100 bg-white p-2.5 shadow-[0_24px_75px_rgba(15,23,42,.20)]">
-          <div className="rounded-[19px] bg-gradient-to-br from-indigo-50 via-white to-violet-50 p-4">
-            <p className="text-[10px] font-extrabold uppercase tracking-[.16em] text-indigo-500">Your SchoolDB account</p>
-            <div className="mt-3 flex items-center gap-3">
-              <span className="grid size-12 shrink-0 place-items-center rounded-[16px] bg-gradient-to-br from-indigo-600 to-violet-600 font-black text-white shadow-md">{initials}</span>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-extrabold text-slate-950" title={displayName}>{displayName}</p>
-                <p className="mt-1 text-xs font-bold text-indigo-600">{roleName}</p>
+        <div role="dialog" aria-label="Your SchoolDB account" className="absolute right-0 top-[calc(100%+8px)] z-[90] w-[min(272px,calc(100vw-24px))] overflow-hidden rounded-[20px] border border-indigo-100 bg-white p-2 shadow-[0_20px_65px_rgba(15,23,42,.16)]">
+          <div className="rounded-[15px] bg-gradient-to-br from-indigo-50/90 via-white to-violet-50/70 p-3">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <span className="grid size-10 shrink-0 place-items-center rounded-[13px] bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-black text-white shadow-sm" aria-hidden="true">{loading ? <UserRound className="size-4" /> : initials}</span>
+              <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-extrabold leading-5 text-slate-950" title={displayName}>{loading ? "Loading…" : displayName}</p>
+                <p className="truncate text-[11px] font-semibold text-indigo-700">{roleName}</p>
               </div>
             </div>
-            {email && <p className="mt-3 break-all rounded-xl border border-indigo-100/70 bg-white/75 px-3 py-2 text-xs text-slate-600">{email}</p>}
-            <p className="mt-3 flex items-center gap-1.5 text-[11px] font-semibold text-emerald-700"><ShieldCheck className="size-3.5" /> Signed in securely</p>
+            {email && <p className="mt-2.5 truncate text-[11px] text-slate-600" title={email}>{email}</p>}
+            <p className="mt-2 flex items-center gap-1.5 text-[10px] font-semibold text-emerald-700"><ShieldCheck className="size-3.5" /> Signed in securely</p>
           </div>
-
-          {error && <p role="alert" className="mx-2 mt-2 rounded-lg bg-rose-50 p-2 text-xs font-semibold text-rose-700">{error}</p>}
-          <div className="space-y-1 px-1 py-2">
-            {role === "admin" && (
-              <Link href="/settings" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
-                <Settings2 className="size-4" /> Settings
-              </Link>
-            )}
-            {role === "admin" && (
-              <Link href="/users" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
-                <UserRoundCog className="size-4" /> Users &amp; roles
-              </Link>
-            )}
-            {role === "admin" && (
-              <Link href="/audit-logs" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
-                <History className="size-4" /> Audit logs
-              </Link>
-            )}
-          </div>
-          <div className="border-t border-slate-100 p-1">
+          {error && <p role="alert" className="mx-1 mt-2 rounded-lg bg-rose-50 p-2 text-xs font-semibold text-rose-700">{error}</p>}
+          <div className="mt-1 border-t border-slate-100 pt-1">
             <button type="button" onClick={() => void signOut()} disabled={isSigningOut || loading}
-              className="flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-bold text-rose-600 hover:bg-rose-50 disabled:opacity-50">
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs font-bold text-rose-600 transition hover:bg-rose-50 focus-visible:outline-2 focus-visible:outline-rose-500 disabled:opacity-50">
               {isSigningOut ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
               {isSigningOut ? "Signing out…" : "Logout"}
             </button>
-            {logoutError && <p role="alert" className="px-3 pb-1 text-xs font-semibold text-rose-700">{logoutError}</p>}
+            {logoutError && <p role="alert" className="px-3 pb-2 text-xs font-semibold text-rose-700">{logoutError}</p>}
           </div>
-          <p className="flex items-center gap-1.5 px-4 pb-2 text-[10px] font-semibold uppercase tracking-wide text-slate-400"><CheckCircle2 className="size-3" /> SchoolDB Admissions</p>
         </div>
       )}
     </div>
