@@ -213,62 +213,17 @@ export default function AdmissionStages({ student, reload }: Props) {
   }
 
   const currentStage = getCurrentStage(student);
+  const currentIndex = currentStage ? STAGES.findIndex((stage) => stage.key === currentStage.key) : STAGES.length;
 
-  // COMPLETED
   if (!currentStage) {
     return (
-      <div
-        className="
-          inline-flex
-          items-center
-          gap-3
-          rounded-2xl
-          border
-          border-emerald-200
-          bg-emerald-50
-          px-4
-          py-3
-        "
-      >
-        <div
-          className="
-            flex
-            h-10
-            w-10
-            items-center
-            justify-center
-            rounded-xl
-            bg-emerald-100
-          "
-        >
-          <CheckCircle2
-            className="
-              h-5
-              w-5
-              text-emerald-700
-            "
-          />
+      <div className="w-full rounded-2xl border border-emerald-200 bg-gradient-to-r from-emerald-50 to-teal-50 p-3.5">
+        <div className="flex items-center gap-3">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-emerald-500 text-white shadow-lg shadow-emerald-200"><CheckCircle2 className="size-5" /></div>
+          <div><p className="text-sm font-black text-slate-900">Admission completed</p><p className="mt-0.5 text-xs font-semibold text-emerald-700">All 5 milestones completed</p></div>
         </div>
-
-        <div>
-          <p
-            className="
-              text-base
-              font-semibold
-              text-slate-900
-            "
-          >
-            Admission Completed
-          </p>
-
-          <p
-            className="
-              text-xs
-              text-emerald-700
-            "
-          >
-            Student admitted
-          </p>
+        <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label="All admission stages complete">
+          {STAGES.map((stage) => <span key={stage.key} title={stage.label} className="h-1.5 rounded-full bg-emerald-400" />)}
         </div>
       </div>
     );
@@ -279,71 +234,15 @@ export default function AdmissionStages({ student, reload }: Props) {
   const value = student[currentStage.key];
 
   return (
-    <div
-      className="
-      inline-flex
-      items-center
-      gap-2
-      rounded-2xl
-      border
-      border-slate-200
-      bg-white
-      px-3
-      py-2.5
-      shadow-sm
-    "
-    >
-      <div
-        className="
-        flex
-        h-9
-        w-9
-        items-center
-        justify-center
-        rounded-xl
-        bg-slate-100
-      "
-      >
-        <Icon
-          className="
-          h-4
-          w-4
-          text-slate-600
-        "
-        />
+    <div className="w-full rounded-2xl border border-indigo-100 bg-gradient-to-r from-white to-indigo-50/60 p-3 shadow-sm">
+      <div className="flex items-center gap-3">
+        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200"><Icon className="size-4" /></div>
+        <div className="min-w-24 flex-1"><p className="truncate text-sm font-black text-slate-900">{currentStage.label}</p><p className="mt-0.5 whitespace-nowrap text-xs font-semibold text-slate-500">Step {currentIndex + 1} of {STAGES.length}</p></div>
+        <div className="w-36 shrink-0"><SchoolDbSelect ariaLabel={`${currentStage.label} status`} value={value} onValueChange={(nextValue) => updateStage(currentStage.key, nextValue)} options={currentStage.options} className="font-bold" /></div>
       </div>
-
-      <div className="min-w-0">
-        <p
-          className="
-          text-sm
-          font-semibold
-          text-slate-900
-          leading-none
-        "
-        >
-          {currentStage.label}
-        </p>
-
-        <p
-          className="
-          mt-1
-          text-[11px]
-          text-slate-500
-          leading-none
-        "
-        >
-          Update status
-        </p>
+      <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`${currentIndex} of ${STAGES.length} admission stages complete`}>
+        {STAGES.map((stage, index) => <span key={stage.key} title={stage.label} className={`h-1.5 rounded-full ${index < currentIndex ? "bg-emerald-400" : index === currentIndex ? "bg-indigo-500" : "bg-slate-200"}`} />)}
       </div>
-
-      <SchoolDbSelect
-        ariaLabel={`${currentStage.label} status`}
-        value={value}
-        onValueChange={(nextValue) => updateStage(currentStage.key, nextValue)}
-        options={currentStage.options}
-        className="w-[132px] font-semibold"
-      />
     </div>
   );
 }
