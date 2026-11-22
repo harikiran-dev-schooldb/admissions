@@ -41,7 +41,7 @@ const fieldLabels: Record<string, string> = {
   interview:"Interview", finalAdmission:"Final admission", admissionGiven:"Admission given",
   className:"Class", termFee:"Term fee", annualFees:"Annual fees", age:"Age",
   startDate:"Start date", endDate:"End date", isActive:"Active",
-  role:"Role", active:"Active", isActive:"Active", email:"Email", key:"Setting", value:"Value",
+  role:"Role", active:"Active", email:"Email", key:"Setting", value:"Value",
 };
 
 function formatValue(value: ChangedValue): string {
