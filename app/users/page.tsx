@@ -6,6 +6,7 @@ import {
   Search, ShieldCheck, ShieldOff, UserRoundCheck, Users,
 } from "lucide-react";
 import AppSidebar from "@/components/AppSidebar";
+import AccountMenu from "@/components/AccountMenu";
 import { useAccess } from "@/hooks/useAccess";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 
@@ -154,9 +155,9 @@ export default function UserManagementPage() {
               <p className="premium-kicker">Access &amp; security</p>
               <h1 className="mt-1 text-2xl font-black tracking-[-.04em]">User management</h1>
             </div>
-            {canManage && <button onClick={refreshData} disabled={loading} className="inline-flex h-11 items-center gap-2 rounded-xl border border-indigo-100 bg-white px-4 text-sm font-bold text-indigo-700 shadow-sm disabled:opacity-50">
+            <div className="flex items-center gap-3">{canManage && <button onClick={refreshData} disabled={loading} className="inline-flex h-11 items-center gap-2 rounded-xl border border-indigo-100 bg-white px-4 text-sm font-bold text-indigo-700 shadow-sm disabled:opacity-50">
               <RefreshCw className="size-4" /> Refresh
-            </button>}
+            </button>}<div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div>
           </div>
         </header>
         <main className="mx-auto max-w-[1500px] space-y-6 p-4 sm:p-6 xl:p-10">

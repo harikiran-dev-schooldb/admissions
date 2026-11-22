@@ -5,6 +5,7 @@ import Link from "next/link";
 import { CalendarClock, CheckCircle2, Save, Sparkles, Users } from "lucide-react";
 
 import AppSidebar from "@/components/AppSidebar";
+import AccountMenu from "@/components/AccountMenu";
 import { useAdmissionSettings } from "@/hooks/useAdmissionSettings";
 import { useAccess } from "@/hooks/useAccess";
 import AccessNotice from "@/components/ui/AccessNotice";
@@ -41,7 +42,7 @@ export default function SettingsPage() {
         <header className="premium-topbar sticky top-18 z-30 lg:top-0">
           <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-10">
             <div><p className="premium-kicker">Workspace preferences</p><h1 className="mt-1 text-2xl font-black tracking-[-0.04em]">Settings</h1></div>
-{canManage && <button onClick={save} disabled={!ageAsOfDate || loading || saving} className="premium-button h-11 px-5 text-sm font-bold disabled:opacity-50"><Save className="size-4" />Save changes</button>}
+<div className="flex items-center gap-3">{canManage && <button onClick={save} disabled={!ageAsOfDate || loading || saving} className="premium-button h-11 px-5 text-sm font-bold disabled:opacity-50"><Save className="size-4" />Save changes</button>}<div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div>
           </div>
         </header>
 
