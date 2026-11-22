@@ -180,3 +180,28 @@ The Analytics route checks the authenticated role on the server before
 rendering the admin analytics interface, and its navigation link is hidden
 for staff. Directory pagination still exposes the matching-record total
 needed to navigate the record list; this is distinct from aggregate KPI cards.
+
+## Audit Logs (Admin only)
+
+Open `/audit-logs` or use the **Audit Logs** item in the sidebar/profile menu.
+This paginated, searchable history records server-verified **actor name,
+email and role**, action, record type/reference, changed fields and time.
+Coverage includes enquiries created/edited/deleted, staff admission-stage
+changes, fee structure CRUD, academic-year CRUD, the age calculation setting,
+and user role/activation changes. Admins can filter by record type, action,
+actor email/name or record reference. Staff cannot view the audit API or page,
+but their permitted actions are recorded.
+
+Audit writes occur in the *same Postgres transaction* as the business change:
+if the audit insertion fails, the business write rolls back. Changes are
+whitelisted by entity type: **DOB, phone and parent contact details, login
+tokens and passwords are never copied into audit history**. The database
+blocks modification/deletion of existing audit rows via a trigger (database
+owners with DDL permission can still remove triggers; this is not a tamper-proof
+external archive). No audit-log modification endpoint exists.
+
+The audit migration imports existing User Management role history from
+`WorkspaceMemberAudit`. Other historical Admission/Fee/Year/Settings
+changes cannot be attributed retroactively and are not fabricated. New
+events are recorded from the deployment onward. Direct SQL changes and
+Neon Auth sign-ins are outside application API auditing.
