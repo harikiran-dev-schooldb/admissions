@@ -73,3 +73,19 @@ Always back up production data before running schema migrations.
 The allowlists are intended for that single workspace; do not point multiple
 independent schools at one database until tenant membership and `schoolId`
 isolation are implemented and verified.
+
+## Shared admission eligibility policy
+
+The Settings screen stores the age cutoff date in the `AdmissionConfig` database
+table, rather than per-browser local storage. Admins can update the cutoff date;
+staff can view it. New admission creation and edits calculate age and eligible
+class on the server, and mark any class mismatch as `NOT ELIGIBLE`.
+Previous records are not retroactively changed when a cutoff date changes.
+
+The environment-specific initial default is 1 June of the current academic
+year until an administrator saves a global cutoff in Settings. This is a
+single-school policy, not yet a per-school or per-academic-year configuration.
+
+The test workflow runs `prisma migrate deploy` against an empty PostgreSQL
+service, exercises age/workflow unit tests, runs lint, and builds the app.
+Use `npm ci` to reproduce the exact committed dependency lockfile.
