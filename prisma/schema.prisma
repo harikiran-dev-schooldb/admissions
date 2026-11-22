@@ -85,6 +85,12 @@ model AcademicYear {
   updatedAt    DateTime  @updatedAt
 }
 
+model AdmissionConfig {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
+}
+
 model Eligibility {
   id        String   @id @default(cuid())
   age       Int
