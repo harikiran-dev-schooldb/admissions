@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Admission } from "@/src/generated/prisma/client";
 import { DEFAULT_ADMISSION_PAGE_SIZE, type AdmissionPageSize } from "@/lib/admissions/pagination";
+import { toAdmissionSearchParams, type AdmissionSearchFilters } from "@/lib/admissions/filterQuery";
 
 export type AdmissionDirectoryFilters = {
   academicYear: string;
@@ -24,6 +25,7 @@ type DirectoryPayload = {
 
 export type AdmissionSummary = {
   total: number;
+  yearTotal: number;
   admitted: number;
   applicationsTaken: number;
   applicationSubmitted: number;
@@ -35,6 +37,7 @@ export type AdmissionSummary = {
 const emptyDirectory: DirectoryPayload = { data: [], total: 0, page: 1, pageSize: DEFAULT_ADMISSION_PAGE_SIZE, totalPages: 1 };
 export const emptySummary: AdmissionSummary = {
   total: 0,
+  yearTotal: 0,
   admitted: 0,
   applicationsTaken: 0,
   applicationSubmitted: 0,
@@ -53,15 +56,9 @@ export function useAdmissionsDirectory(filters: AdmissionDirectoryFilters) {
   const [refresh, setRefresh] = useState(0);
   const reload = useCallback(() => setRefresh((value) => value + 1), []);
   const params = useMemo(() => {
-    const query = new URLSearchParams({
-      academicYear: filters.academicYear,
-      page: String(filters.page),
-      pageSize: String(filters.pageSize),
-    });
-    if (filters.search.trim()) query.set("q", filters.search.trim());
-    if (filters.classFilter !== "ALL") query.set("class", filters.classFilter);
-    if (filters.finalStatusFilter !== "ALL") query.set("status", filters.finalStatusFilter);
-    if (filters.applicationFilter !== "ALL") query.set("application", filters.applicationFilter);
+    const query = toAdmissionSearchParams(filters);
+    query.set("page", String(filters.page));
+    query.set("pageSize", String(filters.pageSize));
     return query.toString();
   }, [filters.academicYear, filters.page, filters.pageSize, filters.search, filters.classFilter, filters.finalStatusFilter, filters.applicationFilter]);
   const requestKey = `${params}&r=${refresh}`;
@@ -97,10 +94,13 @@ export function useAdmissionsDirectory(filters: AdmissionDirectoryFilters) {
   };
 }
 
-export function useAdmissionsSummary(academicYear: string, enabled: boolean = true) {
+export function useAdmissionsSummary(filters: AdmissionSearchFilters, enabled: boolean = true) {
   const [refresh, setRefresh] = useState(0);
   const reload = useCallback(() => setRefresh((value) => value + 1), []);
-  const requestKey = `${academicYear}&r=${refresh}&enabled=${enabled}`;
+  const params = useMemo(() => toAdmissionSearchParams(filters).toString(), [
+    filters.academicYear, filters.search, filters.classFilter, filters.finalStatusFilter, filters.applicationFilter,
+  ]);
+  const requestKey = `${params}&r=${refresh}&enabled=${enabled}`;
   const [result, setResult] = useState<{key: string; payload: AdmissionSummary; error: string}>({
     key: "",
     payload: emptySummary,
@@ -108,9 +108,9 @@ export function useAdmissionsSummary(academicYear: string, enabled: boolean = tr
   });
 
   useEffect(() => {
-    if (!academicYear || !enabled) return;
+    if (!filters.academicYear || !enabled) return;
     const controller = new AbortController();
-    fetch(`/api/admissions/stats?academicYear=${encodeURIComponent(academicYear)}`, {
+    fetch(`/api/admissions/stats?${params}`, {
       cache: "no-store",
       signal: controller.signal,
     })
@@ -120,12 +120,12 @@ export function useAdmissionsSummary(academicYear: string, enabled: boolean = tr
         if (!controller.signal.aborted) setResult({key: requestKey, payload: emptySummary, error: error instanceof Error ? error.message : "Failed to load totals"});
       });
     return () => controller.abort();
-  }, [academicYear, enabled, requestKey]);
+  }, [filters.academicYear, enabled, params, requestKey]);
 
-  const current = Boolean(academicYear) && enabled && result.key === requestKey;
+  const current = Boolean(filters.academicYear) && enabled && result.key === requestKey;
   return {
     summary: current ? result.payload : emptySummary,
-    loading: Boolean(academicYear) && enabled && !current,
+    loading: Boolean(filters.academicYear) && enabled && !current,
     error: current ? result.error : "",
     reload,
   };
