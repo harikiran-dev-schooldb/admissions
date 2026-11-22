@@ -45,7 +45,7 @@ export async function GET(req: Request) {
     const [items, total] = await Promise.all([
       prisma.admissionFollowUp.findMany({
         where,
-        orderBy: status === "COMPLETED" ? [{ completedAt: "desc" }, { id: "desc" }] : [{ dueAt: "asc" }, { id: "asc" }],
+        orderBy: admissionId ? [{ createdAt: "desc" }, { id: "desc" }] : status === "COMPLETED" ? [{ completedAt: "desc" }, { id: "desc" }] : [{ dueAt: "asc" }, { id: "asc" }],
         skip: (page - 1) * PAGE_SIZE,
         take: PAGE_SIZE,
         include: { admission: { select: { id: true, enquiryNo: true, student: true, admClass: true, finalAdmission: true } } },
