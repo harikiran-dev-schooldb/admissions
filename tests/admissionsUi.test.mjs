@@ -29,7 +29,7 @@ test("analytics retains full-year data for complete graphs", () => {
 test("responsive directory provides size selector and accessible previous/next buttons", () => {
   const source = readFileSync(resolve(process.cwd(), "components/admissions/AdmissionsTable.tsx"), "utf8");
   assert.match(source, /ADMISSION_PAGE_SIZES/);
-  assert.match(source, /aria-label="Admissions rows per page"/);
+  assert.match(source, /ariaLabel="Admissions rows per page"/);
   assert.match(source, /aria-label="Previous admissions page"/);
   assert.match(source, /aria-label="Next admissions page"/);
   assert.match(source, /aria-current=\{number === page \? "page"/);
