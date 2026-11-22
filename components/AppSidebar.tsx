@@ -59,7 +59,7 @@ export default function AppSidebar() {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const visibleNav = nav.filter((item) => !item.adminOnly || role === "admin");
-  const mobilePrimary = visibleNav.filter((item) => item.group === "Workspace").slice(0, 4);
+  const mobilePrimary = visibleNav.slice(0, 4);
   const mobileSecondary = visibleNav.filter((item) => !mobilePrimary.some((primary) => primary.href === item.href));
   const displayName = name.trim() || email.split("@")[0] || "Signed-in user";
   const roleLabel = role === "admin" ? "Administrator" : role === "staff" ? "Staff" : "Verifying access";
@@ -177,7 +177,7 @@ export default function AppSidebar() {
               <NavLink key={item.href} item={item} active={isActiveRoute(item.href, pathname)} onNavigate={() => setMoreOpen(false)} />)}
           </div>
         )}
-        <nav aria-label="Mobile navigation" className="fixed inset-x-3 bottom-3 z-40 grid grid-cols-5 gap-1 rounded-[24px] border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl">
+        <nav aria-label="Mobile navigation" className={`fixed inset-x-3 bottom-3 z-40 grid ${mobileSecondary.length > 0 ? "grid-cols-5" : "grid-cols-4"} gap-1 rounded-[24px] border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl`}>
           {mobilePrimary.map((item) => {
             const Icon = item.icon;
             const active = isActiveRoute(item.href, pathname);
@@ -189,11 +189,11 @@ export default function AppSidebar() {
               </Link>
             );
           })}
-          <button type="button" onClick={() => setMoreOpen((value) => !value)} aria-label="More navigation" aria-expanded={moreOpen}
+          {mobileSecondary.length > 0 && <button type="button" onClick={() => setMoreOpen((value) => !value)} aria-label="More navigation" aria-expanded={moreOpen}
             className={`flex h-14 flex-col items-center justify-center gap-1 rounded-[15px] text-[10px] font-bold transition ${moreOpen || mobileSecondary.some((item)=>isActiveRoute(item.href,pathname)) ? "bg-indigo-50 text-indigo-700" : "text-slate-500 hover:bg-indigo-50"}`}>
             <MoreHorizontal className="size-[19px]" />
             More
-          </button>
+          </button>}
         </nav>
       </div>
     </>
