@@ -49,7 +49,7 @@ test("staff academic-year API payload does not include admissionsCount", () => {
   const api = source("app/api/academic-years/route.ts");
   assert.match(api, /role === "admin"/);
   assert.match(api, /\{ admissionsCount: _count\.admissions \}/);
-  assert.match(api, /\{ isSuggested: year\.academicYear === populated\?\.academicYear \}/);
+  assert.match(api, /\{ isSuggested: year\.academicYear === latestYear \}/);
 });
 
 
