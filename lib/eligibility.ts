@@ -1,15 +1,18 @@
-export function calculateAge(dob: string) {
+function parseLocalDate(value: string) {
+  const [year, month, day] = value.split("-").map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(year, month - 1, day);
+  return date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day ? date : null;
+}
+
+export function calculateAge(dob: string, asOfDate?: string) {
   if (!dob) {
     return null;
   }
 
-  const birthDate = new Date(dob);
-
-  if (isNaN(birthDate.getTime())) {
-    return null;
-  }
-
-  const today = new Date();
+  const birthDate = parseLocalDate(dob);
+  const today = asOfDate ? parseLocalDate(asOfDate) : new Date();
+  if (!birthDate || !today || birthDate > today) return null;
 
   let years = today.getFullYear() - birthDate.getFullYear();
 

@@ -1,24 +1,26 @@
 "use client";
 
 import { useState } from "react";
+import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   reload: () => void;
+  defaultAcademicYear: string;
 }
 
-const initialForm = {
-  academicYear: "2026-27",
+const emptyForm = {
+  academicYear: "",
   age: "",
   className: "",
   termFee: "",
   annualFees: "",
 };
 
-export default function NewFeeModal({ open, onClose, reload }: Props) {
+export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear }: Props) {
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState(() => ({ ...emptyForm, academicYear: defaultAcademicYear }));
 
   if (!open) return null;
 
@@ -47,7 +49,7 @@ export default function NewFeeModal({ open, onClose, reload }: Props) {
         return;
       }
 
-      setForm(initialForm);
+      setForm({ ...emptyForm, academicYear: defaultAcademicYear });
       reload();
       onClose();
     } catch (error) {
@@ -77,15 +79,12 @@ export default function NewFeeModal({ open, onClose, reload }: Props) {
         <div className="space-y-5 p-6">
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">Academic Year</label>
-            <select
+            <SchoolDbSelect
+              ariaLabel="Academic year"
               value={form.academicYear}
-              onChange={(e) => updateField("academicYear", e.target.value)}
-              className={inputClass}
-            >
-              {["2023-24", "2024-25", "2025-26", "2026-27"].map((year) => (
-                <option key={year} value={year}>{year}</option>
-              ))}
-            </select>
+              onValueChange={(value) => updateField("academicYear", value)}
+              options={[defaultAcademicYear, "2026-27", "2025-26", "2024-25", "2023-24"].filter((year, index, years) => years.indexOf(year) === index).map((year) => ({ label: year, value: year }))}
+            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">

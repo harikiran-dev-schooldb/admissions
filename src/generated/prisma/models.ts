@@ -11,5 +11,6 @@
 export type * from './models/EligibilityCheck'
 export type * from './models/Admission'
 export type * from './models/FeeRecord'
+export type * from './models/AcademicYear'
 export type * from './models/Eligibility'
 export type * from './commonInputTypes'

@@ -54,6 +54,7 @@ export const ModelName = {
   EligibilityCheck: 'EligibilityCheck',
   Admission: 'Admission',
   FeeRecord: 'FeeRecord',
+  AcademicYear: 'AcademicYear',
   Eligibility: 'Eligibility'
 } as const
 
@@ -127,6 +128,19 @@ export const FeeRecordScalarFieldEnum = {
 } as const
 
 export type FeeRecordScalarFieldEnum = (typeof FeeRecordScalarFieldEnum)[keyof typeof FeeRecordScalarFieldEnum]
+
+
+export const AcademicYearScalarFieldEnum = {
+  id: 'id',
+  academicYear: 'academicYear',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AcademicYearScalarFieldEnum = (typeof AcademicYearScalarFieldEnum)[keyof typeof AcademicYearScalarFieldEnum]
 
 
 export const EligibilityScalarFieldEnum = {

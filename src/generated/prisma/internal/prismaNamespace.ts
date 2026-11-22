@@ -387,6 +387,7 @@ export const ModelName = {
   EligibilityCheck: 'EligibilityCheck',
   Admission: 'Admission',
   FeeRecord: 'FeeRecord',
+  AcademicYear: 'AcademicYear',
   Eligibility: 'Eligibility'
 } as const
 
@@ -403,7 +404,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "eligibilityCheck" | "admission" | "feeRecord" | "eligibility"
+    modelProps: "eligibilityCheck" | "admission" | "feeRecord" | "academicYear" | "eligibility"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -629,6 +630,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AcademicYear: {
+      payload: Prisma.$AcademicYearPayload<ExtArgs>
+      fields: Prisma.AcademicYearFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AcademicYearFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AcademicYearFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>
+        }
+        findFirst: {
+          args: Prisma.AcademicYearFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AcademicYearFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>
+        }
+        findMany: {
+          args: Prisma.AcademicYearFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>[]
+        }
+        create: {
+          args: Prisma.AcademicYearCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>
+        }
+        createMany: {
+          args: Prisma.AcademicYearCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AcademicYearCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>[]
+        }
+        delete: {
+          args: Prisma.AcademicYearDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>
+        }
+        update: {
+          args: Prisma.AcademicYearUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>
+        }
+        deleteMany: {
+          args: Prisma.AcademicYearDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AcademicYearUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AcademicYearUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>[]
+        }
+        upsert: {
+          args: Prisma.AcademicYearUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AcademicYearPayload>
+        }
+        aggregate: {
+          args: Prisma.AcademicYearAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAcademicYear>
+        }
+        groupBy: {
+          args: Prisma.AcademicYearGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AcademicYearGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AcademicYearCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AcademicYearCountAggregateOutputType> | number
+        }
+      }
+    }
     Eligibility: {
       payload: Prisma.$EligibilityPayload<ExtArgs>
       fields: Prisma.EligibilityFieldRefs
@@ -796,6 +871,19 @@ export const FeeRecordScalarFieldEnum = {
 } as const
 
 export type FeeRecordScalarFieldEnum = (typeof FeeRecordScalarFieldEnum)[keyof typeof FeeRecordScalarFieldEnum]
+
+
+export const AcademicYearScalarFieldEnum = {
+  id: 'id',
+  academicYear: 'academicYear',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AcademicYearScalarFieldEnum = (typeof AcademicYearScalarFieldEnum)[keyof typeof AcademicYearScalarFieldEnum]
 
 
 export const EligibilityScalarFieldEnum = {
@@ -1083,6 +1171,7 @@ export type GlobalOmitConfig = {
   eligibilityCheck?: Prisma.EligibilityCheckOmit
   admission?: Prisma.AdmissionOmit
   feeRecord?: Prisma.FeeRecordOmit
+  academicYear?: Prisma.AcademicYearOmit
   eligibility?: Prisma.EligibilityOmit
 }
 

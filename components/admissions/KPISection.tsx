@@ -90,21 +90,11 @@ export default function KPISection({ students }: Props) {
         return (
           <div
             key={card.title}
-            className="
-              rounded-[22px]
-              border border-white/90
-              bg-white/78
-              px-4 py-4
-              shadow-[0_14px_38px_rgba(79,70,229,.07)]
-              backdrop-blur-xl
-              transition-all
-              hover:-translate-y-0.5
-              hover:shadow-md
-            "
+            className="metric-card rounded-[22px] px-4 py-4"
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-xs font-bold uppercase tracking-[.12em] text-slate-500">
+                <p className="text-sm font-bold uppercase tracking-[.08em] text-slate-500">
                   {card.title}
                 </p>
 

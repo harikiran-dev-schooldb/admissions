@@ -61,15 +61,7 @@ export default function FeesKPISection({ fees }: Props) {
         return (
           <div
             key={card.title}
-            className="
-              rounded-[24px]
-              border
-              border-white/90
-              bg-white/78
-              p-6
-              shadow-[0_16px_44px_rgba(79,70,229,.07)]
-              backdrop-blur-xl
-            "
+            className="metric-card rounded-[24px] p-6"
           >
             <div className="flex items-center justify-between">
               <div>

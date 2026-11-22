@@ -85,17 +85,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
       {/* TOP CARDS */}
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-3">
-        <div
-          className="
-            rounded-[24px]
-            border
-            border-white/90
-            bg-white/78
-            p-6
-            shadow-[0_16px_44px_rgba(79,70,229,.07)]
-            backdrop-blur-xl
-          "
-        >
+        <div className="metric-card rounded-[24px] p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">
@@ -120,17 +110,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
           </div>
         </div>
 
-        <div
-          className="
-            rounded-[24px]
-            border
-            border-white/90
-            bg-white/78
-            p-6
-            shadow-[0_16px_44px_rgba(79,70,229,.07)]
-            backdrop-blur-xl
-          "
-        >
+        <div className="metric-card rounded-[24px] p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">
@@ -155,17 +135,7 @@ export default function AdmissionsAnalytics({ students }: Props) {
           </div>
         </div>
 
-        <div
-          className="
-            rounded-[24px]
-            border
-            border-white/90
-            bg-white/78
-            p-6
-            shadow-[0_16px_44px_rgba(79,70,229,.07)]
-            backdrop-blur-xl
-          "
-        >
+        <div className="metric-card rounded-[24px] p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">Admitted</p>
@@ -195,15 +165,10 @@ export default function AdmissionsAnalytics({ students }: Props) {
         {/* FUNNEL */}
 
         <div
-          className="
+          className="premium-panel
             min-w-0
             rounded-[28px]
-            border
-            border-white/90
-            bg-white/82
             p-6
-            shadow-[0_22px_60px_rgba(79,70,229,.08)]
-            backdrop-blur-xl
           "
         >
           <div className="mb-6">
@@ -236,15 +201,10 @@ export default function AdmissionsAnalytics({ students }: Props) {
         {/* CLASS WISE */}
 
         <div
-          className="
+          className="premium-panel
             min-w-0
             rounded-[28px]
-            border
-            border-white/90
-            bg-white/82
             p-6
-            shadow-[0_22px_60px_rgba(79,70,229,.08)]
-            backdrop-blur-xl
           "
         >
           <div className="mb-6">

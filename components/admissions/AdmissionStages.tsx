@@ -8,6 +8,7 @@ import {
   UserCheck,
 } from "lucide-react";
 import type { Admission } from "@/src/generated/prisma/client";
+import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 
 type WorkflowField =
   | "application"
@@ -336,29 +337,13 @@ export default function AdmissionStages({ student, reload }: Props) {
         </p>
       </div>
 
-      <select
+      <SchoolDbSelect
+        ariaLabel={`${currentStage.label} status`}
         value={value}
-        onChange={(e) => updateStage(currentStage.key, e.target.value)}
-        className="
-        w-[120px]
-        rounded-lg
-        border
-        border-slate-200
-        bg-slate-50
-        px-2.5
-        py-2
-        text-sm
-        font-semibold
-        text-slate-800
-        outline-none
-      "
-      >
-        {currentStage.options.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        onValueChange={(nextValue) => updateStage(currentStage.key, nextValue)}
+        options={currentStage.options}
+        className="w-[132px] font-semibold"
+      />
     </div>
   );
 }

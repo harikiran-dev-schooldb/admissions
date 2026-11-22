@@ -46,17 +46,7 @@ export default function AdmissionTable({
     <div className="space-y-5">
       {/* SEARCH */}
 
-      <div
-        className="
-          rounded-[26px]
-          border
-          border-white/90
-          bg-white/78
-          p-4
-          shadow-[0_18px_50px_rgba(79,70,229,.07)]
-          backdrop-blur-xl
-        "
-      >
+      <div className="premium-panel rounded-[26px] p-4">
         <div className="relative">
           <Search
             className="
@@ -98,14 +88,9 @@ export default function AdmissionTable({
       {/* TABLE */}
 
       <div
-        className="
+        className="premium-table
           overflow-hidden
           rounded-[28px]
-          border
-          border-white/90
-          bg-white/82
-          shadow-[0_22px_60px_rgba(79,70,229,.08)]
-          backdrop-blur-xl
         "
       >
         {/* HEADER */}
@@ -120,7 +105,7 @@ export default function AdmissionTable({
             bg-indigo-50/65
             px-4
             py-4
-            text-[11px]
+            text-sm
             font-bold
             uppercase
             tracking-wider

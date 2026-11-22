@@ -1,6 +1,6 @@
 "use client";
 
-import { Eye, Search } from "lucide-react";
+import { ArrowDownWideNarrow, Eye, Search } from "lucide-react";
 import type { FeeRecord } from "@/src/generated/prisma/client";
 
 interface Props {
@@ -9,23 +9,17 @@ interface Props {
   search: string;
   setSearch: (value: string) => void;
   onView: (fee: FeeRecord) => void;
-  reload: () => void;
 }
 
-export default function FeesTable({ fees, search, setSearch, onView }: Props) {
+export default function FeesTable({ fees, loading, search, setSearch, onView }: Props) {
   return (
     <div
-      className="
+      className="premium-table
         rounded-[28px]
-        border
-        border-white/90
-        bg-white/82
-        shadow-[0_22px_60px_rgba(79,70,229,.08)]
-        backdrop-blur-xl
       "
     >
-      <div className="border-b border-indigo-100/70 p-5">
-        <div className="relative max-w-lg">
+      <div className="flex flex-col gap-3 border-b border-indigo-100/70 p-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="relative w-full max-w-lg">
           <Search
             className="
               absolute
@@ -61,18 +55,21 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
             "
           />
         </div>
+        <div className="flex shrink-0 items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50/70 px-3 py-2 text-sm font-bold text-indigo-700">
+          <ArrowDownWideNarrow className="size-4" />
+          Age: youngest first
+        </div>
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full min-w-[900px]">
+        <table className="w-full min-w-[760px]">
           <thead className="bg-indigo-50/65">
             <tr>
               {[
-                "Academic Year",
+                "Age",
                 "Class",
                 "Term Fee",
                 "Annual Fees",
-                "Age",
                 "Actions",
               ].map((head) => (
                 <th
@@ -81,7 +78,7 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
                     px-6
                     py-4
                     text-left
-                    text-xs
+                    text-sm
                     font-bold
                     uppercase
                     tracking-wider
@@ -95,7 +92,13 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
           </thead>
 
           <tbody>
-            {fees.map((fee) => (
+            {loading && (
+              <tr><td colSpan={5} className="px-6 py-14 text-center text-sm font-semibold text-slate-500">Loading fee structures…</td></tr>
+            )}
+            {!loading && fees.length === 0 && (
+              <tr><td colSpan={5} className="px-6 py-14 text-center"><p className="font-bold text-slate-700">No fee structures found</p><p className="mt-1 text-sm text-slate-500">Add a fee structure or choose another academic year.</p></td></tr>
+            )}
+            {!loading && fees.map((fee) => (
               <tr
                 key={fee.id}
                 className="
@@ -105,9 +108,11 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
                   hover:bg-indigo-50/45
                 "
               >
-                <td className="px-6 py-5 font-semibold">{fee.academicYear}</td>
+                <td className="px-6 py-5">
+                  <span className="inline-flex min-w-12 items-center justify-center rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-1.5 font-black text-indigo-700">{fee.age || "—"}</span>
+                </td>
 
-                <td className="px-6 py-5">{fee.className}</td>
+                <td className="px-6 py-5 font-bold text-slate-900">{fee.className}</td>
 
                 <td className="px-6 py-5 font-semibold text-slate-700">₹{fee.termFee.toLocaleString()}</td>
 
@@ -122,11 +127,10 @@ export default function FeesTable({ fees, search, setSearch, onView }: Props) {
                   ₹{fee.annualFees.toLocaleString()}
                 </td>
 
-                <td className="px-6 py-5">{fee.age || "-"}</td>
-
                 <td className="px-6 py-5">
                   <button
                     onClick={() => onView(fee)}
+                    aria-label={`View ${fee.className} fee details`}
                     className="
                       rounded-xl
                       bg-indigo-50

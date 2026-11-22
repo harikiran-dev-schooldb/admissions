@@ -5,7 +5,9 @@ import { useMemo, useState } from "react";
 import { Calendar, CheckCircle2, Loader2, Phone, User, X } from "lucide-react";
 
 import { calculateAge, getEligibleClass } from "@/lib/eligibility";
+import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import NewFeeModal from "../fees/NewFeeModal";
+import { useAdmissionSettings } from "@/hooks/useAdmissionSettings";
 
 type Props = {
   open: boolean;
@@ -15,6 +17,7 @@ type Props = {
 };
 
 export default function NewAdmissionModal({ open, onClose, reload, academicYear }: Props) {
+  const { settings } = useAdmissionSettings();
   const [dob, setDob] = useState("");
 
   const [student, setStudent] = useState("");
@@ -31,8 +34,8 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
   const ageData = useMemo(() => {
     if (!dob) return null;
 
-    return calculateAge(dob);
-  }, [dob]);
+    return calculateAge(dob, settings.ageAsOfDate);
+  }, [dob, settings.ageAsOfDate]);
 
   const eligibleClass = useMemo(() => {
     if (!ageData) return "";
@@ -215,7 +218,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
                   </h3>
 
                   <p className="text-sm text-slate-500">
-                    Calculate student age & eligible class
+                    Age as of {new Date(`${settings.ageAsOfDate}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
                   </p>
                 </div>
               </div>
@@ -432,55 +435,14 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
                     Admission Class
                   </label>
 
-                  <select
-                    value={admClass}
-                    onChange={(e) => setAdmClass(e.target.value)}
-                    className="
-    h-14
-    w-full
-    rounded-2xl
-    border
-    border-slate-200
-    bg-white
-    px-4
-    text-sm
-    font-semibold
-    text-slate-700
-    outline-none
-    transition-all
-    focus:border-blue-500
-    focus:ring-4
-    focus:ring-blue-100
-  "
-                  >
-                    <option value="">Select Class</option>
-
-                    <option value="PRE KG">PRE KG</option>
-
-                    <option value="LKG">LKG</option>
-
-                    <option value="UKG">UKG</option>
-
-                    <option value="I">I</option>
-
-                    <option value="II">II</option>
-
-                    <option value="III">III</option>
-
-                    <option value="IV">IV</option>
-
-                    <option value="V">V</option>
-
-                    <option value="VI">VI</option>
-
-                    <option value="VII">VII</option>
-
-                    <option value="VIII">VIII</option>
-
-                    <option value="IX">IX</option>
-
-                    <option value="X">X</option>
-                  </select>
+                  <SchoolDbSelect
+                    ariaLabel="Admission class"
+                    value={admClass || undefined}
+                    onValueChange={setAdmClass}
+                    placeholder="Select Class"
+                    className="h-14 rounded-2xl font-semibold"
+                    options={["PRE KG", "LKG", "UKG", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"].map((value) => ({ label: value, value }))}
+                  />
                 </div>
               </div>
             </div>
@@ -535,7 +497,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
         </div>
       </div>
 
-      <NewFeeModal open={showFees} onClose={handleCloseFees} reload={reload} />
+      <NewFeeModal open={showFees} onClose={handleCloseFees} reload={reload} defaultAcademicYear={academicYear} />
     </>
   );
 }
