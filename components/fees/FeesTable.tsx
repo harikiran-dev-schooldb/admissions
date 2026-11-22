@@ -5,6 +5,7 @@ import type { FeeRecord } from "@/src/generated/prisma/client";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 
 interface Props {
+  canManage: boolean;
   fees: FeeRecord[];
   loading: boolean;
   search: string;
@@ -20,7 +21,7 @@ interface Props {
   onDelete: (fee: FeeRecord) => void;
 }
 
-export default function FeesTable({ fees, loading, search, setSearch, classFilter, setClassFilter, classOptions, ageFilter, setAgeFilter, ageOptions, onView, onEdit, onDelete }: Props) {
+export default function FeesTable({ canManage, fees, loading, search, setSearch, classFilter, setClassFilter, classOptions, ageFilter, setAgeFilter, ageOptions, onView, onEdit, onDelete }: Props) {
   return (
     <div
       className="premium-table
@@ -154,8 +155,8 @@ export default function FeesTable({ fees, loading, search, setSearch, classFilte
                   >
                     <Eye className="h-4 w-4" />
                   </button>
-                  <button onClick={() => onEdit(fee)} aria-label={`Edit ${fee.className} fee`} className="rounded-xl bg-amber-50 p-2 text-amber-700 transition hover:bg-amber-100"><Pencil className="size-4" /></button>
-                  <button onClick={() => onDelete(fee)} aria-label={`Delete ${fee.className} fee`} className="rounded-xl bg-red-50 p-2 text-red-600 transition hover:bg-red-100"><Trash2 className="size-4" /></button>
+                  {canManage && <button onClick={() => onEdit(fee)} aria-label={`Edit ${fee.className} fee`} className="rounded-xl bg-amber-50 p-2 text-amber-700 transition hover:bg-amber-100"><Pencil className="size-4" /></button>}
+                  {canManage && <button onClick={() => onDelete(fee)} aria-label={`Delete ${fee.className} fee`} className="rounded-xl bg-red-50 p-2 text-red-600 transition hover:bg-red-100"><Trash2 className="size-4" /></button>}
                 </div></td>
               </tr>
             ))}

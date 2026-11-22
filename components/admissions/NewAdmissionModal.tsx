@@ -14,9 +14,10 @@ type Props = {
   onClose: () => void;
   reload: () => void;
   academicYear: string;
+  canManageFees: boolean;
 };
 
-export default function NewAdmissionModal({ open, onClose, reload, academicYear }: Props) {
+export default function NewAdmissionModal({ open, onClose, reload, academicYear, canManageFees }: Props) {
   const { settings, loading: settingsLoading, error: settingsError } = useAdmissionSettings();
   const [dob, setDob] = useState("");
 
@@ -77,8 +78,13 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
       reload();
 
       onClose();
-      setShowFees(true);
-
+      setShowFees(canManageFees);
+      if (!canManageFees) {
+        setStudent("");
+        setParent("");
+        setMobile("");
+        setDob("");
+      }
       setAdmClass("");
     } catch (error) {
       console.error(error);
@@ -499,7 +505,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
       </div>
       )}
 
-      <NewFeeModal open={showFees} onClose={handleCloseFees} reload={reload} defaultAcademicYear={academicYear} />
+      {canManageFees && <NewFeeModal open={showFees} onClose={handleCloseFees} reload={reload} defaultAcademicYear={academicYear} />}
     </>
   );
 }

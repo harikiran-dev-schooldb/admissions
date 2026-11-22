@@ -14,7 +14,7 @@ const allowedFields = [
 ] as const;
 
 export async function PATCH(req: Request) {
-  const accessError = await requireAccess("staff");
+  const accessError = await requireAccess("workflow");
   if (accessError) return accessError;
   try {
     const parsed = admissionStageSchema.safeParse(await req.json());

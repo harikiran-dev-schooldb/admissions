@@ -1,30 +1,86 @@
 import { NextResponse } from "next/server";
+import { Prisma } from "@/src/generated/prisma/client";
+import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth/server";
+import {
+  canAccess,
+  normalizeEmail,
+  resolveAccessRole,
+  type AccessLevel,
+  type AccessRole,
+} from "@/lib/auth/accessPolicy";
 
-export type AccessLevel = "read" | "staff" | "admin";
+export type { AccessLevel, AccessRole };
+type AccessResult = {
+  role: AccessRole | null;
+  email: string | null;
+  error: NextResponse | null;
+};
 
-function emailSet(value: string | undefined) {
-  return new Set((value ?? "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean));
+function reject(error: string, status: number): AccessResult {
+  return { role: null, email: null, error: NextResponse.json({ error }, { status }) };
 }
 
-// Fail closed: configure ADMISSIONS_ADMIN_EMAILS before enabling production access.
-export async function requireAccess(level: AccessLevel): Promise<NextResponse | null> {
+/**
+ * The authenticated Neon session is the only source for the caller's email.
+ * Bootstrap admins cannot lose access through database role changes.
+ * All other roles are resolved from the live membership table on each request.
+ */
+export async function getAuthorizedRole(): Promise<AccessResult> {
   if (process.env.NODE_ENV !== "production" && process.env.LOCAL_AUTH_BYPASS === "true") {
-    return null;
+    return { role: "admin", email: "local-admin@localhost.invalid", error: null };
   }
-  const admins = emailSet(process.env.ADMISSIONS_ADMIN_EMAILS);
-  if (admins.size === 0) {
-    return NextResponse.json({ error: "Admissions administrators are not configured" }, { status: 503 });
+
+  const admins = process.env.ADMISSIONS_ADMIN_EMAILS;
+  if (!admins?.split(",").some((email) => email.trim())) {
+    return reject("Admissions bootstrap administrator is not configured", 503);
   }
+
   try {
     const { data } = await auth.getSession();
-    const email = data?.user?.email?.trim().toLowerCase();
-    if (!email) return NextResponse.json({ error: "Authentication required" }, { status: 401 });
-    if (admins.has(email)) return null;
-    if (level !== "admin" && emailSet(process.env.ADMISSIONS_STAFF_EMAILS).has(email)) return null;
-    return NextResponse.json({ error: "You do not have permission to perform this operation" }, { status: 403 });
+    const email = data?.user?.email ? normalizeEmail(data.user.email) : null;
+    if (!email) return reject("Authentication required", 401);
+
+    // No database dependency is needed to recover from a broken migration.
+    const bootstrapRole = resolveAccessRole(email, admins, undefined);
+    if (bootstrapRole === "admin") return { role: "admin", email, error: null };
+
+    const member = await prisma.workspaceMember.findUnique({
+      where: { email },
+      select: { role: true, isActive: true },
+    });
+
+    const role = resolveAccessRole(
+      email,
+      admins,
+      process.env.ADMISSIONS_STAFF_EMAILS,
+      member,
+    );
+    if (!role) return reject("You do not have access to this workspace", 403);
+    return { role, email, error: null };
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
+      return reject("Database setup is incomplete. An administrator must apply the database migrations.", 503);
+    }
     console.error("ADMISSIONS_AUTH_ERROR", error);
-    return NextResponse.json({ error: "Unable to verify your session" }, { status: 503 });
+    return reject("Unable to verify your session", 503);
   }
+}
+
+export async function requireAccess(level: AccessLevel): Promise<NextResponse | null> {
+  const { role, error } = await getAuthorizedRole();
+  if (error) return error;
+  if (!canAccess(role, level)) {
+    return NextResponse.json({ error: "You do not have permission for this operation" }, { status: 403 });
+  }
+  return null;
+}
+
+export async function requireAdminIdentity(): Promise<{ email: string; error: null } | { email: null; error: NextResponse }> {
+  const session = await getAuthorizedRole();
+  if (session.error) return { email: null, error: session.error };
+  if (session.role !== "admin" || !session.email) {
+    return { email: null, error: NextResponse.json({ error: "Administrator access required" }, { status: 403 }) };
+  }
+  return { email: session.email, error: null };
 }

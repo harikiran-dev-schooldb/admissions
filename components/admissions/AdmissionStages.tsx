@@ -28,6 +28,7 @@ type Stage = {
 type Props = {
   student: Admission;
   reload: () => void;
+  canManage: boolean;
 };
 
 const STAGES: Stage[] = [
@@ -179,8 +180,9 @@ function getCurrentStage(student: Admission) {
   return null;
 }
 
-export default function AdmissionStages({ student, reload }: Props) {
+export default function AdmissionStages({ student, reload, canManage }: Props) {
   async function updateStage(field: WorkflowField, value: string) {
+    if (!canManage) return;
     try {
       const res = await fetch("/api/admissions/stages", {
         method: "PATCH",
@@ -238,7 +240,9 @@ export default function AdmissionStages({ student, reload }: Props) {
       <div className="flex items-center gap-3">
         <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200"><Icon className="size-4" /></div>
         <div className="min-w-24 flex-1"><p className="truncate text-sm font-black text-slate-900">{currentStage.label}</p><p className="mt-0.5 whitespace-nowrap text-xs font-semibold text-slate-500">Step {currentIndex + 1} of {STAGES.length}</p></div>
-        <div className="w-36 shrink-0"><SchoolDbSelect ariaLabel={`${currentStage.label} status`} value={value} onValueChange={(nextValue) => updateStage(currentStage.key, nextValue)} options={currentStage.options} className="font-bold" /></div>
+         <div className="w-36 shrink-0">{canManage
+          ? <SchoolDbSelect ariaLabel={`${currentStage.label} status`} value={value} onValueChange={(nextValue) => updateStage(currentStage.key, nextValue)} options={currentStage.options} className="font-bold" />
+          : <span className="block rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-sm font-bold text-slate-700" aria-label={`${currentStage.label} status`}>{currentStage.options.find((option) => option.value === value)?.label ?? value.replaceAll("_", " ")}</span>}</div>
       </div>
       <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`${currentIndex} of ${STAGES.length} admission stages complete`}>
         {STAGES.map((stage, index) => <span key={stage.key} title={stage.label} className={`h-1.5 rounded-full ${index < currentIndex ? "bg-emerald-400" : index === currentIndex ? "bg-indigo-500" : "bg-slate-200"}`} />)}

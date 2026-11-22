@@ -58,9 +58,19 @@ Set these Vercel **Production** environment variables before deploying:
 
 Never commit real passwords or API keys. With an empty administrator allowlist,
 data APIs reject requests with HTTP 503 rather than exposing student information.
-Only administrators may change fees or academic years or delete an admission; staff
-can work with admission records. The `LOCAL_AUTH_BYPASS` override is allowed only
-when `NODE_ENV` is not production.
+Only administrators can edit existing enquiry details, delete admissions, and
+create/edit/delete fees, academic years and settings. **Staff members can create
+new enquiries and update application, entrance, interview, admission-given and
+final-admission workflow statuses**, but cannot alter the master configuration
+or edit/delete student records. This is enforced on every API endpoint, not just
+by hiding buttons. Unlisted email addresses are denied access.
+
+The `/api/access` endpoint returns only the signed-in user's role and whether
+they can manage records; the email allowlists are not exposed to the browser.
+Add admin addresses to `ADMISSIONS_ADMIN_EMAILS` and permitted read-only
+staff addresses to `ADMISSIONS_STAFF_EMAILS` on Vercel, then redeploy.
+`LOCAL_AUTH_BYPASS` is permitted only when `NODE_ENV` is not production.
+This is a server-configured role list, not an in-app user-invitation system.
 
 **Migration order matters:** run `npm run migrate:deploy` against the intended
 database before deploying the updated Prisma client. The migration backfills
@@ -89,3 +99,50 @@ single-school policy, not yet a per-school or per-academic-year configuration.
 The test workflow runs `prisma migrate deploy` against an empty PostgreSQL
 service, exercises age/workflow unit tests, runs lint, and builds the app.
 Use `npm ci` to reproduce the exact committed dependency lockfile.
+
+## Database-backed User Management
+
+The /users page is visible only to Admin accounts. It stores staff and additional
+administrators in the WorkspaceMember database table; changes appear in the
+WorkspaceMemberAudit log. Changes take effect at the **next authenticated API
+request**, without redeploying. Enrolments are tied to the exact lower-case
+Neon Auth login email address.
+
+- Admins may grant or revoke Admin and Staff roles, or disable and re-enable users.
+- Staff may read admissions, add enquiries, and update admission stages. They
+  cannot edit existing student details, academic years, fees, or settings.
+- An administrator named in `ADMISSIONS_ADMIN_EMAILS` remains a **protected
+  bootstrap administrator** and cannot be disabled, deleted, or demoted in the
+  UI. Keep at least one valid account there as a recovery mechanism.
+- `ADMISSIONS_STAFF_EMAILS` remains a legacy fallback until old staff are
+  moved into the app. Creating a database member overrides their legacy role;
+  disabling a member revokes access even if listed in the old environment
+  variable. You may delete the legacy staff variable once staff have been added.
+- Adding an email grants access **after that person logs in using an existing
+  Neon Auth account**. This page does not create passwords, sign-up links or
+  send email invitations.
+- The user management endpoint is admin-only on the server; the browser never
+  receives private environment secrets. Mutations are recorded with actor email.
+
+**Required migration before deployment:** `npm run migrate:deploy` must be run
+against the intended Neon database. Production currently lacks
+`public."AdmissionConfig"` (Prisma P2021), which causes the Settings loading
+error. The migration sequence creates that table and the new
+`WorkspaceMember` and `WorkspaceMemberAudit` tables. Back up production data
+and run migrations **before** deploying this code. GitHub Actions migrations
+only target its temporary CI PostgreSQL instance; passing CI does NOT apply
+migrations to Neon Production.
+
+## Database migrations on Vercel Production
+
+The `build` script runs `scripts/deploy-migrations.mjs` before Prisma Client
+generation and the Next.js build. Migrations run **only** when
+`VERCEL_ENV=production`; preview, CI, and local builds skip this step.
+The deploy stops if production migration fails, instead of shipping code
+with missing tables. Take a Neon snapshot/branch backup before merging or
+redeploying schema changes. Preview deployments do not migrate Neon production.
+
+If your existing production database is not registered in Prisma's
+`_prisma_migrations` history, `migrate deploy` may require manually
+baselining the schema first. Resolve those errors instead of bypassing
+migration safety checks.
