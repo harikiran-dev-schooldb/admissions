@@ -104,7 +104,7 @@ export default function UserManagementPage() {
       }));
       setNewEmail("");
       setNewRole("STAFF");
-      setNotice("Access granted. The person can sign in using that email in Neon Auth.");
+      setNotice("Access granted. The person can request a sign-in code at their authorized email.");
       setPage(1);
       refreshData();
     } catch (caught) {
@@ -204,7 +204,7 @@ export default function UserManagementPage() {
                   </button>
                 </form>
                 <div className="mt-5 rounded-2xl border border-indigo-100 bg-indigo-50/70 p-4 text-xs leading-6 text-indigo-800">
-                  <strong>Login is separate.</strong> This page grants a role. The person must also have a Neon Auth login with the exact same email. No password or invitation is sent.
+                  <strong>Email OTP sign-in.</strong> This page grants a role. The user can request a six-digit sign-in code at that email address. Adding a user here does not send a password or invitation.
                 </div>
               </section>
 
