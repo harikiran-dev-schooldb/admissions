@@ -218,3 +218,20 @@ import) identifiers. Failed stage updates show actionable, nonblocking in-app
 notifications instead of browser alerts. Account role/activation changes and
 destructive actions use a styled confirmation dialog. Existing authorization
 checks, audit logging and stage-transition policies are unchanged.
+
+## Reliable admission stage verification
+
+The stage selector follows five explicit steps: **Application submitted →
+Entrance pass/not required → Interview selected → Admission given →
+Final admitted**. Moving an earlier stage backwards resets downstream
+milestones; selecting Interview alone never grants admission. A rejected
+interview closes the enquiry as Cancelled, and changing the decision requires
+an explicit **Reopen** operation. The server verifies prerequisite stages
+inside the same transaction as the update and immutable audit entry, and
+uses the previous updated-at version to detect concurrent edits. Staff retain
+stage-update permissions; the server still enforces allowed status values.
+
+Historical imports sometimes contain incomplete earlier stages while already
+marked ADMITTED. The directory displays their final decision correctly and
+flags the discrepancy instead of silently rewriting those historical records.
+No existing admission statuses are bulk-modified by this fix.
