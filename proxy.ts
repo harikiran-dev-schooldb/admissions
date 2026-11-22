@@ -22,6 +22,7 @@ export const config = {
     "/admissions/:path*",
     "/fees/:path*",
     "/academic-years/:path*",
+    "/settings/:path*",
     "/analytics/:path*",
     "/api/admissions/:path*",
     "/api/fees/:path*",
