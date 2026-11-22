@@ -45,7 +45,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const accessError = await requireAccess("admin");
+  const accessError = await requireAccess("enquiry");
   if (accessError) return accessError;
   try {
     const parsed = admissionCreateSchema.safeParse(await req.json());

@@ -46,7 +46,7 @@ export default function AppSidebar() {
             <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 px-3 py-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700"><ShieldCheck className="size-4" />Workspace online</div>
               <p className="mt-1.5 text-xs leading-5 text-emerald-700/70">2026–27 admissions operations</p>
-              <p className="mt-2 text-xs font-black text-slate-700" aria-live="polite">{loading ? "Verifying role…" : role === "admin" ? "Administrator · Full control" : role === "staff" ? "Staff · View only" : error || "Access unavailable"}</p>
+              <p className="mt-2 text-xs font-black text-slate-700" aria-live="polite">{loading ? "Verifying role…" : role === "admin" ? "Administrator · Full control" : role === "staff" ? "Staff · Admissions workflow" : error || "Access unavailable"}</p>
             </div>
           </div>
         </div>

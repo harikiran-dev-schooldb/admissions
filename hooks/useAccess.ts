@@ -28,5 +28,5 @@ export function useAccess() {
     return () => controller.abort();
   }, []);
 
-  return { role, canManage: role === "admin", loading, error };
+  return { role, canManage: role === "admin", canManageAdmissions: role === "admin" || role === "staff", loading, error };
 }

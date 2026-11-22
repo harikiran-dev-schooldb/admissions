@@ -15,14 +15,20 @@ const protectedRoutes = [
   "app/api/settings/route.ts",
 ];
 
-test("all data API handlers check access before reading or writing", () => {
+const staffActions = {
+  "app/api/admissions/route.ts": { POST: "enquiry" },
+  "app/api/admissions/stages/route.ts": { PATCH: "workflow" },
+};
+
+test("all data API handlers check the required read, staff workflow, or admin permissions", () => {
   for (const path of protectedRoutes) {
     const source = readFileSync(resolve(process.cwd(), path), "utf8");
-    const methods = [...source.matchAll(/export async function (GET|POST|PUT|PATCH|DELETE)\([^\n]*\) \{\s*const accessError = await requireAccess\("(read|admin)"\)/g)];
+    const methods = [...source.matchAll(/export async function (GET|POST|PUT|PATCH|DELETE)\([^\n]*\) \{\s*const accessError = await requireAccess\("(read|enquiry|workflow|admin)"\)/g)];
     assert.ok(methods.length, `No access-guarded handlers found in ${path}`);
     for (const match of methods) {
       const [, method, level] = match;
-      assert.equal(level, method === "GET" ? "read" : "admin", `Wrong access level for ${path} ${method}`);
+      const expected = method === "GET" ? "read" : staffActions[path]?.[method] ?? "admin";
+      assert.equal(level, expected, `Wrong access level for ${path} ${method}`);
     }
 
     const exports = [...source.matchAll(/export async function (GET|POST|PUT|PATCH|DELETE)\(/g)];

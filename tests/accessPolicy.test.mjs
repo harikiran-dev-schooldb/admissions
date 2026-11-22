@@ -6,13 +6,17 @@ test("admins may read and modify records", () => {
   const role = resolveAccessRole("ADMIN@EXAMPLE.COM", "admin@example.com", "staff@example.com");
   assert.equal(role, "admin");
   assert.equal(canAccess(role, "read"), true);
+  assert.equal(canAccess(role, "enquiry"), true);
+  assert.equal(canAccess(role, "workflow"), true);
   assert.equal(canAccess(role, "admin"), true);
 });
 
-test("staff may read but may not modify any record", () => {
+test("staff may create enquiries and update admission workflow, but cannot edit master data", () => {
   const role = resolveAccessRole(" Staff@Example.Com ", "admin@example.com", "staff@example.com");
   assert.equal(role, "staff");
   assert.equal(canAccess(role, "read"), true);
+  assert.equal(canAccess(role, "enquiry"), true);
+  assert.equal(canAccess(role, "workflow"), true);
   assert.equal(canAccess(role, "admin"), false);
 });
 
@@ -22,6 +26,8 @@ test("unlisted users and missing administrator configuration are denied", () => 
   assert.equal(resolveAccessRole(null, "admin@example.com", "staff@example.com"), null);
   assert.equal(canAccess(null, "read"), false);
   assert.equal(canAccess(null, "admin"), false);
+  assert.equal(canAccess(null, "enquiry"), false);
+  assert.equal(canAccess(null, "workflow"), false);
 });
 
 test("admins take precedence over duplicate staff entries", () => {

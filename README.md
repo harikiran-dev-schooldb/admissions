@@ -58,11 +58,12 @@ Set these Vercel **Production** environment variables before deploying:
 
 Never commit real passwords or API keys. With an empty administrator allowlist,
 data APIs reject requests with HTTP 503 rather than exposing student information.
-Only administrators can create, update, change stages or delete **any** admissions,
-fees, academic years or settings. Staff members are **view-only** across the
-application. Server-side guards reject all staff write requests with HTTP 403,
-even if someone sends a direct API request rather than using the UI.
-All unlisted email addresses are denied access.
+Only administrators can edit existing enquiry details, delete admissions, and
+create/edit/delete fees, academic years and settings. **Staff members can create
+new enquiries and update application, entrance, interview, admission-given and
+final-admission workflow statuses**, but cannot alter the master configuration
+or edit/delete student records. This is enforced on every API endpoint, not just
+by hiding buttons. Unlisted email addresses are denied access.
 
 The `/api/access` endpoint returns only the signed-in user's role and whether
 they can manage records; the email allowlists are not exposed to the browser.

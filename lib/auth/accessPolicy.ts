@@ -1,5 +1,5 @@
 export type AccessRole = "admin" | "staff";
-export type AccessLevel = "read" | "admin";
+export type AccessLevel = "read" | "enquiry" | "workflow" | "admin";
 
 function emails(value: string | undefined): Set<string> {
   return new Set((value ?? "").split(",").map((email) => email.trim().toLowerCase()).filter(Boolean));
@@ -20,5 +20,5 @@ export function resolveAccessRole(
 
 export function canAccess(role: AccessRole | null, level: AccessLevel): boolean {
   if (role === "admin") return true;
-  return level === "read" && role === "staff";
+  return role === "staff" && level !== "admin";
 }
