@@ -33,7 +33,7 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 - Database: Neon Postgres via Prisma
 - Authentication: Neon Auth
-- Production migrations: the Vercel production build runs checked-in Prisma migrations before building Next.js, using a direct Neon connection. Local/preview builds skip migrations.
+- Production migrations: the Vercel production build first checks Prisma migration status over a direct Neon connection; it runs `migrate deploy` only when the migration history needs attention and fails the build if a required migration cannot be applied. Local/preview builds skip migrations.
 - Admissions are scoped by academic year; migrated legacy admissions belong to `2025-26`
 - Supabase is no longer used by the application runtime
 
