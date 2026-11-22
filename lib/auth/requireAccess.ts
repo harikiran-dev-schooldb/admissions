@@ -14,11 +14,12 @@ export type { AccessLevel, AccessRole };
 type AccessResult = {
   role: AccessRole | null;
   email: string | null;
+  name: string | null;
   error: NextResponse | null;
 };
 
 function reject(error: string, status: number): AccessResult {
-  return { role: null, email: null, error: NextResponse.json({ error }, { status }) };
+  return { role: null, email: null, name: null, error: NextResponse.json({ error }, { status }) };
 }
 
 /**
@@ -28,7 +29,7 @@ function reject(error: string, status: number): AccessResult {
  */
 export async function getAuthorizedRole(): Promise<AccessResult> {
   if (process.env.NODE_ENV !== "production" && process.env.LOCAL_AUTH_BYPASS === "true") {
-    return { role: "admin", email: "local-admin@localhost.invalid", error: null };
+    return { role: "admin", email: "local-admin@localhost.invalid", name: "Local Administrator", error: null };
   }
 
   const admins = process.env.ADMISSIONS_ADMIN_EMAILS;
@@ -40,10 +41,11 @@ export async function getAuthorizedRole(): Promise<AccessResult> {
     const { data } = await auth.getSession();
     const email = data?.user?.email ? normalizeEmail(data.user.email) : null;
     if (!email) return reject("Authentication required", 401);
+    const name = typeof data?.user?.name === "string" ? data.user.name.trim().slice(0, 120) : null;
 
     // No database dependency is needed to recover from a broken migration.
     const bootstrapRole = resolveAccessRole(email, admins, undefined);
-    if (bootstrapRole === "admin") return { role: "admin", email, error: null };
+    if (bootstrapRole === "admin") return { role: "admin", email, name, error: null };
 
     const member = await prisma.workspaceMember.findUnique({
       where: { email },
@@ -57,7 +59,7 @@ export async function getAuthorizedRole(): Promise<AccessResult> {
       member,
     );
     if (!role) return reject("You do not have access to this workspace", 403);
-    return { role, email, error: null };
+    return { role, email, name, error: null };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
       return reject("Database setup is incomplete. An administrator must apply the database migrations.", 503);
