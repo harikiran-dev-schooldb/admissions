@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
-import { emailSet, normalizeEmail } from "@/lib/auth/accessPolicy";
+import { normalizeEmail, resolveAccessRole } from "@/lib/auth/accessPolicy";
 import { admissionFollowUpId, followUpCreateSchema } from "@/lib/validation/followUps";
 import { parsePage } from "@/lib/admissions/pagination";
 
@@ -77,12 +77,10 @@ export async function POST(req: Request) {
     if (actor.role !== "admin" && assignedToEmail !== actor.email) {
       return NextResponse.json({ error: "Staff may assign follow-ups only to themselves" }, { status: 403 });
     }
-    if (actor.role === "admin" && assignedToEmail !== actor.email &&
-        !emailSet(process.env.ADMISSIONS_ADMIN_EMAILS).has(assignedToEmail) &&
-        !emailSet(process.env.ADMISSIONS_STAFF_EMAILS).has(assignedToEmail)) {
+    if (actor.role === "admin" && assignedToEmail !== actor.email) {
       const member = await prisma.workspaceMember.findUnique({ where: { email: assignedToEmail } });
-      if (!member?.isActive) {
-        return NextResponse.json({ error: "Choose an active staff member" }, { status: 400 });
+      if (!resolveAccessRole(assignedToEmail, process.env.ADMISSIONS_ADMIN_EMAILS, process.env.ADMISSIONS_STAFF_EMAILS, member)) {
+        return NextResponse.json({ error: "Choose an active team member" }, { status: 400 });
       }
     }
     const created = await prisma.$transaction(async (tx) => {
