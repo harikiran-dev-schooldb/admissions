@@ -69,21 +69,21 @@ test("mobile notifications are viewport-bound and not duplicated in the admissio
 test("account menu stays compact and does not duplicate sidebar administration navigation", () => {
   const account = source("components/AccountMenu.tsx");
   const sidebar = source("components/AppSidebar.tsx");
-  assert.match(account, /w-\\[min\\(272px,calc\\(100vw-24px\\)\\)\\]/);
-  assert.match(account, /Signed in securely/);
-  assert.match(account, /onClick=\\{\\(\\) => void signOut\\(\\)\\}/);
-  assert.doesNotMatch(account, /href="\\/(?:settings|users|audit-logs)"/);
-  assert.match(sidebar, /href: "\\/settings"/);
-  assert.match(sidebar, /href: "\\/users"/);
-  assert.match(sidebar, /href: "\\/audit-logs"/);
+  assert.ok(account.includes("w-[min(272px,calc(100vw-24px))]"));
+  assert.ok(account.includes("Signed in securely"));
+  assert.ok(account.includes("void signOut()"));
+  for (const path of ["/settings", "/users", "/audit-logs"]) {
+    assert.ok(sidebar.includes(`href: "${path}"`), `sidebar missing ${path}`);
+    assert.ok(!account.includes(`href="${path}"`), `duplicate account menu link: ${path}`);
+  }
 });
 
 test("admissions hero prioritizes summary totals without exposing staff-only metrics", () => {
   const page = source("app/admissions/page.tsx");
   const metrics = source("components/admissions/KPISection.tsx");
-  assert.match(page, /\\{canManage && <div className="grid min-w-0 grid-cols-2 gap-3"/);
-  assert.match(page, /xl:grid-cols-\\[minmax\\(0,1fr\\)_minmax\\(0,360px\\)\\]/);
-  assert.match(metrics, /xl:grid-cols-6/);
-  assert.match(metrics, /aria-label="Admissions funnel"/);
-  assert.match(metrics, /loading \\? "0%" :/);
+  assert.ok(page.includes('{canManage && <div className="grid min-w-0 grid-cols-2 gap-3"'));
+  assert.ok(page.includes("xl:grid-cols-[minmax(0,1fr)_minmax(0,360px)]"));
+  assert.ok(metrics.includes("xl:grid-cols-6"));
+  assert.ok(metrics.includes('aria-label="Admissions funnel"'));
+  assert.ok(metrics.includes('width: loading ? "0%" :'));
 });
