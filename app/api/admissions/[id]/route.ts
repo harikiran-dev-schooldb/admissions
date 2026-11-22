@@ -8,7 +8,7 @@ import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
 type Context = { params: Promise<{ id: string }> };
 
 export async function GET(_req: Request, { params }: Context) {
-  const accessError = await requireAccess("staff");
+  const accessError = await requireAccess("read");
   if (accessError) return accessError;
   const { id } = await params;
   const admission = await prisma.admission.findUnique({ where: { id } });
@@ -17,7 +17,7 @@ export async function GET(_req: Request, { params }: Context) {
 }
 
 export async function PATCH(req: Request, { params }: Context) {
-  const accessError = await requireAccess("staff");
+  const accessError = await requireAccess("admin");
   if (accessError) return accessError;
   try {
     const { id } = await params;

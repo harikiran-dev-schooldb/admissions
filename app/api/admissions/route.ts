@@ -9,7 +9,7 @@ import { calculateAge, getEligibleClass } from "@/lib/eligibility";
 import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
 
 export async function GET(req: Request) {
-  const accessError = await requireAccess("staff");
+  const accessError = await requireAccess("read");
   if (accessError) return accessError;
   try {
     const { searchParams } = new URL(req.url);
@@ -45,7 +45,7 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const accessError = await requireAccess("staff");
+  const accessError = await requireAccess("admin");
   if (accessError) return accessError;
   try {
     const parsed = admissionCreateSchema.safeParse(await req.json());
