@@ -9,6 +9,7 @@ import AppSidebar from "@/components/AppSidebar";
 import AccountMenu from "@/components/AccountMenu";
 import { useAccess } from "@/hooks/useAccess";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
 
 type Role = "ADMIN" | "STAFF";
 type Member = {
@@ -63,6 +64,7 @@ export default function UserManagementPage() {
   const [newRole, setNewRole] = useState<Role>("STAFF");
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState("");
+  const [pendingChange, setPendingChange] = useState<{ member: Member; change: { role?: Role; isActive?: boolean } } | null>(null);
 
   const refreshData = useCallback(() => setRefresh((value) => value + 1), []);
 
@@ -115,12 +117,15 @@ export default function UserManagementPage() {
     }
   }
 
-  async function updateMember(member: Member, change: { role?: Role; isActive?: boolean }) {
+  function updateMember(member: Member, change: { role?: Role; isActive?: boolean }) {
     if (!canManage || busyId) return;
-    if (change.role === "ADMIN" && member.role !== "ADMIN" &&
-        !window.confirm(`Give ${member.email} administrator access to student data, fees, settings and user management?`)) return;
-    if (change.isActive === false &&
-        !window.confirm(`Revoke workspace access for ${member.email}? They will lose access on their next API request.`)) return;
+    if (change.role === member.role || change.isActive === member.isActive) return;
+    setPendingChange({ member, change });
+  }
+
+  async function confirmMemberChange() {
+    if (!pendingChange || !canManage || busyId) return;
+    const { member, change } = pendingChange;
     setBusyId(member.id);
     setError("");
     setNotice("");
@@ -130,6 +135,7 @@ export default function UserManagementPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(change),
       }));
+      setPendingChange(null);
       setNotice(`Access updated for ${member.email}.`);
       refreshData();
     } catch (caught) {
@@ -138,6 +144,17 @@ export default function UserManagementPage() {
       setBusyId("");
     }
   }
+
+  const confirmTitle = pendingChange?.change.role
+    ? `Change role to ${pendingChange.change.role === "ADMIN" ? "Administrator" : "Staff"}?`
+    : pendingChange?.change.isActive ? "Reactivate staff account?" : "Disable workspace access?";
+  const confirmText = !pendingChange ? "" : pendingChange.change.role === "ADMIN"
+    ? `Give ${pendingChange.member.email} full access to admissions, fees, academic years, settings and user management?`
+    : pendingChange.change.role === "STAFF"
+      ? `Change ${pendingChange.member.email} to Staff? Administrator controls will be removed.`
+      : pendingChange.change.isActive
+        ? `Restore workspace access for ${pendingChange.member.email}?`
+        : `Revoke workspace access for ${pendingChange.member.email}? The change takes effect on the next API request.`;
 
   function searchUsers(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -296,6 +313,16 @@ export default function UserManagementPage() {
           </>}
         </main>
       </div>
+      <ConfirmDialog
+        open={Boolean(pendingChange)}
+        title={confirmTitle}
+        description={confirmText}
+        loading={busyId !== ""}
+        tone={pendingChange?.change.isActive === false || pendingChange?.change.role === "STAFF" ? "danger" : "primary"}
+        confirmLabel={pendingChange?.change.role ? "Confirm role" : pendingChange?.change.isActive ? "Reactivate" : "Disable access"}
+        onCancel={() => setPendingChange(null)}
+        onConfirm={() => void confirmMemberChange()}
+      />
     </div>
   );
 }

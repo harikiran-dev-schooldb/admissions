@@ -10,6 +10,7 @@ import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import { useAcademicYears, type AcademicYearRecord } from "@/hooks/useAcademicYears";
 import { useAccess } from "@/hooks/useAccess";
 import AccessNotice from "@/components/ui/AccessNotice";
+import { toast } from "sonner";
 
 function formatDate(value: string | null) { return value ? new Date(value).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Not set"; }
 
@@ -25,8 +26,8 @@ export default function AcademicYearsPage() {
 
   async function deleteYear() {
     if (!deleting || !canManage) return;
-    try { setDeleteLoading(true); const response = await fetch(`/api/academic-years/${deleting.id}`, { method: "DELETE" }); if (!response.ok) { const json = await response.json(); throw new Error(json.error || "Failed to delete academic year"); } setDeleting(null); await reload(); }
-    catch (caught) { window.alert(caught instanceof Error ? caught.message : "Failed to delete academic year"); }
+    try { setDeleteLoading(true); const response = await fetch(`/api/academic-years/${deleting.id}`, { method: "DELETE" }); if (!response.ok) { const json = await response.json(); throw new Error(json.error || "Failed to delete academic year"); } setDeleting(null); await reload(); toast.success("Academic year deleted"); }
+    catch (caught) { toast.error("Couldn’t delete academic year", { description: caught instanceof Error ? caught.message : "Please try again." }); }
     finally { setDeleteLoading(false); }
   }
 
