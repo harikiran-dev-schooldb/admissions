@@ -50,3 +50,13 @@ test("both stats and directory endpoints use the exact same filter parser", asyn
   assert.match(stats, /yearTotal/);
   assert.match(stats, /requireAccess\("admin"\)/);
 });
+
+test("stage KPI queries intersect with the current filters instead of overwriting them", async () => {
+  const { readFileSync } = await import("node:fs");
+  const stats = readFileSync("app/api/admissions/stats/route.ts", "utf8");
+  for (const name of ["finalAdmission", "application", "entrance", "interview"]) {
+    assert.match(stats, new RegExp("AND: \\[where, \\{ " + name + ":"));
+  }
+  assert.doesNotMatch(stats, /\.\.\.where, finalAdmission:/);
+  assert.doesNotMatch(stats, /\.\.\.where, application:/);
+});
