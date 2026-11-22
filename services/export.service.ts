@@ -3,7 +3,7 @@ import type { Admission } from "@/src/generated/prisma/client";
 /** Keep spreadsheets from treating student-supplied values as formulas. */
 function csvCell(value: unknown): string {
   const raw = value == null ? "" : String(value);
-  const safe = /^[\s\u0000-\u001f]*[=+@-]/u.test(raw) ? "'" + raw : raw;
+  const safe = /^\s*[=+@-]/u.test(raw) ? "'" + raw : raw;
   return '"' + safe.replaceAll('"', '""') + '"';
 }
 
