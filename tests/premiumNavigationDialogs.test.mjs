@@ -52,6 +52,6 @@ test("premium navigation groups admin-only destinations and keeps mobile menus u
   assert.match(side, /mobilePrimary = visibleNav\.slice\(0, 4\)/);
   assert.match(side, /aria-label="More navigation"/);
   assert.match(side, /<AccountMenu compact \/>/);
-  assert.match(menu, /const \{ name, email, role, loading, error \} = useAccess\(\)/);
+  assert.match(menu, /const \{ name, email, role, loading, error, clearAccess, notifyAuthChange \} = useAccess\(\)/);
   assert.match(menu, /await authClient\.signOut\(\)/);
 });
