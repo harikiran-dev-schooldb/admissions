@@ -16,9 +16,14 @@ export async function GET(req: Request) {
   if (accessError) return accessError;
   try {
     const { searchParams } = new URL(req.url);
+    const academicYear = searchParams.get("academicYear")?.trim();
+    // Never return all school admissions when a page opens before year selection.
+    if (!academicYear || !/^\d{4}-\d{2}$/.test(academicYear)) {
+      return NextResponse.json({ error: "Choose a valid academic year" }, { status: 400 });
+    }
     const where = getAdmissionWhere(searchParams);
 
-    // Existing analytics clients omit page and still receive the full yearly dataset.
+    // Analytics omits pagination but must still query only the selected year's data.
     // Directory clients request a page, so all search/filter/pagination work stays in SQL.
     if (searchParams.has("page")) {
       const requestedPage = parsePage(searchParams.get("page"));
