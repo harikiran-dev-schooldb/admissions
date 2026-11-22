@@ -148,16 +148,24 @@ export default function AdmissionsPage() {
 
         <main className="mx-auto max-w-[1680px] space-y-4 p-3 sm:space-y-6 sm:p-6 xl:p-10">
           <AccessNotice role={role} error={accessError} />
-          <section className="premium-hero rounded-[26px] p-5 sm:rounded-[32px] sm:p-9">
-            <div className="relative z-10 flex flex-col gap-5 sm:gap-7 xl:flex-row xl:items-end xl:justify-between">
-              <div className="max-w-2xl">
+          <section className="premium-hero rounded-[26px] p-5 sm:rounded-[30px] sm:p-7 xl:p-8">
+            <div className={`relative z-10 grid items-center gap-5 sm:gap-6 ${canManage ? "xl:grid-cols-[minmax(0,1fr)_minmax(0,360px)]" : ""}`}>
+              <div className="min-w-0 max-w-2xl">
                 <p className="premium-kicker flex items-center gap-2"><Sparkles className="size-4" />{academicYear ? `${academicYear.replace("-", "–")} admission desk` : "Create an academic year"}</p>
-                <h2 className="mt-3 text-2xl font-black leading-tight tracking-[-0.045em] sm:mt-4 sm:text-4xl">Every prospective student, clearly in view.</h2>
-                <p className="mt-3 max-w-xl text-sm leading-6 sm:text-base sm:leading-7">Move enquiries through application, entrance, interview and confirmation while keeping every parent conversation connected.</p>
+                <h2 className="mt-3 text-[27px] font-black leading-[1.12] tracking-[-0.045em] sm:text-[32px]">Your admissions, at a glance.</h2>
+                <p className="mt-2 max-w-lg text-sm leading-6 text-slate-600 sm:text-[15px]">Track enquiries from application to admission, with every follow-up in one place.</p>
               </div>
-              {canManage && <div className="grid grid-cols-2 gap-3 sm:min-w-80">
-                <div className="hero-stat rounded-2xl p-3 sm:p-4"><Users className="size-4 text-indigo-600" /><strong className="mt-3 block text-2xl font-black tabular-nums sm:text-3xl">{(summaryLoading || yearsLoading) ? "…" : summary.total.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Total enquiries</p></div>
-                <div className="hero-stat rounded-2xl p-3 sm:p-4"><CheckCircle2 className="size-4 text-emerald-300" /><strong className="mt-3 block text-2xl font-black tabular-nums sm:text-3xl">{(summaryLoading || yearsLoading) ? "…" : summary.admitted.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Admitted</p></div>
+              {canManage && <div className="grid min-w-0 grid-cols-2 gap-3" aria-label="Admission summary" aria-live="polite">
+                <div className="hero-stat min-w-0 rounded-[18px] p-3.5 sm:p-4">
+                  <div className="flex items-center gap-2 text-indigo-600"><Users className="size-4" /><span className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">Enquiries</span></div>
+                  <strong className="mt-2 block text-3xl font-black leading-none tracking-tight tabular-nums sm:text-4xl">{(summaryLoading || yearsLoading) ? "…" : summary.total.toLocaleString("en-IN")}</strong>
+                  <p className="mt-2 text-[11px] font-semibold">Total enquiries</p>
+                </div>
+                <div className="hero-stat min-w-0 rounded-[18px] p-3.5 sm:p-4">
+                  <div className="flex items-center gap-2 text-emerald-600"><CheckCircle2 className="size-4" /><span className="text-[11px] font-extrabold uppercase tracking-wide text-slate-500">Admitted</span></div>
+                  <strong className="mt-2 block text-3xl font-black leading-none tracking-tight tabular-nums sm:text-4xl">{(summaryLoading || yearsLoading) ? "…" : summary.admitted.toLocaleString("en-IN")}</strong>
+                  <p className="mt-2 text-[11px] font-semibold">Confirmed admissions</p>
+                </div>
               </div>}
             </div>
           </section>
