@@ -132,3 +132,17 @@ error. The migration sequence creates that table and the new
 and run migrations **before** deploying this code. GitHub Actions migrations
 only target its temporary CI PostgreSQL instance; passing CI does NOT apply
 migrations to Neon Production.
+
+## Database migrations on Vercel Production
+
+The `build` script runs `scripts/deploy-migrations.mjs` before Prisma Client
+generation and the Next.js build. Migrations run **only** when
+`VERCEL_ENV=production`; preview, CI, and local builds skip this step.
+The deploy stops if production migration fails, instead of shipping code
+with missing tables. Take a Neon snapshot/branch backup before merging or
+redeploying schema changes. Preview deployments do not migrate Neon production.
+
+If your existing production database is not registered in Prisma's
+`_prisma_migrations` history, `migrate deploy` may require manually
+baselining the schema first. Resolve those errors instead of bypassing
+migration safety checks.

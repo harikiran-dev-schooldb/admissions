@@ -255,12 +255,10 @@ export default function UserManagementPage() {
                     {!loading && members.map((member) => <tr key={member.id} className="border-t border-slate-100 hover:bg-indigo-50/30">
                       <td className="px-5 py-4 text-sm font-bold text-slate-900">{member.email}</td>
                       <td className="px-5 py-4">
-                        <select aria-label={`Role for ${member.email}`} value={member.role}
+<SchoolDbSelect ariaLabel={`Role for ${member.email}`} value={member.role}
                           disabled={busyId !== "" || !member.isActive}
-                          onChange={(event) => void updateMember(member, { role: event.target.value as Role })}
-                          className="rounded-xl border border-indigo-100 bg-white px-3 py-2 text-sm font-bold text-indigo-700 disabled:opacity-50">
-                          <option value="STAFF">Staff</option><option value="ADMIN">Admin</option>
-                        </select>
+                          onValueChange={(value) => void updateMember(member, { role: value as Role })}
+                          options={[{ value: "STAFF", label: "Staff" }, { value: "ADMIN", label: "Admin" }]} />
                       </td>
                       <td className="px-5 py-4"><span className={`inline-flex rounded-lg px-2.5 py-1.5 text-xs font-black ${member.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{member.isActive ? "Active" : "Disabled"}</span></td>
                       <td className="px-5 py-4"><p className="max-w-[220px] truncate text-xs font-semibold text-slate-600" title={member.updatedBy ?? ""}>{member.updatedBy ?? "—"}</p><p className="mt-1 text-xs text-slate-400">{new Date(member.updatedAt).toLocaleString("en-IN")}</p></td>
