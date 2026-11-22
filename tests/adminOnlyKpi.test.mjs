@@ -32,7 +32,7 @@ test("staff never requests admin KPI statistics from the admissions page", () =>
 
 test("fees aggregate cards and annual-total widget are administrator only", () => {
   const page = source("app/fees/page.tsx");
-  assert.match(page, /\{canManage && <FeesKPISection fees=\{yearFees\} \/>\}/);
+  assert.match(page, /\{canManage && !loading && <FeesKPISection fees=\{yearFees\} \/>\}/);
   assert.match(page, /\{canManage && <div className="hero-stat/);
 });
 
