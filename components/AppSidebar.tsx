@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useState } from "react";
+import { authClient } from "@/lib/auth/client";
 import { useAccess } from "@/hooks/useAccess";
-import { BarChart3, CalendarRange, CircleDollarSign, GraduationCap, Search, Settings2, ShieldCheck, UserRoundCog, Users } from "lucide-react";
+import {
+  BarChart3, CalendarRange, CircleDollarSign, GraduationCap, Loader2,
+  LogOut, Search, Settings2, ShieldCheck, UserRound, UserRoundCog, Users,
+} from "lucide-react";
 
 const nav: Array<{ label: string; href: string; icon: typeof Users; adminOnly?: boolean }> = [
   { label: "Admissions", href: "/admissions", icon: Users },
@@ -16,8 +21,30 @@ const nav: Array<{ label: string; href: string; icon: typeof Users; adminOnly?: 
 
 export default function AppSidebar() {
   const pathname = usePathname();
-  const { role, loading, error } = useAccess();
+  const router = useRouter();
+  const { role, name, email, loading, error } = useAccess();
+  const [signingOut, setSigningOut] = useState(false);
+  const [signOutError, setSignOutError] = useState("");
   const visibleNav = nav.filter((item) => !item.adminOnly || role === "admin");
+  const displayName = name.trim() || email.split("@")[0] || "Signed-in user";
+  const roleLabel = role === "admin" ? "Administrator" : role === "staff" ? "Staff" : "Verifying access";
+  const avatarInitials = displayName.split(/\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase();
+
+  async function handleLogout() {
+    if (signingOut) return;
+    setSigningOut(true);
+    setSignOutError("");
+    try {
+      const { error: logoutError } = await authClient.signOut();
+      if (logoutError) throw new Error(logoutError.message || "Could not sign out");
+      router.replace("/login");
+      router.refresh();
+    } catch (caught) {
+      setSignOutError(caught instanceof Error ? caught.message : "Could not sign out. Please try again.");
+    } finally {
+      setSigningOut(false);
+    }
+  }
 
   return (
     <>
@@ -31,33 +58,81 @@ export default function AppSidebar() {
           </div>
 
           <div className="px-3 pt-3">
-            <div className="flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/60 px-3 text-sm text-slate-400 transition hover:border-indigo-200 hover:bg-white"><Search className="size-3.5" /><span>Admissions workspace</span></div>
+            <div className="flex h-9 items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/60 px-3 text-sm text-slate-400"><Search className="size-3.5" /><span>Admissions workspace</span></div>
           </div>
 
-          <nav className="flex-1 px-3 py-5">
+          <nav className="flex-1 overflow-y-auto px-3 py-5">
             <p className="mb-2 px-3 text-xs font-bold uppercase tracking-[.16em] text-slate-400">Workspace</p>
             <div className="space-y-1">
               {visibleNav.map(({ label, href, icon: Icon }) => {
                 const active = pathname === href;
-                return <Link key={href} href={href} className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-[0_9px_24px_rgba(79,70,229,.24)] ring-1 ring-indigo-500/20" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}>{active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-white" />}<Icon className={`size-[17px] ${active ? "text-white" : "text-slate-400 group-hover:text-slate-600"}`} /><span>{label}</span>{active && <span className="ml-auto size-1.5 rounded-full bg-white/80" />}</Link>;
+                return (
+                  <Link key={href} href={href} className={`group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all ${active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-[0_9px_24px_rgba(79,70,229,.24)] ring-1 ring-indigo-500/20" : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"}`}>
+                    {active && <span className="absolute left-0 top-1/2 h-5 w-0.5 -translate-y-1/2 rounded-full bg-white" />}
+                    <Icon className={`size-[17px] ${active ? "text-white" : "text-slate-400 group-hover:text-slate-600"}`} />
+                    <span>{label}</span>{active && <span className="ml-auto size-1.5 rounded-full bg-white/80" />}
+                  </Link>
+                );
               })}
             </div>
           </nav>
 
-          <div className="px-3 pb-3">
-            <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 px-3 py-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-emerald-700"><ShieldCheck className="size-4" />Workspace online</div>
-              <p className="mt-1.5 text-xs leading-5 text-emerald-700/70">2026–27 admissions operations</p>
-              <p className="mt-2 text-xs font-black text-slate-700" aria-live="polite">{loading ? "Verifying role…" : role === "admin" ? "Administrator · Full control" : role === "staff" ? "Staff · Admissions workflow" : error || "Access unavailable"}</p>
+          <div className="space-y-3 border-t border-slate-200 px-3 pb-3 pt-3">
+            <div className="rounded-xl border border-indigo-100 bg-indigo-50/60 p-3">
+              <div className="flex items-center gap-3">
+                <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-sm font-black text-white" aria-hidden="true">
+                  {loading ? <UserRound className="size-5" /> : avatarInitials}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-extrabold text-slate-900" title={displayName}>{loading ? "Loading profile…" : displayName}</p>
+                  <p className="text-xs font-bold text-indigo-700">{roleLabel}</p>
+                </div>
+              </div>
+              {email && <p className="mt-2 truncate text-xs text-slate-500" title={email}>{email}</p>}
+              {error && <p role="alert" className="mt-2 text-xs font-semibold text-red-700">{error}</p>}
+            </div>
+            {signOutError && <p role="alert" className="text-xs font-semibold text-red-700">{signOutError}</p>}
+            <button type="button" onClick={() => void handleLogout()} disabled={signingOut || loading}
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 disabled:opacity-50">
+              {signingOut ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
+              {signingOut ? "Signing out…" : "Logout"}
+            </button>
+            <div className="rounded-lg border border-emerald-100 bg-emerald-50/70 px-3 py-2">
+              <div className="flex items-center gap-2 text-xs font-semibold text-emerald-700"><ShieldCheck className="size-4" />Workspace online</div>
             </div>
           </div>
         </div>
       </aside>
 
-      <header className="fixed inset-x-0 top-0 z-40 flex h-18 items-center justify-between border-b border-indigo-100/70 bg-white/88 px-4 shadow-[0_8px_30px_rgba(15,23,42,.035)] backdrop-blur-2xl lg:hidden"><div className="flex items-center gap-3"><div className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md"><GraduationCap className="size-5" /></div><div><p className="font-extrabold tracking-tight text-slate-900">SchoolDB</p><p className="text-xs font-bold uppercase tracking-[.12em] text-indigo-600">Admissions</p></div></div><span className="rounded-xl border border-indigo-100 bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700">{role === "admin" ? "Admin" : role === "staff" ? "Staff · Admissions" : "2026–27"}</span></header>
+      <header className="fixed inset-x-0 top-0 z-40 flex h-18 items-center justify-between gap-3 border-b border-indigo-100/70 bg-white/88 px-4 shadow-[0_8px_30px_rgba(15,23,42,.035)] backdrop-blur-2xl lg:hidden">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md"><GraduationCap className="size-5" /></div>
+          <div className="min-w-0"><p className="truncate font-extrabold tracking-tight text-slate-900">SchoolDB</p><p className="text-xs font-bold uppercase tracking-[.12em] text-indigo-600">Admissions</p></div>
+        </div>
+        <div className="flex min-w-0 items-center gap-2">
+          <div className="min-w-0 text-right" aria-live="polite">
+            <p className="max-w-32 truncate text-xs font-extrabold text-slate-800 sm:max-w-52" title={displayName}>{loading ? "Loading…" : displayName}</p>
+            <p className="text-[11px] font-bold text-indigo-700">{roleLabel}</p>
+          </div>
+          <button type="button" onClick={() => void handleLogout()} disabled={signingOut || loading}
+            aria-label="Logout" title="Logout" className="grid size-10 shrink-0 place-items-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 disabled:opacity-50">
+            {signingOut ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
+          </button>
+        </div>
+      </header>
+      {signOutError && <div role="alert" className="fixed inset-x-3 top-20 z-50 rounded-xl bg-red-50 p-3 text-center text-xs font-bold text-red-700 lg:hidden">{signOutError}</div>}
 
       <nav className={`fixed inset-x-4 bottom-4 z-40 grid ${role === "admin" ? "grid-cols-6" : "grid-cols-5"} rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl lg:hidden`}>
-        {visibleNav.map(({ label, href, icon: Icon }) => { const active = pathname === href; return <Link key={href} href={href} aria-label={label} className={`flex h-14 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition ${active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}><Icon className="size-[18px]" /><span>{label === "Fee Structure" ? "Fees" : label === "Academic Years" ? "Years" : label === "Users & Roles" ? "Users" : label}</span></Link>; })}
+        {visibleNav.map(({ label, href, icon: Icon }) => {
+          const active = pathname === href;
+          return (
+            <Link key={href} href={href} aria-label={label}
+              className={`flex h-14 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition ${active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}>
+              <Icon className="size-[18px]" />
+              <span>{label === "Fee Structure" ? "Fees" : label === "Academic Years" ? "Years" : label === "Users & Roles" ? "Users" : label}</span>
+            </Link>
+          );
+        })}
       </nav>
     </>
   );
