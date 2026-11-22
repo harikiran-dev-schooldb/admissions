@@ -18,8 +18,6 @@ export default function AdmissionFeePreview({ student, onClose }: Props) {
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
-    setError("");
     fetch("/api/fees", { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         const body = await response.json();
