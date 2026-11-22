@@ -11,7 +11,7 @@ import FeeDetailModal from "@/components/fees/FeeDetailModal";
 import FeesKPISection from "@/components/fees/FeesKPISection";
 import FeesTable from "@/components/fees/FeesTable";
 import NewFeeModal from "@/components/fees/NewFeeModal";
-import { useFees } from "@/hooks/useFees";
+import { useFees, useFeeYears } from "@/hooks/useFees";
 import type { FeeRecord } from "@/src/generated/prisma/client";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import { useAcademicYears } from "@/hooks/useAcademicYears";
@@ -38,8 +38,8 @@ function FeesPageContent() {
     ? { year: yearParam, className: classParam }
     : null;
   const { role, canManage, error: accessError } = useAccess();
-  const { fees, loading, error, reload } = useFees();
   const { academicYears: managedAcademicYears, loading: yearsLoading, error: yearsError } = useAcademicYears();
+  const { feeYears, feeYearsLoading, feeYearsError } = useFeeYears();
   const [search, setSearch] = useState("");
   const [classFilter, setClassFilter] = useState("ALL");
   const effectiveClassFilter = linkedClass?.className ?? classFilter;
@@ -58,9 +58,13 @@ function FeesPageContent() {
   }
 
   // Include archived years and legacy FeeRecord years; never hide historical fees.
-  const academicYears = useMemo(() => getFeeYearOptions(managedAcademicYears, fees), [managedAcademicYears, fees]);
+  const academicYears = useMemo(() => getFeeYearOptions(managedAcademicYears, feeYears), [managedAcademicYears, feeYears]);
   const activeAcademicYears = useMemo(() => managedAcademicYears.filter((year) => year.isActive).map((year) => year.academicYear), [managedAcademicYears]);
-  const academicYear = linkedClass?.year ?? selectDefaultFeeYear(managedAcademicYears, fees, selectedAcademicYear);
+  // Never query or render fee data until the default year is known.
+  const yearReady = !yearsLoading && (managedAcademicYears.length > 0 || !feeYearsLoading);
+  const academicYear = !yearReady ? "" : linkedClass?.year ?? selectDefaultFeeYear(managedAcademicYears, feeYears, selectedAcademicYear);
+  const { fees, loading: feesLoading, error, reload } = useFees(academicYear);
+  const loading = !yearReady || feesLoading;
   const selectedYearIsActive = activeAcademicYears.includes(academicYear);
   const yearFees = useMemo(() => fees.filter((fee) => fee.academicYear === academicYear), [fees, academicYear]);
   const classOptions = useMemo(() => [...new Set(yearFees.map((fee) => fee.className).filter(Boolean))].sort(), [yearFees]);
@@ -101,14 +105,14 @@ function FeesPageContent() {
       <AppSidebar />
       <div className="lg:pl-72">
         <header className="premium-topbar sticky top-18 z-30 lg:top-0">
-          <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-10"><div><p className="premium-kicker">Admissions configuration</p><h1 className="mt-1 text-2xl font-black tracking-[-0.04em]">Fee structure</h1></div><div className="flex items-center gap-3"><div className="w-36"><SchoolDbSelect ariaLabel="Fee academic year" value={academicYear || undefined} onValueChange={(value) => { setSelectedAcademicYear(value); setClassFilter("ALL"); setAgeFilter("ALL"); if (linkedClass) router.replace("/fees", { scroll: false }); }} options={academicYears.map((year) => ({ label: `${year}${!activeAcademicYears.includes(year) ? " · Archived" : ""}`, value: year }))} placeholder={yearsLoading ? "Loading…" : "No academic years"} disabled={yearsLoading || academicYears.length === 0} className="font-bold" /></div>{canManage && <button onClick={() => setOpenNew(true)} disabled={!academicYear || !selectedYearIsActive} className="premium-button h-11 px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"><Plus className="size-4" /><span className="hidden sm:inline">Add fee</span><span className="sm:hidden">Add</span></button>}<div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div></div>
+          <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-10"><div><p className="premium-kicker">Admissions configuration</p><h1 className="mt-1 text-2xl font-black tracking-[-0.04em]">Fee structure</h1></div><div className="flex items-center gap-3"><div className="w-36"><SchoolDbSelect ariaLabel="Fee academic year" value={academicYear || undefined} onValueChange={(value) => { setSelectedAcademicYear(value); setClassFilter("ALL"); setAgeFilter("ALL"); if (linkedClass) router.replace("/fees", { scroll: false }); }} options={academicYears.map((year) => ({ label: `${year}${!activeAcademicYears.includes(year) ? " · Archived" : ""}`, value: year }))} placeholder={yearsLoading ? "Loading…" : "No academic years"} disabled={yearsLoading || feeYearsLoading || academicYears.length === 0} className="font-bold" /></div>{canManage && <button onClick={() => setOpenNew(true)} disabled={!academicYear || !selectedYearIsActive} className="premium-button h-11 px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"><Plus className="size-4" /><span className="hidden sm:inline">Add fee</span><span className="sm:hidden">Add</span></button>}<div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div></div>
         </header>
         <main className="mx-auto max-w-[1680px] space-y-6 p-4 sm:p-6 xl:p-10">
           <AccessNotice role={role} error={accessError} />
           <section className="premium-hero rounded-[32px] p-6 sm:p-9">
             <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between"><div className="max-w-2xl"><p className="premium-kicker flex items-center gap-2"><Sparkles className="size-3.5" />Academic fee master</p><h2 className="mt-3 text-3xl font-black tracking-[-0.045em]">Clear fee structures for every admission class.</h2><p className="mt-3 text-base leading-7">Keep term and annual amounts consistent, searchable and ready for the admissions team.</p></div>{canManage && <div className="hero-stat flex items-center gap-4 rounded-2xl p-4"><div className="grid size-11 place-items-center rounded-2xl bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200"><IndianRupee className="size-5" /></div><div><p className="text-sm font-semibold">Annual fee value</p><strong className="mt-1 block text-2xl font-black">₹{annualTotal.toLocaleString("en-IN")}</strong></div></div>}</div>
           </section>
-          {(error || yearsError) && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{yearsError || error}</div>}
+          {(error || yearsError || feeYearsError) && <div className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-semibold text-red-700">{yearsError || feeYearsError || error}</div>}
           {linkedClass && (
             <section className="flex flex-col gap-3 rounded-[22px] border border-indigo-200 bg-gradient-to-r from-indigo-50 to-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between" aria-label="Admission fee lookup">
               <div className="flex items-center gap-3">
@@ -133,7 +137,7 @@ function FeesPageContent() {
           )}
           {!canManage && <p className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-600"><CircleHelp className="size-4 text-indigo-500" /> Fee structures are view-only for staff. Payments and balances are not recorded here.</p>}
           {academicYear && <p className="text-sm font-semibold text-slate-500">Showing {yearFees.length} fee structures for {academicYear}.{!selectedYearIsActive && " Historical academic year — new fees can only be added to an active year."}</p>}
-          {canManage && <FeesKPISection fees={yearFees} />}
+          {canManage && !loading && <FeesKPISection fees={yearFees} />}
           <FeesTable canManage={canManage} fees={filteredFees} loading={loading} search={search} setSearch={setSearch} classFilter={effectiveClassFilter} setClassFilter={(value) => { setClassFilter(value); if (linkedClass) router.replace("/fees", { scroll: false }); }} classOptions={classOptions} ageFilter={ageFilter} setAgeFilter={setAgeFilter} ageOptions={ageOptions} onView={(fee) => { setSelectedFee(fee); setOpen(true); }} onEdit={setEditingFee} onDelete={setDeletingFee} />
         </main>
       </div>
