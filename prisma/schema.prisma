@@ -85,6 +85,39 @@ model AcademicYear {
   updatedAt    DateTime  @updatedAt
 }
 
+model WorkspaceMember {
+  id        String        @id @default(cuid())
+  email     String        @unique
+  role      WorkspaceRole
+  isActive  Boolean       @default(true)
+  createdBy String?
+  updatedBy String?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  @@index([role, isActive])
+}
+
+model WorkspaceMemberAudit {
+  id           String        @id @default(cuid())
+  memberEmail  String
+  actorEmail   String
+  action       String
+  beforeRole   WorkspaceRole?
+  afterRole    WorkspaceRole?
+  beforeActive Boolean?
+  afterActive  Boolean?
+  createdAt    DateTime      @default(now())
+
+  @@index([createdAt])
+  @@index([memberEmail, createdAt])
+}
+
+enum WorkspaceRole {
+  ADMIN
+  STAFF
+}
+
 model AdmissionConfig {
   key       String   @id
   value     String

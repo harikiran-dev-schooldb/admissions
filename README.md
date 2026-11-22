@@ -99,3 +99,36 @@ single-school policy, not yet a per-school or per-academic-year configuration.
 The test workflow runs `prisma migrate deploy` against an empty PostgreSQL
 service, exercises age/workflow unit tests, runs lint, and builds the app.
 Use `npm ci` to reproduce the exact committed dependency lockfile.
+
+## Database-backed User Management
+
+The /users page is visible only to Admin accounts. It stores staff and additional
+administrators in the WorkspaceMember database table; changes appear in the
+WorkspaceMemberAudit log. Changes take effect at the **next authenticated API
+request**, without redeploying. Enrolments are tied to the exact lower-case
+Neon Auth login email address.
+
+- Admins may grant or revoke Admin and Staff roles, or disable and re-enable users.
+- Staff may read admissions, add enquiries, and update admission stages. They
+  cannot edit existing student details, academic years, fees, or settings.
+- An administrator named in `ADMISSIONS_ADMIN_EMAILS` remains a **protected
+  bootstrap administrator** and cannot be disabled, deleted, or demoted in the
+  UI. Keep at least one valid account there as a recovery mechanism.
+- `ADMISSIONS_STAFF_EMAILS` remains a legacy fallback until old staff are
+  moved into the app. Creating a database member overrides their legacy role;
+  disabling a member revokes access even if listed in the old environment
+  variable. You may delete the legacy staff variable once staff have been added.
+- Adding an email grants access **after that person logs in using an existing
+  Neon Auth account**. This page does not create passwords, sign-up links or
+  send email invitations.
+- The user management endpoint is admin-only on the server; the browser never
+  receives private environment secrets. Mutations are recorded with actor email.
+
+**Required migration before deployment:** `npm run migrate:deploy` must be run
+against the intended Neon database. Production currently lacks
+`public."AdmissionConfig"` (Prisma P2021), which causes the Settings loading
+error. The migration sequence creates that table and the new
+`WorkspaceMember` and `WorkspaceMemberAudit` tables. Back up production data
+and run migrations **before** deploying this code. GitHub Actions migrations
+only target its temporary CI PostgreSQL instance; passing CI does NOT apply
+migrations to Neon Production.
