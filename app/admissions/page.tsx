@@ -129,7 +129,7 @@ export default function AdmissionsPage() {
               <div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div>
             </div>
           </div>
-        </header>/header>
+        </header>
 
         <main className="mx-auto max-w-[1680px] space-y-6 p-4 sm:p-6 xl:p-10">
           <AccessNotice role={role} error={accessError} />
