@@ -9,8 +9,8 @@ export async function GET() {
   const accessError = await requireAccess("read");
   if (accessError) return accessError;
   try {
-    const academicYears = await withDatabaseRetry(() => prisma.academicYear.findMany({ orderBy: { academicYear: "desc" } }));
-    return NextResponse.json({ data: academicYears, total: academicYears.length });
+    const academicYears = await withDatabaseRetry(() => prisma.academicYear.findMany({ orderBy: { academicYear: "desc" }, include: { _count: { select: { admissions: true } } } }));
+    return NextResponse.json({ data: academicYears.map(({ _count, ...year }) => ({ ...year, admissionsCount: _count.admissions })), total: academicYears.length });
   } catch (error) {
     console.error("GET_ACADEMIC_YEARS_ERROR", error);
     return NextResponse.json({ error: "Failed to fetch academic years" }, { status: 500 });
