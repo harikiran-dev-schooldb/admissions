@@ -11,12 +11,13 @@ export async function GET(req: Request) {
   if (accessError) return accessError;
   const searchParams = new URL(req.url).searchParams;
   const academicYear = searchParams.get("academicYear")?.trim();
-  if (academicYear && !/^\d{4}-\d{2}$/.test(academicYear)) {
-    return NextResponse.json({ error: "Invalid academic year" }, { status: 400 });
+  const yearsOnly = searchParams.get("yearsOnly") === "true";
+  if (!yearsOnly && (!academicYear || !/^\d{4}-\d{2}$/.test(academicYear))) {
+    return NextResponse.json({ error: "Choose a valid academic year" }, { status: 400 });
   }
   try {
     // The dropdown needs only year names, not every historical fee record.
-    if (searchParams.get("yearsOnly") === "true") {
+    if (yearsOnly) {
       const years = await withDatabaseRetry(() => prisma.feeRecord.groupBy({
         by: ["academicYear"],
         orderBy: { academicYear: "desc" },
@@ -24,7 +25,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ data: years, total: years.length }, { headers: { "Cache-Control": "private, no-store" } });
     }
     const fees = await withDatabaseRetry(() => prisma.feeRecord.findMany({
-      ...(academicYear ? { where: { academicYear } } : {}),
+      where: { academicYear },
       orderBy: [{ academicYear: "desc" }, { age: "asc" }, { className: "asc" }],
     }));
 
