@@ -43,6 +43,7 @@ export default function FeesTable({ canManage, fees, loading, search, setSearch,
           />
 
           <input
+            aria-label="Search fee structures"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search fees..."
@@ -66,7 +67,7 @@ export default function FeesTable({ canManage, fees, loading, search, setSearch,
           />
         </div>
         <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
-          <div className="sm:w-44"><SchoolDbSelect ariaLabel="Fee class filter" value={classFilter} onValueChange={setClassFilter} options={[{ label: "All classes", value: "ALL" }, ...classOptions.map((value) => ({ label: value, value }))]} /></div>
+          <div className="sm:w-44"><SchoolDbSelect ariaLabel="Fee class filter" value={classFilter} onValueChange={setClassFilter} options={[{ label: "All classes", value: "ALL" }, ...(classFilter !== "ALL" && !classOptions.some((value) => value.toLowerCase() === classFilter.toLowerCase()) ? [{ label: classFilter, value: classFilter }] : []), ...classOptions.map((value) => ({ label: value, value }))]} /></div>
           <div className="sm:w-40"><SchoolDbSelect ariaLabel="Fee age filter" value={ageFilter} onValueChange={setAgeFilter} options={[{ label: "All ages", value: "ALL" }, ...ageOptions.map((value) => ({ label: `Age ${value}`, value }))]} /></div>
           <div className="flex shrink-0 items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50/70 px-3 py-2 text-sm font-bold text-indigo-700">
             <ArrowDownWideNarrow className="size-4" />Age: youngest first
@@ -74,7 +75,45 @@ export default function FeesTable({ canManage, fees, loading, search, setSearch,
         </div>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="space-y-3 p-3 md:hidden" aria-label="Mobile fee structure cards">
+        {loading && <p className="rounded-xl bg-slate-50 p-5 text-center text-sm text-slate-500">Loading fee structures…</p>}
+        {!loading && fees.length === 0 && (
+          <p className="rounded-xl border border-dashed border-slate-200 p-5 text-center text-sm text-slate-600">
+            No matching fee structure. Try another academic year or class.
+          </p>
+        )}
+        {!loading && fees.map((fee) => (
+          <article key={fee.id} className="rounded-[20px] border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-lg font-black text-slate-950">{fee.className}</h3>
+                <p className="mt-1 text-xs font-bold text-slate-500">{fee.academicYear} · Age {fee.age || "—"}</p>
+              </div>
+              <button type="button" onClick={() => onView(fee)} aria-label={`View ${fee.className} fee details`}
+                className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-indigo-200 bg-indigo-50 px-3 text-xs font-bold text-indigo-700">
+                <Eye className="size-4" /> View
+              </button>
+            </div>
+            <div className="mt-4 grid grid-cols-2 gap-3">
+              <div className="rounded-xl bg-indigo-50/75 p-3">
+                <p className="text-xs font-bold text-slate-500">Term fee</p>
+                <p className="mt-1 text-base font-black tabular-nums text-indigo-800">₹{fee.termFee.toLocaleString("en-IN")}</p>
+              </div>
+              <div className="rounded-xl bg-emerald-50/75 p-3">
+                <p className="text-xs font-bold text-slate-500">Annual fee</p>
+                <p className="mt-1 text-base font-black tabular-nums text-emerald-800">₹{fee.annualFees.toLocaleString("en-IN")}</p>
+              </div>
+            </div>
+            {canManage && (
+              <div className="mt-3 flex gap-2 border-t border-slate-100 pt-3">
+                <button type="button" onClick={() => onEdit(fee)} className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 text-sm font-bold text-amber-800"><Pencil className="size-4" />Edit</button>
+                <button type="button" onClick={() => onDelete(fee)} className="flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border border-rose-200 bg-rose-50 text-sm font-bold text-rose-800"><Trash2 className="size-4" />Delete</button>
+              </div>
+            )}
+          </article>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[760px]">
           <thead className="bg-indigo-50/65">
             <tr>
@@ -109,7 +148,7 @@ export default function FeesTable({ canManage, fees, loading, search, setSearch,
               <tr><td colSpan={5} className="px-6 py-14 text-center text-sm font-semibold text-slate-500">Loading fee structures…</td></tr>
             )}
             {!loading && fees.length === 0 && (
-              <tr><td colSpan={5} className="px-6 py-14 text-center"><p className="font-bold text-slate-700">No fee structures found</p><p className="mt-1 text-sm text-slate-500">Add a fee structure or choose another academic year.</p></td></tr>
+              <tr><td colSpan={5} className="px-6 py-14 text-center"><p className="font-bold text-slate-700">No fee structures found</p><p className="mt-1 text-sm text-slate-500">Try another academic year, adjust filters or ask an administrator to configure this class.</p></td></tr>
             )}
             {!loading && fees.map((fee) => (
               <tr
