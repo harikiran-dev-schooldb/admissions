@@ -29,6 +29,8 @@ export async function POST(req: Request) {
       return NextResponse.json(validationError(parsed.error), { status: 400 });
     }
 
+    const year = await prisma.academicYear.findUnique({ where: { academicYear: parsed.data.academicYear } });
+    if (!year?.isActive) return NextResponse.json({ error: "Choose an active academic year" }, { status: 400 });
     const fee = await prisma.feeRecord.create({ data: parsed.data });
     return NextResponse.json({ data: fee }, { status: 201 });
   } catch (error) {
