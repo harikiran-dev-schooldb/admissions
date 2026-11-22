@@ -1,7 +1,8 @@
 "use client";
 
-import { Eye, Phone, Search } from "lucide-react";
+import { Eye, Phone, Search, SlidersHorizontal } from "lucide-react";
 import type { Admission } from "@/src/generated/prisma/client";
+import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 
 import AdmissionStages from "./AdmissionStages";
 
@@ -10,6 +11,13 @@ type Props = {
   loading: boolean;
   search: string;
   setSearch: (value: string) => void;
+  classFilter: string;
+  setClassFilter: (value: string) => void;
+  classOptions: string[];
+  finalStatusFilter: string;
+  setFinalStatusFilter: (value: string) => void;
+  applicationFilter: string;
+  setApplicationFilter: (value: string) => void;
   onView: (student: Admission) => void;
   reload: () => void;
 };
@@ -39,6 +47,13 @@ export default function AdmissionTable({
   loading,
   search,
   setSearch,
+  classFilter,
+  setClassFilter,
+  classOptions,
+  finalStatusFilter,
+  setFinalStatusFilter,
+  applicationFilter,
+  setApplicationFilter,
   onView,
   reload,
 }: Props) {
@@ -47,7 +62,8 @@ export default function AdmissionTable({
       {/* SEARCH */}
 
       <div className="premium-panel rounded-[26px] p-4">
-        <div className="relative">
+        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+        <div className="relative min-w-0 flex-1">
           <Search
             className="
               absolute
@@ -82,6 +98,13 @@ export default function AdmissionTable({
               focus:ring-blue-100
             "
           />
+        </div>
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:w-[620px]">
+          <SchoolDbSelect ariaLabel="Filter by class" value={classFilter} onValueChange={setClassFilter} options={[{ label: "All classes", value: "ALL" }, ...classOptions.map((value) => ({ label: value, value }))]} />
+          <SchoolDbSelect ariaLabel="Filter by admission status" value={finalStatusFilter} onValueChange={setFinalStatusFilter} options={[{ label: "All admission status", value: "ALL" }, { label: "Pending", value: "PENDING" }, { label: "Admitted", value: "ADMITTED" }, { label: "Cancelled", value: "CANCELLED" }]} />
+          <SchoolDbSelect ariaLabel="Filter by application status" value={applicationFilter} onValueChange={setApplicationFilter} options={[{ label: "All applications", value: "ALL" }, { label: "Not started", value: "NO" }, { label: "Started", value: "YES" }, { label: "Submitted", value: "SUBMITTED" }]} />
+        </div>
+        <SlidersHorizontal className="hidden size-5 shrink-0 text-indigo-500 xl:block" />
         </div>
       </div>
 

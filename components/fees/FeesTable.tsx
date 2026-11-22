@@ -1,17 +1,26 @@
 "use client";
 
-import { ArrowDownWideNarrow, Eye, Search } from "lucide-react";
+import { ArrowDownWideNarrow, Eye, Pencil, Search, Trash2 } from "lucide-react";
 import type { FeeRecord } from "@/src/generated/prisma/client";
+import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 
 interface Props {
   fees: FeeRecord[];
   loading: boolean;
   search: string;
   setSearch: (value: string) => void;
+  classFilter: string;
+  setClassFilter: (value: string) => void;
+  classOptions: string[];
+  ageFilter: string;
+  setAgeFilter: (value: string) => void;
+  ageOptions: string[];
   onView: (fee: FeeRecord) => void;
+  onEdit: (fee: FeeRecord) => void;
+  onDelete: (fee: FeeRecord) => void;
 }
 
-export default function FeesTable({ fees, loading, search, setSearch, onView }: Props) {
+export default function FeesTable({ fees, loading, search, setSearch, classFilter, setClassFilter, classOptions, ageFilter, setAgeFilter, ageOptions, onView, onEdit, onDelete }: Props) {
   return (
     <div
       className="premium-table
@@ -55,9 +64,12 @@ export default function FeesTable({ fees, loading, search, setSearch, onView }: 
             "
           />
         </div>
-        <div className="flex shrink-0 items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50/70 px-3 py-2 text-sm font-bold text-indigo-700">
-          <ArrowDownWideNarrow className="size-4" />
-          Age: youngest first
+        <div className="flex w-full flex-col gap-2 sm:w-auto sm:flex-row sm:items-center">
+          <div className="sm:w-44"><SchoolDbSelect ariaLabel="Fee class filter" value={classFilter} onValueChange={setClassFilter} options={[{ label: "All classes", value: "ALL" }, ...classOptions.map((value) => ({ label: value, value }))]} /></div>
+          <div className="sm:w-40"><SchoolDbSelect ariaLabel="Fee age filter" value={ageFilter} onValueChange={setAgeFilter} options={[{ label: "All ages", value: "ALL" }, ...ageOptions.map((value) => ({ label: `Age ${value}`, value }))]} /></div>
+          <div className="flex shrink-0 items-center gap-2 rounded-xl border border-indigo-100 bg-indigo-50/70 px-3 py-2 text-sm font-bold text-indigo-700">
+            <ArrowDownWideNarrow className="size-4" />Age: youngest first
+          </div>
         </div>
       </div>
 
@@ -127,7 +139,7 @@ export default function FeesTable({ fees, loading, search, setSearch, onView }: 
                   ₹{fee.annualFees.toLocaleString()}
                 </td>
 
-                <td className="px-6 py-5">
+                <td className="px-6 py-5"><div className="flex gap-2">
                   <button
                     onClick={() => onView(fee)}
                     aria-label={`View ${fee.className} fee details`}
@@ -142,7 +154,9 @@ export default function FeesTable({ fees, loading, search, setSearch, onView }: 
                   >
                     <Eye className="h-4 w-4" />
                   </button>
-                </td>
+                  <button onClick={() => onEdit(fee)} aria-label={`Edit ${fee.className} fee`} className="rounded-xl bg-amber-50 p-2 text-amber-700 transition hover:bg-amber-100"><Pencil className="size-4" /></button>
+                  <button onClick={() => onDelete(fee)} aria-label={`Delete ${fee.className} fee`} className="rounded-xl bg-red-50 p-2 text-red-600 transition hover:bg-red-100"><Trash2 className="size-4" /></button>
+                </div></td>
               </tr>
             ))}
           </tbody>

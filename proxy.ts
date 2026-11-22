@@ -21,6 +21,7 @@ export const config = {
   matcher: [
     "/admissions/:path*",
     "/fees/:path*",
+    "/academic-years/:path*",
     "/analytics/:path*",
     "/api/admissions/:path*",
     "/api/fees/:path*",

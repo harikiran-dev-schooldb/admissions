@@ -51,3 +51,13 @@ export async function PATCH(req: Request, { params }: Context) {
     return feeError(error, "UPDATE");
   }
 }
+
+export async function DELETE(_req: Request, { params }: Context) {
+  try {
+    const { id } = await params;
+    await prisma.feeRecord.delete({ where: { id } });
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    return feeError(error, "DELETE");
+  }
+}

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import type { Admission } from "@/src/generated/prisma/client";
 
 async function fetchAdmissions(academicYear?: string): Promise<Admission[]> {
+  if (!academicYear) return [];
   const params = new URLSearchParams();
   if (academicYear) params.set("academicYear", academicYear);
   const query = params.toString();

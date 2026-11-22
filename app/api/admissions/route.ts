@@ -3,6 +3,7 @@ import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createEnquiryNumber, shouldSkipEntrance } from "@/lib/admissions";
 import { admissionCreateSchema, validationError } from "@/lib/validation/admissions";
+import { withDatabaseRetry } from "@/lib/dbRetry";
 
 export async function GET(req: Request) {
   try {
@@ -11,7 +12,7 @@ export async function GET(req: Request) {
     const finalAdmission = searchParams.get("status");
     const academicYear = searchParams.get("academicYear")?.trim();
 
-    const admissions = await prisma.admission.findMany({
+    const admissions = await withDatabaseRetry(() => prisma.admission.findMany({
       where: {
         ...(academicYear ? { academicYear } : {}),
         ...(finalAdmission && finalAdmission !== "ALL"
@@ -29,7 +30,7 @@ export async function GET(req: Request) {
           : {}),
       },
       orderBy: { enquiryDate: "desc" },
-    });
+    }));
 
     return NextResponse.json({ data: admissions, total: admissions.length });
   } catch (error) {

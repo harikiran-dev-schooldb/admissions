@@ -2,12 +2,13 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { feeCreateSchema, validationError } from "@/lib/validation/fees";
+import { withDatabaseRetry } from "@/lib/dbRetry";
 
 export async function GET() {
   try {
-    const fees = await prisma.feeRecord.findMany({
+    const fees = await withDatabaseRetry(() => prisma.feeRecord.findMany({
       orderBy: [{ academicYear: "desc" }, { age: "asc" }, { className: "asc" }],
-    });
+    }));
 
     return NextResponse.json({ data: fees, total: fees.length });
   } catch (error) {

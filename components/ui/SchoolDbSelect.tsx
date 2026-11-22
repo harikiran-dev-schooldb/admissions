@@ -15,6 +15,7 @@ type Props = {
   placeholder?: string;
   ariaLabel: string;
   className?: string;
+  disabled?: boolean;
 };
 
 export default function SchoolDbSelect({
@@ -24,12 +25,13 @@ export default function SchoolDbSelect({
   placeholder,
   ariaLabel,
   className = "",
+  disabled = false,
 }: Props) {
   return (
-    <SelectPrimitive.Root value={value} onValueChange={onValueChange}>
+    <SelectPrimitive.Root value={value} onValueChange={onValueChange} disabled={disabled}>
       <SelectPrimitive.Trigger
         aria-label={ariaLabel}
-        className={`flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-base font-normal text-slate-900 shadow-sm outline-none transition-all duration-200 hover:border-indigo-300 focus-visible:border-indigo-400 focus-visible:ring-4 focus-visible:ring-indigo-100 data-[state=open]:border-indigo-400 data-[state=open]:ring-4 data-[state=open]:ring-indigo-100 sm:h-10 sm:text-sm ${className}`}
+        className={`flex h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3.5 text-base font-normal text-slate-900 shadow-sm outline-none transition-all duration-200 hover:border-indigo-300 focus-visible:border-indigo-400 focus-visible:ring-4 focus-visible:ring-indigo-100 data-[state=open]:border-indigo-400 data-[state=open]:ring-4 data-[state=open]:ring-indigo-100 disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400 disabled:shadow-none sm:h-10 sm:text-sm ${className}`}
       >
         <SelectPrimitive.Value placeholder={placeholder} />
         <SelectPrimitive.Icon asChild>

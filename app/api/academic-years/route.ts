@@ -2,10 +2,11 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { academicYearCreateSchema, validationError } from "@/lib/validation/fees";
+import { withDatabaseRetry } from "@/lib/dbRetry";
 
 export async function GET() {
   try {
-    const academicYears = await prisma.academicYear.findMany({ orderBy: { academicYear: "desc" } });
+    const academicYears = await withDatabaseRetry(() => prisma.academicYear.findMany({ orderBy: { academicYear: "desc" } }));
     return NextResponse.json({ data: academicYears, total: academicYears.length });
   } catch (error) {
     console.error("GET_ACADEMIC_YEARS_ERROR", error);

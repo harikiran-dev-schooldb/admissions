@@ -2,12 +2,15 @@
 
 import { useState } from "react";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
+import type { FeeRecord } from "@/src/generated/prisma/client";
 
 interface Props {
   open: boolean;
   onClose: () => void;
   reload: () => void;
   defaultAcademicYear: string;
+  academicYears?: readonly string[];
+  fee?: FeeRecord | null;
 }
 
 const emptyForm = {
@@ -18,9 +21,10 @@ const emptyForm = {
   annualFees: "",
 };
 
-export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear }: Props) {
+export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear, academicYears = [], fee }: Props) {
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState(() => ({ ...emptyForm, academicYear: defaultAcademicYear }));
+  const [error, setError] = useState("");
+  const [form, setForm] = useState(() => fee ? { academicYear: fee.academicYear, age: fee.age ?? "", className: fee.className, termFee: String(fee.termFee), annualFees: String(fee.annualFees) } : { ...emptyForm, academicYear: defaultAcademicYear });
 
   if (!open) return null;
 
@@ -31,8 +35,9 @@ export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear
   async function handleSubmit() {
     try {
       setLoading(true);
-      const res = await fetch("/api/fees", {
-        method: "POST",
+      setError("");
+      const res = await fetch(fee ? `/api/fees/${fee.id}` : "/api/fees", {
+        method: fee ? "PUT" : "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           academicYear: form.academicYear,
@@ -45,7 +50,7 @@ export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear
 
       const json = await res.json();
       if (!res.ok) {
-        alert(json.error || "Failed to create fee");
+        setError(json.error || `Failed to ${fee ? "update" : "create"} fee`);
         return;
       }
 
@@ -54,7 +59,7 @@ export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear
       onClose();
     } catch (error) {
       console.error(error);
-      alert("Something went wrong");
+      setError("Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -68,8 +73,8 @@ export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear
       <div className="w-full max-w-lg rounded-[28px] border border-white/90 bg-white/92 shadow-[0_30px_90px_rgba(15,23,42,.24)] backdrop-blur-2xl">
         <div className="flex items-center justify-between border-b border-indigo-100 bg-gradient-to-br from-white via-indigo-50 to-violet-100 px-6 py-5">
           <div>
-            <h2 className="text-xl font-black tracking-[-.03em] text-slate-950">New Fee Structure</h2>
-            <p className="mt-1 text-sm text-slate-500">Create fee details for an academic year and class.</p>
+            <h2 className="text-xl font-black tracking-[-.03em] text-slate-950">{fee ? "Edit Fee Structure" : "New Fee Structure"}</h2>
+            <p className="mt-1 text-sm text-slate-500">{fee ? "Update this class fee configuration." : "Create fee details for an academic year and class."}</p>
           </div>
           <button onClick={onClose} className="rounded-xl bg-white/80 px-3 py-2 text-sm font-semibold text-indigo-700 shadow-sm hover:bg-white">
             Close
@@ -77,13 +82,14 @@ export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear
         </div>
 
         <div className="space-y-5 p-6">
+          {error && <div className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm font-bold text-red-700">{error}</div>}
           <div>
             <label className="mb-2 block text-sm font-semibold text-slate-700">Academic Year</label>
             <SchoolDbSelect
               ariaLabel="Academic year"
               value={form.academicYear}
               onValueChange={(value) => updateField("academicYear", value)}
-              options={[defaultAcademicYear, "2026-27", "2025-26", "2024-25", "2023-24"].filter((year, index, years) => years.indexOf(year) === index).map((year) => ({ label: year, value: year }))}
+              options={[form.academicYear, defaultAcademicYear, ...academicYears].filter((year, index, years) => year && years.indexOf(year) === index).map((year) => ({ label: year, value: year }))}
             />
           </div>
 
@@ -140,7 +146,7 @@ export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear
               Cancel
             </button>
             <button onClick={handleSubmit} disabled={loading} className="premium-button px-5 py-3 text-sm font-bold disabled:opacity-50">
-              {loading ? "Saving..." : "Create Fee"}
+              {loading ? "Saving..." : fee ? "Save changes" : "Create Fee"}
             </button>
           </div>
         </div>
