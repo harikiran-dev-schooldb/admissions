@@ -112,3 +112,12 @@ test("UI shows terminal state and reopen button for existing admissions", () => 
   assert.match(ui,/toast\.error/);
   assert.doesNotMatch(ui,/\balert\(/);
 });
+
+test("legacy inconsistent interview or admission approval cannot bypass earlier milestones", () => {
+  const invalid = {...base, application:"NO", entrance:"PASS", interview:"SELECTED"};
+  assert.match(validateStageTransition(invalid,"interview","PENDING"),/application/);
+  assert.match(validateStageTransition(invalid,"admissionGiven","GIVEN"),/application/);
+  const missingEntrance = {...invalid,application:"SUBMITTED",entrance:"NOT_STARTED"};
+  assert.match(validateStageTransition(missingEntrance,"interview","SELECTED"),/entrance/);
+  assert.match(validateStageTransition(missingEntrance,"admissionGiven","GIVEN"),/entrance/);
+});
