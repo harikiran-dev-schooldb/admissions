@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { CheckCircle2, Plus, Sparkles, Users } from "lucide-react";
+import { toast } from "sonner";
+import FollowUpQueue from "@/components/admissions/FollowUpQueue";
 import AppSidebar from "@/components/AppSidebar";
 import AccountMenu from "@/components/AccountMenu";
 import AdmissionDetailModal from "@/components/admissions/AdmissionDetailModal";
@@ -33,6 +35,7 @@ export default function AdmissionsPage() {
   const [openNew, setOpenNew] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<Admission | null>(null);
   const [openDetail, setOpenDetail] = useState(false);
+  const [followUpRefresh, setFollowUpRefresh] = useState(0);
 
   useEffect(() => {
     const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
@@ -92,6 +95,18 @@ export default function AdmissionsPage() {
   function setPageSizeAndReset(value: AdmissionPageSize) {
     setPageSize(value);
     setPage(1);
+  }
+
+  async function openAdmissionFromQueue(id: string) {
+    try {
+      const response = await fetch("/api/admissions/" + encodeURIComponent(id), { cache: "no-store" });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error || "Unable to open admission");
+      setSelectedStudent(body.data);
+      setOpenDetail(true);
+    } catch (caught) {
+      toast.error(caught instanceof Error ? caught.message : "Unable to open enquiry");
+    }
   }
 
   return (
@@ -154,6 +169,10 @@ export default function AdmissionsPage() {
             </div>
           )}
           {(error || yearsError || (canManage && summaryError) || classesError) && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm font-semibold text-red-700 shadow-sm">{yearsError || error || (canManage && summaryError) || classesError}</div>}
+          {(role === "staff" || role === "admin") && academicYear && (
+            <FollowUpQueue academicYear={academicYear} role={role} refreshToken={followUpRefresh}
+              onOpenAdmission={(id) => void openAdmissionFromQueue(id)} />
+          )}
           <AdmissionsTable
             canManageAdmissions={canManageAdmissions}
             students={students}
@@ -180,7 +199,7 @@ export default function AdmissionsPage() {
         </main>
       </div>
 
-      <AdmissionDetailModal student={selectedStudent} open={openDetail} onClose={() => setOpenDetail(false)} />
+      <AdmissionDetailModal student={selectedStudent} open={openDetail} onClose={() => setOpenDetail(false)} onFollowUpChanged={() => setFollowUpRefresh((value) => value + 1)} />
       {canManageAdmissions && <NewAdmissionModal open={openNew} onClose={() => setOpenNew(false)} reload={reload} academicYear={academicYear} canManageFees={canManage} />}
     </div>
   );

@@ -49,6 +49,8 @@ model Admission {
   ///    * DATES
   enquiryDate    DateTime             @default(now())
 
+  followUps       AdmissionFollowUp[]
+
   @@index([academicYear])
 }
 
@@ -182,4 +184,39 @@ model ActivityLog {
   @@index([createdAt(sort: Desc), id(sort: Desc)])
   @@index([actorEmail, createdAt(sort: Desc)])
   @@index([entityType, createdAt(sort: Desc)])
+}
+
+/** A single assigned parent follow-up, completed without deleting its history. */
+model AdmissionFollowUp {
+  id               String         @id @default(cuid())
+  admissionId      String
+  admission        Admission      @relation(fields: [admissionId], references: [id], onDelete: Cascade)
+  assignedToEmail  String
+  dueAt            DateTime
+  note             String?
+  status           FollowUpStatus @default(OPEN)
+  outcome          FollowUpOutcome?
+  completionNote   String?
+  completedAt      DateTime?
+  completedByEmail String?
+  createdByEmail   String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@index([admissionId, createdAt(sort: Desc)])
+  @@index([assignedToEmail, status, dueAt])
+  @@index([status, dueAt])
+}
+
+enum FollowUpStatus {
+  OPEN
+  COMPLETED
+}
+
+enum FollowUpOutcome {
+  INTERESTED
+  CALL_BACK
+  NO_RESPONSE
+  NOT_INTERESTED
+  OTHER
 }

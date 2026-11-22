@@ -8,6 +8,8 @@ const auditedRoutes = {
   "app/api/admissions/route.ts": ["POST"],
   "app/api/admissions/[id]/route.ts": ["PATCH","DELETE"],
   "app/api/admissions/stages/route.ts": ["PATCH"],
+  "app/api/follow-ups/route.ts": ["POST"],
+  "app/api/follow-ups/[id]/route.ts": ["PATCH"],
   "app/api/fees/route.ts": ["POST"],
   "app/api/fees/[id]/route.ts": ["PUT","PATCH","DELETE"],
   "app/api/academic-years/route.ts": ["POST"],

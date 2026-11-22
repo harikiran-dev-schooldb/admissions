@@ -7,6 +7,9 @@ const protectedRoutes = [
   "app/api/admissions/route.ts",
   "app/api/admissions/[id]/route.ts",
   "app/api/admissions/stages/route.ts",
+  "app/api/follow-ups/route.ts",
+  "app/api/follow-ups/[id]/route.ts",
+  "app/api/follow-ups/assignees/route.ts",
   "app/api/admissions/stats/route.ts",
   "app/api/admissions/classes/route.ts",
   "app/api/academic-years/route.ts",
@@ -21,6 +24,8 @@ const adminOnlyReads = new Set(["app/api/admissions/stats/route.ts"]);
 const staffActions = {
   "app/api/admissions/route.ts": { POST: "enquiry" },
   "app/api/admissions/stages/route.ts": { PATCH: "workflow" },
+  "app/api/follow-ups/route.ts": { POST: "workflow" },
+  "app/api/follow-ups/[id]/route.ts": { PATCH: "workflow" },
 };
 
 test("all data API handlers check the required read, staff workflow, or admin permissions", () => {
@@ -85,4 +90,10 @@ test("sidebar shows signed-in identity and role and provides a real sign-out act
   assert.match(sidebar, /displayName/);
   assert.match(sidebar, /aria-label="Logout"/);
   assert.match(sidebar, /"Signing out…" : "Logout"/);
+});
+
+
+test("follow-up API also requires the authenticated workspace proxy", () => {
+  const proxy = readFileSync(resolve(process.cwd(), "proxy.ts"), "utf8");
+  assert.ok(proxy.includes('"/api/follow-ups/:path*"'));
 });
