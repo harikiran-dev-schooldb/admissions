@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { CalendarClock, CheckCircle2, Save, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { CalendarClock, CheckCircle2, Save, Sparkles, Users } from "lucide-react";
 
 import AppSidebar from "@/components/AppSidebar";
 import { useAdmissionSettings } from "@/hooks/useAdmissionSettings";
@@ -64,12 +65,15 @@ export default function SettingsPage() {
           </div>
           <section className="premium-card max-w-3xl rounded-[28px] p-6 sm:p-8">
             <h3 className="text-xl font-black text-slate-900">Roles and permissions</h3>
-            <p className="mt-2 text-sm text-slate-600">Access follows the account you signed in with. Staff accounts have view-only access; administrator accounts can create, edit and delete admissions, academic years and fee structures, and update settings.</p>
+            <p className="mt-2 text-sm text-slate-600">Access follows the account you signed in with. Staff can enter enquiries and advance admission stages. Administrators can additionally manage users, student details, academic years, fees and settings.</p>
             <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
               <div className="rounded-xl bg-indigo-50 p-4"><p className="font-black text-indigo-800">Administrator</p><p className="mt-1 text-indigo-700">View and manage all records</p></div>
               <div className="rounded-xl bg-slate-50 p-4"><p className="font-black text-slate-800">Staff</p><p className="mt-1 text-slate-600">Create enquiries and update admission stages; configuration is read-only</p></div>
             </div>
-            {canManage && <p className="mt-4 text-xs leading-5 text-slate-500">Authorized accounts are configured using the server-side ADMISSIONS_ADMIN_EMAILS and ADMISSIONS_STAFF_EMAILS environment variables. Email lists are never exposed in the browser.</p>}
+            {canManage && <div className="mt-5 flex flex-col gap-3 rounded-2xl bg-indigo-50/60 p-4 sm:flex-row sm:items-center sm:justify-between">
+              <div><p className="font-bold text-slate-800">Manage school access</p><p className="mt-1 text-sm text-slate-600">Invite existing Neon Auth users by email, assign roles and disable access without redeploying.</p></div>
+              <Link href="/users" className="premium-button inline-flex h-11 shrink-0 items-center gap-2 px-4 text-sm font-bold"><Users className="size-4" /> Manage users</Link>
+            </div>}
           </section>
         </main>
       </div>
