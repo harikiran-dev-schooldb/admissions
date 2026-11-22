@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import FollowUpQueue from "@/components/admissions/FollowUpQueue";
 import AppSidebar from "@/components/AppSidebar";
 import AccountMenu from "@/components/AccountMenu";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import AdmissionDetailModal from "@/components/admissions/AdmissionDetailModal";
 import AdmissionsTable from "@/components/admissions/AdmissionsTable";
 import KPISection from "@/components/admissions/KPISection";
@@ -141,7 +142,7 @@ export default function AdmissionsPage() {
                 className="premium-button h-11 rounded-[14px] px-3 text-xs font-extrabold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5 sm:text-sm">
                 <Plus className="size-4" /><span className="hidden sm:inline">New enquiry</span><span className="sm:hidden">New</span>
               </button>}
-              <div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div>
+              <div className="border-l border-slate-200 pl-2 lg:pl-3"><div className="lg:hidden"><NotificationBell /></div><div className="hidden lg:block"><AccountMenu /></div></div>
             </div>
           </div>
         </header>
