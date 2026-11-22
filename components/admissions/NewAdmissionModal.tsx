@@ -105,10 +105,11 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
     setAdmClass("");
   }
 
-  if (!open) return null;
+  if (!open && !showFees) return null;
 
   return (
     <>
+      {open && (
       <div
         className="
         fixed
@@ -496,6 +497,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
           </div>
         </div>
       </div>
+      )}
 
       <NewFeeModal open={showFees} onClose={handleCloseFees} reload={reload} defaultAcademicYear={academicYear} />
     </>
