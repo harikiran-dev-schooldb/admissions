@@ -40,9 +40,11 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-button, a, input, select { -webkit-tap-highlight-color: transparent; }
+button, a, input, select, textarea { -webkit-tap-highlight-color: transparent; }
+button:disabled { cursor: not-allowed; }
+
 button { cursor: pointer; }
-button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
   outline: none;
   box-shadow: 0 0 0 4px color-mix(in oklab, var(--primary) 12%, transparent);
 }
@@ -138,7 +140,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   box-shadow: 0 8px 20px rgb(79 70 229 / .18);
   transition: transform .2s ease, background .2s ease, box-shadow .2s ease;
 }
-.premium-button:hover { transform: translateY(-1px); background: color-mix(in oklab, var(--primary) 90%, black); box-shadow: 0 10px 25px rgb(79 70 229 / .24); }
+.premium-button:not(:disabled):hover { transform: translateY(-1px); background: color-mix(in oklab, var(--primary) 90%, black); box-shadow: 0 10px 25px rgb(79 70 229 / .24); }
+.premium-button:disabled { transform: none; box-shadow: none; cursor: not-allowed; }
 .premium-button:active { transform: scale(.98); }
 
 .premium-input {
@@ -176,6 +179,15 @@ select:not([multiple]):not([size]):focus-visible { border-color: color-mix(in ok
 .premium-table thead { border-bottom: 1px solid rgb(226 232 240 / .6); background: rgb(241 245 249 / .35); }
 .premium-table tbody tr { border-bottom: 1px solid rgb(226 232 240 / .45); transition: background .18s ease; }
 .premium-table tbody tr:hover { background: rgb(99 102 241 / .025); }
+
+/* Keep keyboard focus and controls consistent throughout mobile and desktop views. */
+:where(button, a, input, select, textarea):focus-visible { outline-offset: 2px; }
+:where(input, select, textarea)::placeholder { color: #94a3b8; }
+@media (max-width: 639px) {
+  .premium-hero, .premium-panel, .premium-card, .premium-table { border-radius: 22px; }
+  .premium-kicker { font-size: .72rem; letter-spacing: .095em; }
+}
+
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
