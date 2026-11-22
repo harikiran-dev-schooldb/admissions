@@ -1,3 +1,4 @@
+import { validateStageTransition } from "@/lib/admissionTransitionRules";
 import { requireAccess } from "@/lib/auth/requireAccess";
 import { prisma } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
@@ -78,23 +79,9 @@ export async function PATCH(req: Request) {
       UPDATE PAYLOAD
     */
 
-    // The API must reject attempts to bypass the admission pipeline.
-    // Reject invalid steps before preparing any write.
-    if (field === "entrance" && existing.application !== "SUBMITTED" && value !== "NOT_STARTED") {
-      return NextResponse.json({ error: "Submit the application before updating the entrance result" }, { status: 409 });
-    }
-    if (field === "interview" && !["PASS", "NOT_REQUIRED"].includes(existing.entrance) && value !== "NOT_STARTED") {
-      return NextResponse.json({ error: "Complete the entrance requirement before the interview" }, { status: 409 });
-    }
-    if (field === "admissionGiven" && value === "GIVEN" && existing.interview !== "SELECTED") {
-      return NextResponse.json({ error: "Select the student in the interview before granting admission" }, { status: 409 });
-    }
-    if (field === "finalAdmission" && value === "ADMITTED" &&
-        (existing.application !== "SUBMITTED" ||
-         !["PASS", "NOT_REQUIRED"].includes(existing.entrance) ||
-         existing.interview !== "SELECTED")) {
-      return NextResponse.json({ error: "Application, entrance and interview must be completed before final admission" }, { status: 409 });
-    }
+    const transitionError = validateStageTransition(existing, field, value);
+    if (transitionError) return NextResponse.json({ error: transitionError }, { status: 409 });
+
     const updateData: Record<
       string,
       string
@@ -162,6 +149,9 @@ export async function PATCH(req: Request) {
           skipEntrance
             ? "NOT_REQUIRED"
             : "PENDING";
+        updateData.interview = "NOT_STARTED";
+        updateData.admissionGiven = "NOT_GIVEN";
+        updateData.finalAdmission = "PENDING";
       }
     }
 
@@ -177,6 +167,8 @@ export async function PATCH(req: Request) {
       if (value === "PASS") {
         updateData.interview =
           "PENDING";
+        updateData.admissionGiven = "NOT_GIVEN";
+        updateData.finalAdmission = "PENDING";
       }
 
       /*
@@ -237,6 +229,7 @@ export async function PATCH(req: Request) {
       ) {
         updateData.admissionGiven =
           "GIVEN";
+        updateData.finalAdmission = "PENDING";
       }
 
       /*
