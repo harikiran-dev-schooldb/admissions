@@ -26,10 +26,12 @@ test("KPI summaries use active directory filters but not page or page size", () 
   assert.match(page, /<KPISection stats=\{summary\}/);
 });
 
-test("analytics retains full-year data for complete graphs", () => {
+test("analytics fetches complete year-scoped aggregates rather than full student rows", () => {
   const source = readFileSync(resolve(process.cwd(), "components/admissions/AdmissionsAnalyticsPageClient.tsx"), "utf8");
-  assert.match(source, /useAdmissions\(academicYear\)/);
+  assert.match(source, /useAdmissionAnalytics\(academicYear\)/);
   assert.match(source, /selectDefaultAdmissionYear/);
+  assert.doesNotMatch(source, /useAdmissions\(academicYear\)/);
+  assert.match(source, /summarizeAdmissionGroups\(groups, classFilter, finalStatusFilter\)/);
 });
 
 test("responsive directory provides size selector and accessible previous/next buttons", () => {

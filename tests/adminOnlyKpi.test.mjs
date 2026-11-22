@@ -13,6 +13,7 @@ test("staff cannot read KPI API but can still read directory and class filters",
   assert.equal(canAccess("staff", "workflow"), true);
   assert.equal(canAccess("admin", "admin"), true);
   assert.match(source("app/api/admissions/stats/route.ts"), /requireAccess\("admin"\)/);
+  assert.match(source("app/api/admissions/analytics/route.ts"), /requireAccess\("admin"\)/);
   assert.match(source("app/api/admissions/classes/route.ts"), /requireAccess\("read"\)/);
   assert.match(source("app/api/admissions/route.ts"), /requireAuditActor\("enquiry"\)/);
   assert.match(source("app/api/admissions/stages/route.ts"), /requireAuditActor\("workflow"\)/);

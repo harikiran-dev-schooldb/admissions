@@ -38,7 +38,9 @@ test("full admission API requires year and analytics aborts stale requests", () 
   assert.match(hook, /new AbortController\(\)/);
   assert.match(hook, /result\.key === key/);
   assert.match(hook, /current \? result\.students : \[\]/);
-  assert.match(analytics, /yearsLoading \|\| loading \?/);
+  assert.match(analytics, /const academicYear = yearsLoading \? "" : selectDefaultAdmissionYear/);
+  assert.match(analytics, /const loading = yearsLoading \|\| analyticsLoading/);
+  assert.match(analytics, /!failure && loading && <AnalyticsLoadingSkeleton/);
 });
 
 test("admission and fee KPIs do not flash as zero before academic-year selection", () => {
