@@ -21,9 +21,9 @@ test("910 records at 25 per page yields 37 pages with correct boundaries", () =>
   assert.deepEqual(getPagination(0, 9, 25), {page:1,pageSize:25,total:0,totalPages:1,start:0,end:0,skip:0});
 });
 
-test("defaults to populated 2026-27 instead of empty 2027-28", () => {
+test("defaults to the biggest active cohort instead of a newer one-record year", () => {
   const years = [
-    {academicYear:"2027-28",isActive:true,admissionsCount:0},
+    {academicYear:"2027-28",isActive:true,admissionsCount:1},
     {academicYear:"2026-27",isActive:true,admissionsCount:910},
     {academicYear:"2025-26",isActive:true,admissionsCount:0},
   ];
@@ -31,4 +31,19 @@ test("defaults to populated 2026-27 instead of empty 2027-28", () => {
   assert.equal(selectDefaultAdmissionYear(years, "2027-28"), "2027-28");
   assert.equal(selectDefaultAdmissionYear(years.map(y=>({...y, admissionsCount:0})), ""), "2027-28");
   assert.equal(selectDefaultAdmissionYear([], ""), "");
+});
+
+test("tie on enrolled cohort size prefers the more recent academic year", () => {
+  const years = [
+    {academicYear:"2025-26",isActive:true,admissionsCount:10},
+    {academicYear:"2026-27",isActive:true,admissionsCount:10},
+  ];
+  assert.equal(selectDefaultAdmissionYear(years, ""), "2026-27");
+});
+test("explicitly selected newest year stays selected even with only one enquiry", () => {
+  const years = [
+    {academicYear:"2027-28",isActive:true,admissionsCount:1},
+    {academicYear:"2026-27",isActive:true,admissionsCount:910},
+  ];
+  assert.equal(selectDefaultAdmissionYear(years, "2027-28"), "2027-28");
 });
