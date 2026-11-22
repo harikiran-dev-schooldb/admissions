@@ -93,7 +93,7 @@ export default function AppSidebar() {
               {error && <p role="alert" className="mt-2 text-xs font-semibold text-red-700">{error}</p>}
             </div>
             {signOutError && <p role="alert" className="text-xs font-semibold text-red-700">{signOutError}</p>}
-            <button type="button" onClick={() => void handleLogout()} disabled={signingOut || loading}
+            <button type="button" aria-label="Logout" onClick={() => void handleLogout()} disabled={signingOut || loading}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 disabled:opacity-50">
               {signingOut ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
               {signingOut ? "Signing out…" : "Logout"}
