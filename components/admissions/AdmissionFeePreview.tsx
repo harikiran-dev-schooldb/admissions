@@ -18,7 +18,7 @@ export default function AdmissionFeePreview({ student, onClose }: Props) {
 
   useEffect(() => {
     const controller = new AbortController();
-    fetch("/api/fees", { cache: "no-store", signal: controller.signal })
+    fetch("/api/fees?academicYear=" + encodeURIComponent(student.academicYear), { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         const body = await response.json();
         if (!response.ok) throw new Error(body.error || "Unable to load fee structure");
@@ -30,7 +30,7 @@ export default function AdmissionFeePreview({ student, onClose }: Props) {
       })
       .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => controller.abort();
-  }, []);
+  }, [student.academicYear]);
 
   const matchingFee = useMemo(
     () => fees.find((fee) => fee.academicYear === student.academicYear && sameClass(fee.className, student.admClass)),
