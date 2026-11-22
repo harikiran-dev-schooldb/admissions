@@ -75,10 +75,12 @@ test("access endpoint exposes session-derived name, email and role without expos
   const endpoint = readFileSync(resolve(process.cwd(), "app/api/access/route.ts"), "utf8");
   const serverAuth = readFileSync(resolve(process.cwd(), "lib/auth/requireAccess.ts"), "utf8");
   const hook = readFileSync(resolve(process.cwd(), "hooks/useAccess.ts"), "utf8");
+  const provider = readFileSync(resolve(process.cwd(), "components/auth/AccessProvider.tsx"), "utf8");
   assert.match(endpoint, /\{ role, email, name, canManage:/);
   assert.match(serverAuth, /data\.user\.name/);
-  assert.match(hook, /setName\(/);
-  assert.match(hook, /setEmail\(/);
+  assert.match(hook, /useSharedAccess\(\)/);
+  assert.match(provider, /typeof data\.name === "string"/);
+  assert.match(provider, /typeof data\.email === "string"/);
   assert.doesNotMatch(endpoint, /process\.env/);
 });
 
