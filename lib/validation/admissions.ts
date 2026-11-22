@@ -5,7 +5,13 @@ export const admissionCreateSchema = z.object({
   student: z.string().trim().min(2).max(120),
   parent: z.string().trim().min(2).max(120),
   mobile: z.string().trim().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
-  dob: z.string().trim().min(1),
+  dob: z.string().trim()
+    .regex(/^\\d{4}-\\d{2}-\\d{2}$/, "Enter date of birth as YYYY-MM-DD")
+    .refine((value) => {
+      const dob = new Date(`${value}T00:00:00Z`);
+      return !Number.isNaN(dob.getTime()) && dob.toISOString().slice(0, 10) === value &&
+        dob.getTime() <= Date.now();
+    }, "Enter a valid date of birth that is not in the future"),
   age: z.string().trim().optional().nullable(),
   admClass: z.string().trim().min(1).max(30),
   eligibleClass: z.string().trim().max(30).optional().nullable(),
