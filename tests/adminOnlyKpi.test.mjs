@@ -23,9 +23,10 @@ test("staff never requests admin KPI statistics from the admissions page", () =>
   const page = source("app/admissions/page.tsx");
   assert.match(page, /useAdmissionsSummary\(activeFilters, canManage\)/);
   assert.match(hook, /if \(!academicYear \|\| !enabled\) return/);
-  assert.match(page, /\{canManage && <KPISection stats=\{summary\}/);
+  assert.match(page, /\{canManage && \(\s*<div className="space-y-2">/);
+  assert.match(page, /<KPISection stats=\{summary\}/);
   assert.match(page, /\{canManage && <div className="grid grid-cols-2 gap-3 sm:min-w-80"/);
-  assert.match(page, /yearTotal=\{canManage \? summary\.total : undefined\}/);
+  assert.match(page, /yearTotal=\{canManage \? summary\.yearTotal : undefined\}/);
   assert.match(page, /useAdmissionClassOptions\(academicYear, role === "staff" \|\| role === "admin"\)/);
 });
 
