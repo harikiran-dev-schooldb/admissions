@@ -95,5 +95,5 @@ test("sidebar shows signed-in identity and role and provides a real sign-out act
 
 test("follow-up API also requires the authenticated workspace proxy", () => {
   const proxy = readFileSync(resolve(process.cwd(), "proxy.ts"), "utf8");
-  assert.match(proxy, /"\\/api\\/follow-ups\\/:path\\*"/);
+  assert.ok(proxy.includes('"/api/follow-ups/:path*"'));
 });
