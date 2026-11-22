@@ -11,6 +11,7 @@ const protectedRoutes = [
   "app/api/follow-ups/[id]/route.ts",
   "app/api/follow-ups/assignees/route.ts",
   "app/api/admissions/stats/route.ts",
+  "app/api/admissions/analytics/route.ts",
   "app/api/admissions/classes/route.ts",
   "app/api/academic-years/route.ts",
   "app/api/academic-years/[id]/route.ts",
@@ -19,7 +20,7 @@ const protectedRoutes = [
   "app/api/settings/route.ts",
 ];
 
-const adminOnlyReads = new Set(["app/api/admissions/stats/route.ts"]);
+const adminOnlyReads = new Set(["app/api/admissions/stats/route.ts", "app/api/admissions/analytics/route.ts"]);
 
 const staffActions = {
   "app/api/admissions/route.ts": { POST: "enquiry" },
