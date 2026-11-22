@@ -6,7 +6,7 @@ export const admissionCreateSchema = z.object({
   parent: z.string().trim().min(2).max(120),
   mobile: z.string().trim().regex(/^[6-9]\d{9}$/, "Enter a valid 10-digit mobile number"),
   dob: z.string().trim()
-    .regex(/^\\d{4}-\\d{2}-\\d{2}$/, "Enter date of birth as YYYY-MM-DD")
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Enter date of birth as YYYY-MM-DD")
     .refine((value) => {
       const dob = new Date(`${value}T00:00:00Z`);
       return !Number.isNaN(dob.getTime()) && dob.toISOString().slice(0, 10) === value &&
