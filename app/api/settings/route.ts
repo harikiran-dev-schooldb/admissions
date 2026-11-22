@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
 import { requireAccess } from "@/lib/auth/requireAccess";
@@ -19,6 +20,7 @@ export async function GET() {
     const record = await prisma.admissionConfig.findUnique({ where: { key: "ageAsOfDate" } });
     return NextResponse.json({ data: { ageAsOfDate: record?.value ?? getDefaultAgeAsOfDate() } });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") return NextResponse.json({ error: "Database migration required: AdmissionConfig table does not exist. Run npm run migrate:deploy on your Neon production database." }, { status: 503 });
     console.error("GET_ADMISSION_SETTINGS_ERROR", error);
     return NextResponse.json({ error: "Failed to load settings" }, { status: 500 });
   }
@@ -37,6 +39,7 @@ export async function PUT(req: Request) {
     });
     return NextResponse.json({ data: { ageAsOfDate: record.value } });
   } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") return NextResponse.json({ error: "Database migration required: AdmissionConfig table does not exist. Run npm run migrate:deploy on your Neon production database." }, { status: 503 });
     console.error("PUT_ADMISSION_SETTINGS_ERROR", error);
     return NextResponse.json({ error: "Failed to save settings" }, { status: 500 });
   }

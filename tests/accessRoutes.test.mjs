@@ -47,3 +47,18 @@ test("proxy requires login on the role endpoint", () => {
   const proxy = readFileSync(resolve(process.cwd(), "proxy.ts"), "utf8");
   assert.match(proxy, /"\/api\/access\/:path\*"/);
 });
+
+
+test("user access management endpoints are admin-only", () => {
+  for (const path of ["app/api/users/route.ts", "app/api/users/[id]/route.ts", "app/api/users/audit/route.ts"]) {
+    const source = readFileSync(resolve(process.cwd(), path), "utf8");
+    assert.match(source, /requireAdminIdentity\(\)|requireAccess\("admin"\)/, path);
+    assert.doesNotMatch(source, /requireAccess\("read"\)/, path);
+  }
+});
+
+test("user management routes require login at proxy", () => {
+  const proxy = readFileSync(resolve(process.cwd(), "proxy.ts"), "utf8");
+  assert.match(proxy, /"\/users\/:path\*"/);
+  assert.match(proxy, /"\/api\/users\/:path\*"/);
+});
