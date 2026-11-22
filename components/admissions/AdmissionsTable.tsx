@@ -9,7 +9,7 @@ import AdmissionStages from "./AdmissionStages";
 
 type Props = {
   canManageAdmissions: boolean;
-  students: Admission[]; totalCount: number; yearTotal: number; loading: boolean; search: string; setSearch: (value: string) => void;
+  students: Admission[]; totalCount: number; yearTotal?: number; loading: boolean; search: string; setSearch: (value: string) => void;
   classFilter: string; setClassFilter: (value: string) => void; classOptions: string[];
   finalStatusFilter: string; setFinalStatusFilter: (value: string) => void;
   applicationFilter: string; setApplicationFilter: (value: string) => void;
@@ -64,7 +64,7 @@ export default function AdmissionTable({
             <div>
               <h3 className="text-lg font-black tracking-[-.02em] text-slate-950">Student directory</h3>
               <p className="mt-0.5 text-sm font-semibold text-slate-500" aria-live="polite">
-                {loading ? "Updating records…" : `${totalCount.toLocaleString("en-IN")} matching enquiries · ${yearTotal.toLocaleString("en-IN")} in this academic year`}
+                {loading ? "Updating records…" : `${totalCount.toLocaleString("en-IN")} matching enquiries${yearTotal === undefined ? "" : ` · ${yearTotal.toLocaleString("en-IN")} in this academic year`}` }
               </p>
             </div>
           </div>

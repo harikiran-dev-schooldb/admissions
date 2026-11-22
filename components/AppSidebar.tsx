@@ -13,7 +13,7 @@ import {
 
 const nav: Array<{ label: string; href: string; icon: typeof Users; adminOnly?: boolean }> = [
   { label: "Admissions", href: "/admissions", icon: Users },
-  { label: "Analytics", href: "/admissions/analytics", icon: BarChart3 },
+  { label: "Analytics", href: "/admissions/analytics", icon: BarChart3, adminOnly: true },
   { label: "Fee Structure", href: "/fees", icon: CircleDollarSign },
   { label: "Academic Years", href: "/academic-years", icon: CalendarRange },
   { label: "Settings", href: "/settings", icon: Settings2 },

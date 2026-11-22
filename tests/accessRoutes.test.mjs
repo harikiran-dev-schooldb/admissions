@@ -8,12 +8,15 @@ const protectedRoutes = [
   "app/api/admissions/[id]/route.ts",
   "app/api/admissions/stages/route.ts",
   "app/api/admissions/stats/route.ts",
+  "app/api/admissions/classes/route.ts",
   "app/api/academic-years/route.ts",
   "app/api/academic-years/[id]/route.ts",
   "app/api/fees/route.ts",
   "app/api/fees/[id]/route.ts",
   "app/api/settings/route.ts",
 ];
+
+const adminOnlyReads = new Set(["app/api/admissions/stats/route.ts"]);
 
 const staffActions = {
   "app/api/admissions/route.ts": { POST: "enquiry" },
@@ -27,7 +30,7 @@ test("all data API handlers check the required read, staff workflow, or admin pe
     assert.ok(methods.length, `No access-guarded handlers found in ${path}`);
     for (const match of methods) {
       const [, method, level] = match;
-      const expected = method === "GET" ? "read" : staffActions[path]?.[method] ?? "admin";
+      const expected = method === "GET" ? (adminOnlyReads.has(path) ? "admin" : "read") : staffActions[path]?.[method] ?? "admin";
       assert.equal(level, expected, `Wrong access level for ${path} ${method}`);
     }
 

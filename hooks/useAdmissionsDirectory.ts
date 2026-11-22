@@ -97,10 +97,10 @@ export function useAdmissionsDirectory(filters: AdmissionDirectoryFilters) {
   };
 }
 
-export function useAdmissionsSummary(academicYear: string) {
+export function useAdmissionsSummary(academicYear: string, enabled: boolean = true) {
   const [refresh, setRefresh] = useState(0);
   const reload = useCallback(() => setRefresh((value) => value + 1), []);
-  const requestKey = `${academicYear}&r=${refresh}`;
+  const requestKey = `${academicYear}&r=${refresh}&enabled=${enabled}`;
   const [result, setResult] = useState<{key: string; payload: AdmissionSummary; error: string}>({
     key: "",
     payload: emptySummary,
@@ -108,7 +108,7 @@ export function useAdmissionsSummary(academicYear: string) {
   });
 
   useEffect(() => {
-    if (!academicYear) return;
+    if (!academicYear || !enabled) return;
     const controller = new AbortController();
     fetch(`/api/admissions/stats?academicYear=${encodeURIComponent(academicYear)}`, {
       cache: "no-store",
@@ -120,13 +120,48 @@ export function useAdmissionsSummary(academicYear: string) {
         if (!controller.signal.aborted) setResult({key: requestKey, payload: emptySummary, error: error instanceof Error ? error.message : "Failed to load totals"});
       });
     return () => controller.abort();
-  }, [academicYear, requestKey]);
+  }, [academicYear, enabled, requestKey]);
 
-  const current = Boolean(academicYear) && result.key === requestKey;
+  const current = Boolean(academicYear) && enabled && result.key === requestKey;
   return {
     summary: current ? result.payload : emptySummary,
-    loading: Boolean(academicYear) && !current,
+    loading: Boolean(academicYear) && enabled && !current,
     error: current ? result.error : "",
     reload,
   };
+}
+
+
+/** Read-only class names for staff; does not call the admin-only KPI endpoint. */
+export function useAdmissionClassOptions(academicYear: string, enabled: boolean) {
+  const [refresh, setRefresh] = useState(0);
+  const reload = useCallback(() => setRefresh((value) => value + 1), []);
+  const requestKey = `${academicYear}&refresh=${refresh}&enabled=${enabled}`;
+  const [result, setResult] = useState<{ key: string; data: string[]; error: string }>({
+    key: "",
+    data: [],
+    error: "",
+  });
+  useEffect(() => {
+    if (!academicYear || !enabled) return;
+    const controller = new AbortController();
+    fetch(`/api/admissions/classes?academicYear=${encodeURIComponent(academicYear)}`, {
+      cache: "no-store",
+      signal: controller.signal,
+    })
+      .then(jsonOrThrow<{data: string[]}>)
+      .then(({ data }) => {
+        if (!controller.signal.aborted) setResult({ key: requestKey, data, error: "" });
+      })
+      .catch((caught: unknown) => {
+        if (!controller.signal.aborted) setResult({
+          key: requestKey, data: [],
+          error: caught instanceof Error ? caught.message : "Failed to load class filters",
+        });
+      });
+    return () => controller.abort();
+  }, [academicYear, enabled, requestKey]);
+
+  const current = enabled && !!academicYear && result.key === requestKey;
+  return { classOptions: current ? result.data : [], error: current ? result.error : "", reload };
 }

@@ -21,7 +21,7 @@ test("directory uses year-wide stats rather than paging the KPI counts", () => {
 });
 
 test("analytics retains full-year data for complete graphs", () => {
-  const source = readFileSync(resolve(process.cwd(), "app/admissions/analytics/page.tsx"), "utf8");
+  const source = readFileSync(resolve(process.cwd(), "components/admissions/AdmissionsAnalyticsPageClient.tsx"), "utf8");
   assert.match(source, /useAdmissions\(academicYear\)/);
   assert.match(source, /selectDefaultAdmissionYear/);
 });

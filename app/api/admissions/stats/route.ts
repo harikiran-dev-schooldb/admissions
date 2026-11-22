@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
 export async function GET(req: Request) {
-  const accessError = await requireAccess("read");
+  const accessError = await requireAccess("admin");
   if (accessError) return accessError;
   try {
     const { searchParams } = new URL(req.url);
