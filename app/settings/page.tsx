@@ -7,15 +7,26 @@ import AppSidebar from "@/components/AppSidebar";
 import { useAdmissionSettings } from "@/hooks/useAdmissionSettings";
 
 export default function SettingsPage() {
-  const { settings, saveSettings } = useAdmissionSettings();
+  const { settings, saveSettings, loading, error: loadError } = useAdmissionSettings();
   const [draftAgeAsOfDate, setDraftAgeAsOfDate] = useState<string | null>(null);
   const ageAsOfDate = draftAgeAsOfDate ?? settings.ageAsOfDate;
   const [saved, setSaved] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
 
-  function save() {
-    saveSettings({ ageAsOfDate });
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 2200);
+  async function save() {
+    try {
+      setSaving(true);
+      setSaveError("");
+      setSaved(false);
+      await saveSettings({ ageAsOfDate });
+      setDraftAgeAsOfDate(null);
+      setSaved(true);
+    } catch (caught) {
+      setSaveError(caught instanceof Error ? caught.message : "Unable to save settings");
+    } finally {
+      setSaving(false);
+    }
   }
 
   return (
@@ -25,15 +36,16 @@ export default function SettingsPage() {
         <header className="premium-topbar sticky top-18 z-30 lg:top-0">
           <div className="flex min-h-20 items-center justify-between gap-3 px-4 sm:px-6 xl:px-10">
             <div><p className="premium-kicker">Workspace preferences</p><h1 className="mt-1 text-2xl font-black tracking-[-0.04em]">Settings</h1></div>
-            <button onClick={save} disabled={!ageAsOfDate} className="premium-button h-11 px-5 text-sm font-bold disabled:opacity-50"><Save className="size-4" />Save changes</button>
+            <button onClick={save} disabled={!ageAsOfDate || loading || saving} className="premium-button h-11 px-5 text-sm font-bold disabled:opacity-50"><Save className="size-4" />Save changes</button>
           </div>
         </header>
 
         <main className="mx-auto max-w-[1400px] space-y-6 p-4 sm:p-6 xl:p-10">
           <section className="premium-hero rounded-[32px] p-6 sm:p-9">
-            <div className="relative z-10 max-w-3xl"><p className="premium-kicker flex items-center gap-2"><Sparkles className="size-3.5" />Admissions intelligence</p><h2 className="mt-3 text-3xl font-black tracking-[-0.045em] sm:text-4xl">Set one age rule. Keep every eligibility decision consistent.</h2><p className="mt-3 max-w-2xl text-base leading-7">Choose the date student ages should be measured against. The admission calculator will use this date automatically for every new enquiry.</p></div>
+            <div className="relative z-10 max-w-3xl"><p className="premium-kicker flex items-center gap-2"><Sparkles className="size-3.5" />Admissions intelligence</p><h2 className="mt-3 text-3xl font-black tracking-[-0.045em] sm:text-4xl">Set one age rule. Keep every eligibility decision consistent.</h2><p className="mt-3 max-w-2xl text-base leading-7">Choose the date student ages should be measured against. The entire admission team uses this server-side date for new enquiry eligibility calculations.</p></div>
           </section>
 
+          {(loadError || saveError) && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-700">{saveError || loadError}</div>}
           {saved && <div className="flex items-center gap-2 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700"><CheckCircle2 className="size-4" />Age calculation settings saved.</div>}
 
           <div className="max-w-3xl">
