@@ -17,7 +17,7 @@ type Props = {
 };
 
 export default function NewAdmissionModal({ open, onClose, reload, academicYear }: Props) {
-  const { settings } = useAdmissionSettings();
+  const { settings, loading: settingsLoading, error: settingsError } = useAdmissionSettings();
   const [dob, setDob] = useState("");
 
   const [student, setStudent] = useState("");
@@ -470,7 +470,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear 
 
               <button
                 onClick={createAdmission}
-                disabled={loading}
+                disabled={loading || settingsLoading || Boolean(settingsError)}
                 className="
                 flex
                 items-center
