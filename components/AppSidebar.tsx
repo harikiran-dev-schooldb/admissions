@@ -8,7 +8,7 @@ import { useAccess } from "@/hooks/useAccess";
 import AccountMenu from "@/components/AccountMenu";
 import {
   BarChart3, CalendarRange, CircleDollarSign, GraduationCap, Loader2,
-  LogOut, Search, Settings2, ShieldCheck, UserRound, UserRoundCog, Users,
+  History, LogOut, Search, Settings2, ShieldCheck, UserRound, UserRoundCog, Users,
 } from "lucide-react";
 
 const nav: Array<{ label: string; href: string; icon: typeof Users; adminOnly?: boolean }> = [
@@ -18,6 +18,7 @@ const nav: Array<{ label: string; href: string; icon: typeof Users; adminOnly?: 
   { label: "Academic Years", href: "/academic-years", icon: CalendarRange },
   { label: "Settings", href: "/settings", icon: Settings2 },
   { label: "Users & Roles", href: "/users", icon: UserRoundCog, adminOnly: true },
+  { label: "Audit Logs", href: "/audit-logs", icon: History, adminOnly: true },
 ];
 
 export default function AppSidebar() {
@@ -114,14 +115,14 @@ export default function AppSidebar() {
       </header>
       {signOutError && <div role="alert" className="fixed inset-x-3 top-20 z-50 rounded-xl bg-red-50 p-3 text-center text-xs font-bold text-red-700 lg:hidden">{signOutError}</div>}
 
-      <nav className={`fixed inset-x-4 bottom-4 z-40 grid ${role === "admin" ? "grid-cols-6" : "grid-cols-4"} rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl lg:hidden`}>
+      <nav className={`fixed inset-x-4 bottom-4 z-40 grid ${role === "admin" ? "grid-cols-7" : "grid-cols-4"} rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl lg:hidden`}>
         {visibleNav.map(({ label, href, icon: Icon }) => {
           const active = pathname === href;
           return (
             <Link key={href} href={href} aria-label={label}
               className={`flex h-14 flex-col items-center justify-center gap-1 rounded-xl text-[10px] font-semibold transition ${active ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md" : "text-slate-500 hover:bg-slate-50"}`}>
               <Icon className="size-[18px]" />
-              <span>{label === "Fee Structure" ? "Fees" : label === "Academic Years" ? "Years" : label === "Users & Roles" ? "Users" : label}</span>
+              <span>{label === "Fee Structure" ? "Fees" : label === "Academic Years" ? "Years" : label === "Users & Roles" ? "Users" : label === "Audit Logs" ? "Audit" : label}</span>
             </Link>
           );
         })}
