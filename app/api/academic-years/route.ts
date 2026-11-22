@@ -1,4 +1,4 @@
-import { requireAccess } from "@/lib/auth/requireAccess";
+import { getAuthorizedRole, requireAccess } from "@/lib/auth/requireAccess";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -8,9 +8,22 @@ import { withDatabaseRetry } from "@/lib/dbRetry";
 export async function GET() {
   const accessError = await requireAccess("read");
   if (accessError) return accessError;
+  const { role, error: roleError } = await getAuthorizedRole();
+  if (roleError) return roleError;
   try {
     const academicYears = await withDatabaseRetry(() => prisma.academicYear.findMany({ orderBy: { academicYear: "desc" }, include: { _count: { select: { admissions: true } } } }));
-    return NextResponse.json({ data: academicYears.map(({ _count, ...year }) => ({ ...year, admissionsCount: _count.admissions })), total: academicYears.length });
+    const populated = [...academicYears]
+      .filter((year) => year.isActive)
+      .sort((a, b) => b._count.admissions - a._count.admissions || b.academicYear.localeCompare(a.academicYear))[0];
+    return NextResponse.json({
+      data: academicYears.map(({ _count, ...year }) => ({
+        ...year,
+        ...(role === "admin"
+          ? { admissionsCount: _count.admissions }
+          : { isSuggested: year.academicYear === populated?.academicYear }),
+      })),
+      total: academicYears.length,
+    }, { headers: { "Cache-Control": "private, no-store" } });
   } catch (error) {
     console.error("GET_ACADEMIC_YEARS_ERROR", error);
     return NextResponse.json({ error: "Failed to fetch academic years" }, { status: 500 });

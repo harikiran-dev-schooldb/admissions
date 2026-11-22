@@ -56,3 +56,13 @@ test("explicitly selected newest year stays selected even with only one enquiry"
   ];
   assert.equal(selectDefaultAdmissionYear(years, "2027-28"), "2027-28");
 });
+
+test("staff receives no year counts but server-recommended year still selects the 910-record cohort", () => {
+  const years = [
+    { academicYear: "2027-28", isActive: true, isSuggested: false },
+    { academicYear: "2026-27", isActive: true, isSuggested: true },
+    { academicYear: "2025-26", isActive: true, isSuggested: false },
+  ];
+  assert.equal(selectDefaultAdmissionYear(years, ""), "2026-27");
+  assert.equal(selectDefaultAdmissionYear(years, "2027-28"), "2027-28");
+});

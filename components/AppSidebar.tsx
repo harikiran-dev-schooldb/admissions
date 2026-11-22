@@ -13,7 +13,7 @@ import {
 
 const nav: Array<{ label: string; href: string; icon: typeof Users; adminOnly?: boolean }> = [
   { label: "Admissions", href: "/admissions", icon: Users },
-  { label: "Analytics", href: "/admissions/analytics", icon: BarChart3 },
+  { label: "Analytics", href: "/admissions/analytics", icon: BarChart3, adminOnly: true },
   { label: "Fee Structure", href: "/fees", icon: CircleDollarSign },
   { label: "Academic Years", href: "/academic-years", icon: CalendarRange },
   { label: "Settings", href: "/settings", icon: Settings2 },
@@ -114,7 +114,7 @@ export default function AppSidebar() {
       </header>
       {signOutError && <div role="alert" className="fixed inset-x-3 top-20 z-50 rounded-xl bg-red-50 p-3 text-center text-xs font-bold text-red-700 lg:hidden">{signOutError}</div>}
 
-      <nav className={`fixed inset-x-4 bottom-4 z-40 grid ${role === "admin" ? "grid-cols-6" : "grid-cols-5"} rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl lg:hidden`}>
+      <nav className={`fixed inset-x-4 bottom-4 z-40 grid ${role === "admin" ? "grid-cols-6" : "grid-cols-4"} rounded-2xl border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl lg:hidden`}>
         {visibleNav.map(({ label, href, icon: Icon }) => {
           const active = pathname === href;
           return (

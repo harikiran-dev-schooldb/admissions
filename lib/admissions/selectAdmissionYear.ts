@@ -2,6 +2,7 @@ export type AdmissionYearOption = {
   academicYear: string;
   isActive: boolean;
   admissionsCount?: number;
+  isSuggested?: boolean;
 };
 
 /**
@@ -19,6 +20,7 @@ export function selectDefaultAdmissionYear(
       (year.admissionsCount ?? 0) > (best?.admissionsCount ?? 0) ? year : best, null);
 
   return (
+    sorted.find((year) => year.isSuggested)?.academicYear ??
     mostPopulated(sorted.filter((year) => year.isActive))?.academicYear ??
     mostPopulated(sorted)?.academicYear ??
     sorted.find((year) => year.isActive)?.academicYear ??

@@ -21,7 +21,7 @@ test("directory uses year-wide stats rather than paging the KPI counts", () => {
 });
 
 test("analytics retains full-year data for complete graphs", () => {
-  const source = readFileSync(resolve(process.cwd(), "app/admissions/analytics/page.tsx"), "utf8");
+  const source = readFileSync(resolve(process.cwd(), "components/admissions/AdmissionsAnalyticsPageClient.tsx"), "utf8");
   assert.match(source, /useAdmissions\(academicYear\)/);
   assert.match(source, /selectDefaultAdmissionYear/);
 });
@@ -48,7 +48,7 @@ test("directory and API default to ten rows with shared pagination constants", (
 
 test("academic year dropdowns show years only, without admission or fee totals", () => {
   const admissions = readFileSync(resolve(process.cwd(), "app/admissions/page.tsx"), "utf8");
-  const analytics = readFileSync(resolve(process.cwd(), "app/admissions/analytics/page.tsx"), "utf8");
+  const analytics = readFileSync(resolve(process.cwd(), "components/admissions/AdmissionsAnalyticsPageClient.tsx"), "utf8");
   const fees = readFileSync(resolve(process.cwd(), "app/fees/page.tsx"), "utf8");
   assert.doesNotMatch(admissions, /year\.academicYear\} \(\$\{year\.admissionsCount/);
   assert.doesNotMatch(analytics, /year\.academicYear\} \(\$\{year\.admissionsCount/);
@@ -56,4 +56,11 @@ test("academic year dropdowns show years only, without admission or fee totals",
   assert.match(admissions, /label: `\$\{year\.academicYear\}/);
   assert.match(analytics, /label: year\.academicYear/);
   assert.match(fees, /label: `\$\{year\}/);
+});
+
+test("academic year staff response omits KPI count values but retains a recommended year flag", () => {
+  const source = readFileSync(resolve(process.cwd(), "app/api/academic-years/route.ts"), "utf8");
+  assert.match(source, /role === "admin"/);
+  assert.match(source, /\{ admissionsCount: _count\.admissions \}/);
+  assert.match(source, /isSuggested: year\.academicYear === populated\?\.academicYear/);
 });

@@ -9,7 +9,7 @@ import AdmissionsTable from "@/components/admissions/AdmissionsTable";
 import KPISection from "@/components/admissions/KPISection";
 import NewAdmissionModal from "@/components/admissions/NewAdmissionModal";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
-import { useAdmissionsDirectory, useAdmissionsSummary } from "@/hooks/useAdmissionsDirectory";
+import { useAdmissionClassOptions, useAdmissionsDirectory, useAdmissionsSummary } from "@/hooks/useAdmissionsDirectory";
 import { selectDefaultAdmissionYear } from "@/lib/admissions/selectAdmissionYear";
 import { DEFAULT_ADMISSION_PAGE_SIZE, type AdmissionPageSize } from "@/lib/admissions/pagination";
 import type { Admission } from "@/src/generated/prisma/client";
@@ -48,11 +48,14 @@ export default function AdmissionsPage() {
     finalStatusFilter,
     applicationFilter,
   });
-  const { summary, loading: summaryLoading, error: summaryError, reload: reloadSummary } = useAdmissionsSummary(academicYear);
+  const { summary, loading: summaryLoading, error: summaryError, reload: reloadSummary } = useAdmissionsSummary(academicYear, canManage);
+  const { classOptions: staffClassOptions, error: classesError, reload: reloadClasses } = useAdmissionClassOptions(academicYear, role === "staff");
+  const classOptions = canManage ? summary.classOptions : staffClassOptions;
   const reload = useCallback(() => {
     reloadDirectory();
-    reloadSummary();
-  }, [reloadDirectory, reloadSummary]);
+    if (canManage) reloadSummary();
+    if (role === "staff") reloadClasses();
+  }, [reloadDirectory, reloadSummary, reloadClasses, canManage, role]);
 
   function selectYear(value: string) {
     setSelectedAcademicYear(value);
@@ -118,26 +121,26 @@ export default function AdmissionsPage() {
                 <h2 className="mt-4 text-3xl font-black tracking-[-0.045em] sm:text-4xl">Every prospective student, clearly in view.</h2>
                 <p className="mt-3 max-w-xl text-base leading-7">Move enquiries through application, entrance, interview and confirmation while keeping every parent conversation connected.</p>
               </div>
-              <div className="grid grid-cols-2 gap-3 sm:min-w-80">
+              {canManage && <div className="grid grid-cols-2 gap-3 sm:min-w-80">
                 <div className="hero-stat rounded-2xl p-4"><Users className="size-4 text-indigo-600" /><strong className="mt-3 block text-3xl font-black tabular-nums">{summaryLoading ? "…" : summary.total.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Total enquiries</p></div>
                 <div className="hero-stat rounded-2xl p-4"><CheckCircle2 className="size-4 text-emerald-300" /><strong className="mt-3 block text-3xl font-black tabular-nums">{summaryLoading ? "…" : summary.admitted.toLocaleString("en-IN")}</strong><p className="mt-1 text-sm font-semibold">Admitted</p></div>
-              </div>
+              </div>}
             </div>
           </section>
 
-          <KPISection stats={summary} loading={summaryLoading} />
-          {(error || yearsError || summaryError) && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm font-semibold text-red-700 shadow-sm">{yearsError || error || summaryError}</div>}
+          {canManage && <KPISection stats={summary} loading={summaryLoading} />}
+          {(error || yearsError || (canManage && summaryError) || classesError) && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm font-semibold text-red-700 shadow-sm">{yearsError || error || (canManage && summaryError) || classesError}</div>}
           <AdmissionsTable
             canManageAdmissions={canManageAdmissions}
             students={students}
             totalCount={total}
-            yearTotal={summary.total}
+            yearTotal={canManage ? summary.total : undefined}
             loading={loading || yearsLoading}
             search={search}
             setSearch={setSearchAndReset}
             classFilter={classFilter}
             setClassFilter={setClassAndReset}
-            classOptions={summary.classOptions}
+            classOptions={classOptions}
             finalStatusFilter={finalStatusFilter}
             setFinalStatusFilter={setFinalStatusAndReset}
             applicationFilter={applicationFilter}

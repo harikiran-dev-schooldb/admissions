@@ -5,7 +5,7 @@ import { resolve } from "node:path";
 
 const pages = [
   "app/admissions/page.tsx",
-  "app/admissions/analytics/page.tsx",
+  "components/admissions/AdmissionsAnalyticsPageClient.tsx",
   "app/fees/page.tsx",
   "app/academic-years/page.tsx",
   "app/settings/page.tsx",
