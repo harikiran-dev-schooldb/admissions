@@ -58,9 +58,18 @@ Set these Vercel **Production** environment variables before deploying:
 
 Never commit real passwords or API keys. With an empty administrator allowlist,
 data APIs reject requests with HTTP 503 rather than exposing student information.
-Only administrators may change fees or academic years or delete an admission; staff
-can work with admission records. The `LOCAL_AUTH_BYPASS` override is allowed only
-when `NODE_ENV` is not production.
+Only administrators can create, update, change stages or delete **any** admissions,
+fees, academic years or settings. Staff members are **view-only** across the
+application. Server-side guards reject all staff write requests with HTTP 403,
+even if someone sends a direct API request rather than using the UI.
+All unlisted email addresses are denied access.
+
+The `/api/access` endpoint returns only the signed-in user's role and whether
+they can manage records; the email allowlists are not exposed to the browser.
+Add admin addresses to `ADMISSIONS_ADMIN_EMAILS` and permitted read-only
+staff addresses to `ADMISSIONS_STAFF_EMAILS` on Vercel, then redeploy.
+`LOCAL_AUTH_BYPASS` is permitted only when `NODE_ENV` is not production.
+This is a server-configured role list, not an in-app user-invitation system.
 
 **Migration order matters:** run `npm run migrate:deploy` against the intended
 database before deploying the updated Prisma client. The migration backfills
