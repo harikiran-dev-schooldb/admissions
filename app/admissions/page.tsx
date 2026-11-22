@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { CheckCircle2, Plus, Sparkles, Users } from "lucide-react";
 
 import AppSidebar from "@/components/AppSidebar";
+import AccountMenu from "@/components/AccountMenu";
 import AdmissionDetailModal from "@/components/admissions/AdmissionDetailModal";
 import AdmissionsTable from "@/components/admissions/AdmissionsTable";
 import KPISection from "@/components/admissions/KPISection";
@@ -59,6 +60,7 @@ export default function AdmissionsPage() {
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="w-36"><SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined} onValueChange={setSelectedAcademicYear} options={activeAcademicYears.map((year) => ({ label: year, value: year }))} placeholder={yearsLoading ? "Loading…" : "No active years"} disabled={yearsLoading || activeAcademicYears.length === 0} className="font-bold" /></div>
               {canManageAdmissions && <button onClick={() => setOpenNew(true)} disabled={!academicYear} className="premium-button h-11 px-4 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-50 sm:px-5"><Plus className="size-4" /><span className="hidden sm:inline">New enquiry</span><span className="sm:hidden">New</span></button>}
+              <div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div>
             </div>
           </div>
         </header>

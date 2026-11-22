@@ -5,6 +5,7 @@ import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth/client";
 import { useAccess } from "@/hooks/useAccess";
+import AccountMenu from "@/components/AccountMenu";
 import {
   BarChart3, CalendarRange, CircleDollarSign, GraduationCap, Loader2,
   LogOut, Search, Settings2, ShieldCheck, UserRound, UserRoundCog, Users,
@@ -92,7 +93,7 @@ export default function AppSidebar() {
               {error && <p role="alert" className="mt-2 text-xs font-semibold text-red-700">{error}</p>}
             </div>
             {signOutError && <p role="alert" className="text-xs font-semibold text-red-700">{signOutError}</p>}
-            <button type="button" onClick={() => void handleLogout()} disabled={signingOut || loading}
+            <button type="button" aria-label="Logout" onClick={() => void handleLogout()} disabled={signingOut || loading}
               className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm font-bold text-slate-700 transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700 disabled:opacity-50">
               {signingOut ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
               {signingOut ? "Signing out…" : "Logout"}
@@ -109,16 +110,7 @@ export default function AppSidebar() {
           <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md"><GraduationCap className="size-5" /></div>
           <div className="min-w-0"><p className="truncate font-extrabold tracking-tight text-slate-900">SchoolDB</p><p className="text-xs font-bold uppercase tracking-[.12em] text-indigo-600">Admissions</p></div>
         </div>
-        <div className="flex min-w-0 items-center gap-2">
-          <div className="min-w-0 text-right" aria-live="polite">
-            <p className="max-w-32 truncate text-xs font-extrabold text-slate-800 sm:max-w-52" title={displayName}>{loading ? "Loading…" : displayName}</p>
-            <p className="text-[11px] font-bold text-indigo-700">{roleLabel}</p>
-          </div>
-          <button type="button" onClick={() => void handleLogout()} disabled={signingOut || loading}
-            aria-label="Logout" title="Logout" className="grid size-10 shrink-0 place-items-center rounded-xl border border-indigo-100 bg-indigo-50 text-indigo-700 disabled:opacity-50">
-            {signingOut ? <Loader2 className="size-4 animate-spin" /> : <LogOut className="size-4" />}
-          </button>
-        </div>
+        <AccountMenu compact />
       </header>
       {signOutError && <div role="alert" className="fixed inset-x-3 top-20 z-50 rounded-xl bg-red-50 p-3 text-center text-xs font-bold text-red-700 lg:hidden">{signOutError}</div>}
 
