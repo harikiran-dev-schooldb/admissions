@@ -8,6 +8,7 @@ import {
   X,
 } from "lucide-react";
 import type { Admission } from "@/src/generated/prisma/client";
+import { formatAdmissionDob } from "@/lib/admissions/formatAdmissionDob";
 
 type Props = {
   student: Admission | null;
@@ -233,7 +234,7 @@ export default function AdmissionDetailModal({
               <div>
                 <div className="text-sm text-slate-500">DOB</div>
 
-                <div className="mt-1 font-semibold">{student.dob}</div>
+                <div className="mt-1 font-semibold">{formatAdmissionDob(student.dob)}</div>
               </div>
 
               <div>

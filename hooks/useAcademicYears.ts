@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 
-export type AcademicYearRecord = { id: string; academicYear: string; startDate: string | null; endDate: string | null; isActive: boolean; createdAt: string; updatedAt: string };
+export type AcademicYearRecord = { id: string; academicYear: string; startDate: string | null; endDate: string | null; isActive: boolean; createdAt: string; updatedAt: string; admissionsCount?: number };
 
 async function loadAcademicYears() {
   const response = await fetch("/api/academic-years", { cache: "no-store" });

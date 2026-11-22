@@ -10,7 +10,7 @@ export async function GET(req: Request) {
     const academicYear = searchParams.get("academicYear")?.trim();
     const yearWhere = academicYear ? { academicYear } : {};
 
-    const [total, admitted, cancelled, pending, applicationSubmitted, entrancePending, interviewPending] = await Promise.all([
+    const [total, admitted, cancelled, pending, applicationSubmitted, entrancePending, interviewPending, applicationsTaken, entrancePassed, interviewSelected, classes] = await Promise.all([
       prisma.admission.count({ where: yearWhere }),
       prisma.admission.count({ where: { ...yearWhere, finalAdmission: "ADMITTED" } }),
       prisma.admission.count({ where: { ...yearWhere, finalAdmission: "CANCELLED" } }),
@@ -18,6 +18,10 @@ export async function GET(req: Request) {
       prisma.admission.count({ where: { ...yearWhere, application: "SUBMITTED" } }),
       prisma.admission.count({ where: { ...yearWhere, entrance: "PENDING" } }),
       prisma.admission.count({ where: { ...yearWhere, interview: "PENDING" } }),
+      prisma.admission.count({ where: { ...yearWhere, application: { in: ["YES", "SUBMITTED"] } } }),
+      prisma.admission.count({ where: { ...yearWhere, entrance: "PASS" } }),
+      prisma.admission.count({ where: { ...yearWhere, interview: "SELECTED" } }),
+      prisma.admission.findMany({ where: yearWhere, distinct: ["admClass"], select: { admClass: true }, orderBy: { admClass: "asc" } }),
     ]);
 
     return NextResponse.json({
@@ -27,6 +31,10 @@ export async function GET(req: Request) {
         cancelled,
         pending,
         applicationSubmitted,
+        applicationsTaken,
+        entrancePassed,
+        interviewSelected,
+        classOptions: classes.map((entry) => entry.admClass).filter(Boolean),
         entrancePending,
         interviewPending,
         conversionRate: total ? Math.round((admitted / total) * 1000) / 10 : 0,

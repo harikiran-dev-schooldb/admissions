@@ -9,13 +9,14 @@ import AccountMenu from "@/components/AccountMenu";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import { useAdmissions } from "@/hooks/useAdmissions";
 import { useAcademicYears } from "@/hooks/useAcademicYears";
+import { selectDefaultAdmissionYear } from "@/lib/admissions/selectAdmissionYear";
 
 const AdmissionsAnalytics = dynamic(() => import("@/components/admissions/AdmissionsAnalytics"), { ssr: false });
 export default function AdmissionsAnalyticsPage() {
   const { academicYears: createdAcademicYears, loading: yearsLoading, error: yearsError } = useAcademicYears();
-  const activeAcademicYears = useMemo(() => createdAcademicYears.filter((year) => year.isActive).map((year) => year.academicYear), [createdAcademicYears]);
+
   const [selectedAcademicYear, setSelectedAcademicYear] = useState("");
-  const academicYear = activeAcademicYears.includes(selectedAcademicYear) ? selectedAcademicYear : activeAcademicYears[0] ?? "";
+  const academicYear = selectDefaultAdmissionYear(createdAcademicYears, selectedAcademicYear);
   const { students, loading, error } = useAdmissions(academicYear);
   const [classFilter, setClassFilter] = useState("ALL");
   const [finalStatusFilter, setFinalStatusFilter] = useState("ALL");
@@ -32,7 +33,7 @@ export default function AdmissionsAnalyticsPage() {
         <header className="premium-topbar sticky top-18 z-30 lg:top-0">
           <div className="flex min-h-20 items-center justify-between gap-4 px-4 sm:px-6 xl:px-10">
             <div><p className="premium-kicker">Admissions intelligence</p><h1 className="mt-1 text-2xl font-black tracking-[-0.04em]">Analytics</h1></div>
-            <div className="flex items-center gap-3"><div className="w-36"><SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined} onValueChange={setSelectedAcademicYear} options={activeAcademicYears.map((year) => ({ label: year, value: year }))} placeholder={yearsLoading ? "Loading…" : "No active years"} disabled={yearsLoading || activeAcademicYears.length === 0} className="font-bold" /></div><div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div>
+            <div className="flex items-center gap-3"><div className="w-36"><SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined} onValueChange={setSelectedAcademicYear} options={createdAcademicYears.map((year) => ({ label: `${year.academicYear} (${year.admissionsCount ?? 0})`, value: year.academicYear }))} placeholder={yearsLoading ? "Loading…" : "No academic years"} disabled={yearsLoading || createdAcademicYears.length === 0} className="font-bold" /></div><div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div></div>
           </div>
         </header>
         <main className="mx-auto max-w-[1680px] space-y-6 p-4 sm:p-6 xl:p-10">

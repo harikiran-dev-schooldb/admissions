@@ -7,34 +7,66 @@ import { admissionCreateSchema, validationError } from "@/lib/validation/admissi
 import { withDatabaseRetry } from "@/lib/dbRetry";
 import { calculateAge, getEligibleClass } from "@/lib/eligibility";
 import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
+import { parsePage, parsePageSize, getPagination } from "@/lib/admissions/pagination";
 
 export async function GET(req: Request) {
   const accessError = await requireAccess("read");
   if (accessError) return accessError;
   try {
     const { searchParams } = new URL(req.url);
-    const q = searchParams.get("q")?.trim();
-    const finalAdmission = searchParams.get("status");
+    const q = searchParams.get("q")?.trim().slice(0, 120);
     const academicYear = searchParams.get("academicYear")?.trim();
+    const classFilter = searchParams.get("class")?.trim();
+    const finalAdmission = searchParams.get("status");
+    const application = searchParams.get("application");
+    const status = ["PENDING", "ADMITTED", "CANCELLED"].includes(finalAdmission ?? "")
+      ? finalAdmission as "PENDING" | "ADMITTED" | "CANCELLED"
+      : undefined;
+    const applicationStatus = ["NO", "YES", "SUBMITTED"].includes(application ?? "")
+      ? application as "NO" | "YES" | "SUBMITTED"
+      : undefined;
+
+    const where: Prisma.AdmissionWhereInput = {
+      ...(academicYear ? { academicYear } : {}),
+      ...(classFilter && classFilter !== "ALL" ? { admClass: classFilter } : {}),
+      ...(status ? { finalAdmission: status } : {}),
+      ...(applicationStatus ? { application: applicationStatus } : {}),
+      ...(q ? {
+        OR: [
+          { student: { contains: q, mode: "insensitive" } },
+          { parent: { contains: q, mode: "insensitive" } },
+          { mobile: { contains: q } },
+          { enquiryNo: { contains: q, mode: "insensitive" } },
+          { admClass: { contains: q, mode: "insensitive" } },
+        ],
+      } : {}),
+    };
+
+    // Existing analytics clients omit page and still receive the full yearly dataset.
+    // Directory clients request a page, so all search/filter/pagination work stays in SQL.
+    if (searchParams.has("page")) {
+      const requestedPage = parsePage(searchParams.get("page"));
+      const pageSize = parsePageSize(searchParams.get("pageSize"));
+      const total = await withDatabaseRetry(() => prisma.admission.count({ where }));
+      const pagination = getPagination(total, requestedPage, pageSize);
+      const admissions = await withDatabaseRetry(() => prisma.admission.findMany({
+        where,
+        orderBy: [{ enquiryDate: "desc" }, { id: "asc" }],
+        skip: pagination.skip,
+        take: pageSize,
+      }));
+      return NextResponse.json({
+        data: admissions,
+        total,
+        page: pagination.page,
+        pageSize,
+        totalPages: pagination.totalPages,
+      }, { headers: { "Cache-Control": "private, no-store" } });
+    }
 
     const admissions = await withDatabaseRetry(() => prisma.admission.findMany({
-      where: {
-        ...(academicYear ? { academicYear } : {}),
-        ...(finalAdmission && finalAdmission !== "ALL"
-          ? { finalAdmission: finalAdmission as "PENDING" | "ADMITTED" | "CANCELLED" }
-          : {}),
-        ...(q
-          ? {
-              OR: [
-                { student: { contains: q, mode: "insensitive" } },
-                { parent: { contains: q, mode: "insensitive" } },
-                { mobile: { contains: q } },
-                { enquiryNo: { contains: q, mode: "insensitive" } },
-              ],
-            }
-          : {}),
-      },
-      orderBy: { enquiryDate: "desc" },
+      where,
+      orderBy: [{ enquiryDate: "desc" }, { id: "asc" }],
     }));
 
     return NextResponse.json({ data: admissions, total: admissions.length });

@@ -10,32 +10,20 @@ import {
   Users,
   UserCheck,
 } from "lucide-react";
-import type { Admission } from "@/src/generated/prisma/client";
+import type { AdmissionSummary } from "@/hooks/useAdmissionsDirectory";
 
 interface Props {
-  students: Admission[];
+  stats: AdmissionSummary;
+  loading?: boolean;
 }
 
-export default function KPISection({ students }: Props) {
-  const enquiries = students.length;
-
-  const applicationsTaken = students.filter(
-    (s) => s.application === "YES" || s.application === "SUBMITTED",
-  ).length;
-
-  const applicationsSubmitted = students.filter(
-    (s) => s.application === "SUBMITTED",
-  ).length;
-
-  const entrancePassed = students.filter((s) => s.entrance === "PASS").length;
-
-  const interviewSelected = students.filter(
-    (s) => s.interview === "SELECTED",
-  ).length;
-
-  const admitted = students.filter(
-    (s) => s.finalAdmission === "ADMITTED",
-  ).length;
+export default function KPISection({ stats, loading = false }: Props) {
+  const enquiries = stats.total;
+  const applicationsTaken = stats.applicationsTaken;
+  const applicationsSubmitted = stats.applicationSubmitted;
+  const entrancePassed = stats.entrancePassed;
+  const interviewSelected = stats.interviewSelected;
+  const admitted = stats.admitted;
 
   const cards = [
     {
@@ -112,7 +100,7 @@ export default function KPISection({ students }: Props) {
                 </p>
 
                 <h2 className="mt-1 text-3xl font-black tracking-[-.04em] text-slate-950">
-                  {card.value}
+                  {loading ? "…" : card.value.toLocaleString("en-IN")}
                 </h2>
               </div>
 
