@@ -30,7 +30,7 @@ test("follow-up creation is restricted to authenticated staff and active members
 });
 
 test("staff can complete only their assigned open tasks and histories stay auditable", () => {
-  const api = source("app/api/follow-ups/\[id\]/route.ts".replace("\\[", "[").replace("\\]", "]"));
+  const api = source("app/api/follow-ups/[id]/route.ts");
   assert.match(api, /requireAuditActor\("workflow"\)/);
   assert.match(api, /before\.assignedToEmail !== actor\.email/);
   assert.match(api, /before\.status !== "OPEN"/);
