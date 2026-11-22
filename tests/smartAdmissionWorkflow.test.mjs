@@ -23,3 +23,18 @@ test("stage and profile views show recommended next action and existing assignme
   assert.match(detail, /AdmissionFollowUpManager/);
   assert.match(detail, /Assign an owner and due date/);
 });
+
+test("automatic tasks are assigned, audited, deduplicated, and have deadlines", () => {
+  const create = readFileSync("app/api/admissions/route.ts", "utf8");
+  const stage = readFileSync("app/api/admissions/stages/route.ts", "utf8");
+  const queue = readFileSync("components/admissions/FollowUpQueue.tsx", "utf8");
+  assert.match(create, /tx\.admissionFollowUp\.create/);
+  assert.match(create, /assignedToEmail: actor\.email/);
+  assert.match(stage, /tx\.admissionFollowUp\.findFirst/);
+  assert.match(stage, /tx\.admissionFollowUp\.findMany/);
+  assert.match(stage, /task\.note\?\.startsWith/);
+  assert.match(stage, /recordActivity\(tx, actor/);
+  assert.match(stage, /48 \* 60 \* 60 \* 1000/);
+  assert.match(queue, /useState<Tab>\("overdue"\)/);
+  assert.match(queue, /overdue follow-up/);
+});
