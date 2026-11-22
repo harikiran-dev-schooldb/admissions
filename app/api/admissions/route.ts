@@ -5,6 +5,8 @@ import { prisma } from "@/lib/prisma";
 import { createEnquiryNumber, shouldSkipEntrance } from "@/lib/admissions";
 import { admissionCreateSchema, validationError } from "@/lib/validation/admissions";
 import { withDatabaseRetry } from "@/lib/dbRetry";
+import { calculateAge, getEligibleClass } from "@/lib/eligibility";
+import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
 
 export async function GET(req: Request) {
   const accessError = await requireAccess("staff");
@@ -54,6 +56,10 @@ export async function POST(req: Request) {
     if (!managedYear?.isActive) {
       return NextResponse.json({ error: "Choose an active academic year before creating an admission" }, { status: 400 });
     }
+    const config = await prisma.admissionConfig.findUnique({ where: { key: "ageAsOfDate" } });
+    const ageData = calculateAge(body.dob, config?.value ?? getDefaultAgeAsOfDate(body.academicYear));
+    const eligibleClass = ageData ? getEligibleClass(ageData.years) : "NOT ELIGIBLE";
+    const eligibleStatus = eligibleClass === body.admClass.trim().toUpperCase() ? "ELIGIBLE" : "NOT ELIGIBLE";
     const skipEntrance = shouldSkipEntrance(body.admClass);
 
     for (let attempt = 0; attempt < 3; attempt++) {
@@ -66,10 +72,10 @@ export async function POST(req: Request) {
             parent: body.parent.toUpperCase(),
             mobile: body.mobile,
             dob: body.dob,
-            age: body.age ?? null,
+            age: ageData?.text ?? null,
             admClass: body.admClass,
-            eligibleClass: body.eligibleClass ?? null,
-            eligibleStatus: "ELIGIBLE",
+            eligibleClass,
+            eligibleStatus,
             application: "NO",
             entrance: skipEntrance ? "NOT_REQUIRED" : "NOT_STARTED",
             interview: "NOT_STARTED",
