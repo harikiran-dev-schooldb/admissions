@@ -24,8 +24,8 @@ const nav: NavItem[] = [
   { label: "Admissions", href: "/admissions", icon: Users, group: "Workspace" },
   { label: "Analytics", href: "/admissions/analytics", icon: BarChart3, group: "Workspace", adminOnly: true },
   { label: "Fee Structure", href: "/fees", icon: CircleDollarSign, group: "Workspace" },
-  { label: "Academic Years", href: "/academic-years", icon: CalendarRange, group: "Workspace" },
-  { label: "Settings", href: "/settings", icon: Settings2, group: "Administration" },
+  { label: "Academic Years", href: "/academic-years", icon: CalendarRange, group: "Workspace", adminOnly: true },
+  { label: "Settings", href: "/settings", icon: Settings2, group: "Administration", adminOnly: true },
   { label: "Users & Roles", href: "/users", icon: UserRoundCog, group: "Administration", adminOnly: true },
   { label: "Audit Logs", href: "/audit-logs", icon: History, group: "Administration", adminOnly: true },
 ];
@@ -59,8 +59,10 @@ export default function AppSidebar() {
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
   const visibleNav = nav.filter((item) => !item.adminOnly || role === "admin");
+  const visibleGroups = (["Workspace", "Administration"] as const).filter((group) => visibleNav.some((item) => item.group === group));
   const mobilePrimary = visibleNav.slice(0, 4);
   const mobileSecondary = visibleNav.filter((item) => !mobilePrimary.some((primary) => primary.href === item.href));
+  const mobileNavColumns = mobileSecondary.length > 0 ? "grid-cols-5" : mobilePrimary.length === 2 ? "grid-cols-2" : mobilePrimary.length === 3 ? "grid-cols-3" : "grid-cols-4";
   const displayName = name.trim() || email.split("@")[0] || "Signed-in user";
   const roleLabel = role === "admin" ? "Administrator" : role === "staff" ? "Staff" : "Verifying access";
   const avatarInitials = displayName.split(/\s+/).slice(0, 2).map((part) => part[0] ?? "").join("").toUpperCase();
@@ -117,7 +119,7 @@ export default function AppSidebar() {
           </div>
 
           <nav aria-label="Workspace navigation" className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
-            {(["Workspace", "Administration"] as const).map((group) => (
+            {visibleGroups.map((group) => (
               <div key={group}>
                 <p className="mb-2 px-3 text-[10px] font-extrabold uppercase tracking-[.18em] text-slate-400">
                   {group === "Workspace" ? "Manage" : "Administration"}
@@ -177,7 +179,7 @@ export default function AppSidebar() {
               <NavLink key={item.href} item={item} active={isActiveRoute(item.href, pathname)} onNavigate={() => setMoreOpen(false)} />)}
           </div>
         )}
-        <nav aria-label="Mobile navigation" className={`fixed inset-x-3 bottom-3 z-40 grid ${mobileSecondary.length > 0 ? "grid-cols-5" : "grid-cols-4"} gap-1 rounded-[24px] border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl`}>
+        <nav aria-label="Mobile navigation" className={`fixed inset-x-3 bottom-3 z-40 grid ${mobileNavColumns} gap-1 rounded-[24px] border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl`}>
           {mobilePrimary.map((item) => {
             const Icon = item.icon;
             const active = isActiveRoute(item.href, pathname);

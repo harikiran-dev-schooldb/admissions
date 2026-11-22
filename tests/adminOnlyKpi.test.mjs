@@ -51,3 +51,20 @@ test("staff academic-year API payload does not include admissionsCount", () => {
   assert.match(api, /\{ admissionsCount: _count\.admissions \}/);
   assert.match(api, /\{ isSuggested: year\.academicYear === populated\?\.academicYear \}/);
 });
+
+
+test("staff navigation exposes only Admissions and Fee Structure on desktop and mobile", () => {
+  const sidebar = source("components/AppSidebar.tsx");
+  const accountMenu = source("components/AccountMenu.tsx");
+  assert.match(sidebar, /label: "Admissions"[^\n]*group: "Workspace" \}/);
+  assert.match(sidebar, /label: "Fee Structure"[^\n]*group: "Workspace" \}/);
+  for (const label of ["Analytics", "Academic Years", "Settings", "Users & Roles", "Audit Logs"]) {
+    assert.match(sidebar, new RegExp(`label: "${label}"[^\\n]*adminOnly: true`));
+  }
+  assert.match(sidebar, /const visibleNav = nav\.filter\(\(item\) => !item\.adminOnly \|\| role === "admin"\)/);
+  assert.match(sidebar, /visibleGroups\.map\(\(group\)/);
+  assert.match(sidebar, /mobilePrimary\.length === 2 \? "grid-cols-2"/);
+  assert.match(accountMenu, /role === "admin" && \(\s*<Link href="\/settings"/);
+  assert.match(source("app/api/fees/route.ts"), /requireAccess\("read"\)/);
+  assert.match(source("app/api/fees/route.ts"), /requireAuditActor\("admin"\)/);
+});

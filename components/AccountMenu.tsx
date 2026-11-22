@@ -89,9 +89,11 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
 
           {error && <p role="alert" className="mx-2 mt-2 rounded-lg bg-rose-50 p-2 text-xs font-semibold text-rose-700">{error}</p>}
           <div className="space-y-1 px-1 py-2">
-            <Link href="/settings" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
-              <Settings2 className="size-4" /> Settings
-            </Link>
+            {role === "admin" && (
+              <Link href="/settings" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
+                <Settings2 className="size-4" /> Settings
+              </Link>
+            )}
             {role === "admin" && (
               <Link href="/users" onClick={() => setIsOpen(false)} className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
                 <UserRoundCog className="size-4" /> Users &amp; roles
