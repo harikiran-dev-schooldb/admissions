@@ -31,11 +31,11 @@ export async function sendWebPush(subscription: Subscription, payload: object) {
   server.generateKeys();
   const serverPublic = server.getPublicKey();
   const sharedSecret = server.computeSecret(clientKey);
-  const keyInfo = Buffer.concat([Buffer.from("WebPush: info\\0"), clientKey, serverPublic]);
+  const keyInfo = Buffer.concat([Buffer.from("WebPush: info\0"), clientKey, serverPublic]);
   const ikm = Buffer.from(hkdfSync("sha256", sharedSecret, clientAuth, keyInfo, 32));
   const salt = randomBytes(16);
-  const cek = Buffer.from(hkdfSync("sha256", ikm, salt, Buffer.from("Content-Encoding: aes128gcm\\0"), 16));
-  const nonce = Buffer.from(hkdfSync("sha256", ikm, salt, Buffer.from("Content-Encoding: nonce\\0"), 12));
+  const cek = Buffer.from(hkdfSync("sha256", ikm, salt, Buffer.from("Content-Encoding: aes128gcm\0"), 16));
+  const nonce = Buffer.from(hkdfSync("sha256", ikm, salt, Buffer.from("Content-Encoding: nonce\0"), 12));
   const plaintext = Buffer.concat([Buffer.from(JSON.stringify(payload)), Buffer.from([2])]);
   const cipher = createCipheriv("aes-128-gcm", cek, nonce);
   const ciphertext = Buffer.concat([cipher.update(plaintext), cipher.final(), cipher.getAuthTag()]);
