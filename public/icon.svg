@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="SchoolDB">
+<defs><linearGradient id="brand" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#4f46e5"/><stop offset=".55" stop-color="#7c3aed"/><stop offset="1" stop-color="#a21caf"/></linearGradient></defs>
+<rect width="512" height="512" rx="108" fill="url(#brand)"/>
+<path d="M94 206 256 135l162 71-162 72L94 206Z" fill="none" stroke="white" stroke-width="24" stroke-linejoin="round"/>
+<path d="M160 245v69c0 57 192 57 192 0v-69" fill="none" stroke="white" stroke-width="23" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M416 208v105" stroke="white" stroke-width="22" stroke-linecap="round"/>
+<circle cx="416" cy="326" r="17" fill="white"/>
+</svg>

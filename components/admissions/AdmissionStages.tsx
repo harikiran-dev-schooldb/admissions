@@ -48,17 +48,17 @@ const STAGES: Stage[] = [
 
     options: [
       {
-        label: "NO",
+        label: "Not started",
         value: "NO",
       },
 
       {
-        label: "YES",
+        label: "In progress",
         value: "YES",
       },
 
       {
-        label: "SUBMITTED",
+        label: "Submitted",
         value: "SUBMITTED",
       },
     ],
@@ -73,27 +73,27 @@ const STAGES: Stage[] = [
 
     options: [
       {
-        label: "NOT STARTED",
+        label: "Not started",
         value: "NOT_STARTED",
       },
 
       {
-        label: "PENDING",
+        label: "Pending",
         value: "PENDING",
       },
 
       {
-        label: "PASS",
+        label: "Passed",
         value: "PASS",
       },
 
       {
-        label: "FAIL",
+        label: "Failed",
         value: "FAIL",
       },
 
       {
-        label: "NOT REQUIRED",
+        label: "Not required",
         value: "NOT_REQUIRED",
       },
     ],
@@ -108,22 +108,22 @@ const STAGES: Stage[] = [
 
     options: [
       {
-        label: "NOT STARTED",
+        label: "Not started",
         value: "NOT_STARTED",
       },
 
       {
-        label: "PENDING",
+        label: "Pending",
         value: "PENDING",
       },
 
       {
-        label: "SELECTED",
+        label: "Selected",
         value: "SELECTED",
       },
 
       {
-        label: "REJECTED",
+        label: "Rejected",
         value: "REJECTED",
       },
     ],
@@ -138,12 +138,12 @@ const STAGES: Stage[] = [
 
     options: [
       {
-        label: "NOT GIVEN",
+        label: "Not given",
         value: "NOT_GIVEN",
       },
 
       {
-        label: "GIVEN",
+        label: "Given",
         value: "GIVEN",
       },
     ],
@@ -158,17 +158,17 @@ const STAGES: Stage[] = [
 
     options: [
       {
-        label: "PENDING",
+        label: "Pending",
         value: "PENDING",
       },
 
       {
-        label: "ADMITTED",
+        label: "Admitted",
         value: "ADMITTED",
       },
 
       {
-        label: "CANCELLED",
+        label: "Cancelled",
         value: "CANCELLED",
       },
     ],
@@ -267,34 +267,24 @@ export default function AdmissionStages({ student, reload, canManage }: Props) {
   };
 
   return (
-    <div className="w-full rounded-2xl border border-indigo-100 bg-gradient-to-r from-white to-indigo-50/60 p-3 shadow-sm">
-      <div className="flex items-center gap-3">
-        <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200">
-          <Icon className="size-4" />
-        </div>
-        <div className="min-w-24 flex-1">
-          <p className="truncate text-sm font-black text-slate-900">{currentStage.label}</p>
-          <p className="mt-0.5 whitespace-nowrap text-xs font-semibold text-slate-500">Step {view.index + 1} of {STAGES.length}</p>
-        </div>
-        <div className="w-36 shrink-0">
-          {canManage ? (
-            <SchoolDbSelect ariaLabel={`${currentStage.label} status`} value={value} disabled={saving}
-              onValueChange={(next) => void updateStage(currentStage.key, next)}
-              options={currentStage.options} className="font-bold" />
-          ) : (
-            <span className="block rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-center text-sm font-bold text-slate-700" aria-label={`${currentStage.label} status`}>
-              {currentStage.options.find((option) => option.value === value)?.label ?? value.replaceAll("_", " ")}
-            </span>
-          )}
-        </div>
+    <div aria-busy={saving} className="w-full min-w-0 rounded-[20px] border border-indigo-100 bg-gradient-to-br from-white via-white to-indigo-50/70 p-3.5 shadow-sm sm:p-4">
+      <div className="flex min-w-0 items-center gap-3">
+        <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-indigo-100 text-indigo-700 ring-1 ring-indigo-200"><Icon className="size-5" aria-hidden="true" /></div>
+        <div className="min-w-0 flex-1"><p className="truncate text-sm font-extrabold text-slate-900">{currentStage.label}</p><p className="mt-0.5 text-xs font-semibold text-slate-500">Admission verification</p></div>
+        <span className="shrink-0 rounded-full border border-indigo-100 bg-indigo-50 px-2.5 py-1 text-[11px] font-extrabold text-indigo-700">Step {view.index + 1} / {STAGES.length}</span>
+      </div>
+      <div className="mt-3 min-w-0">
+        <p className="mb-1.5 text-[11px] font-bold uppercase tracking-[.11em] text-slate-500">Current status</p>
+        {canManage ? (
+          <SchoolDbSelect ariaLabel={`${currentStage.label} status`} value={value} disabled={saving} onValueChange={(next) => void updateStage(currentStage.key, next)} options={currentStage.options} className="!h-12 !rounded-2xl !border-indigo-200 !bg-white !px-4 !text-sm !font-bold !text-indigo-900" />
+        ) : (
+          <span className="block rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-bold text-slate-700" aria-label={`${currentStage.label} status`}>{currentStage.options.find((option) => option.value === value)?.label ?? value.replaceAll("_", " ")}</span>
+        )}
       </div>
       <div className="mt-3 grid grid-cols-5 gap-1.5" aria-label={`${view.index} of ${STAGES.length} admission stages complete`}>
-        {STAGES.map((stage, index) => (
-          <span key={stage.key} title={stage.label}
-            className={`h-1.5 rounded-full ${index < view.index ? "bg-emerald-400" : index === view.index ? "bg-indigo-500" : "bg-slate-200"}`} />
-        ))}
+        {STAGES.map((stage, index) => (<span key={stage.key} title={stage.label} className={`h-1.5 rounded-full ${index < view.index ? "bg-emerald-400" : index === view.index ? "bg-indigo-500" : "bg-slate-200"}`} />))}
       </div>
-      <p className="mt-2 text-[11px] font-medium text-slate-500">{saving ? "Saving stage…" : guidance[currentStage.key]}</p>
+      <p className="mt-2.5 text-xs font-medium leading-5 text-slate-500" aria-live="polite">{saving ? "Saving stage…" : guidance[currentStage.key]}</p>
     </div>
   );
 }

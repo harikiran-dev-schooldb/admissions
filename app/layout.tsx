@@ -11,6 +11,10 @@ const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"]
 export const metadata: Metadata = {
   title: { default: "SchoolDB Admissions", template: "%s | SchoolDB Admissions" },
   description: "School admissions, enquiry and eligibility management.",
+  applicationName: "SchoolDB Admissions",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: { capable: true, title: "SchoolDB", statusBarStyle: "default" },
+  icons: { icon: "/icon.svg", apple: "/apple-icon" },
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
