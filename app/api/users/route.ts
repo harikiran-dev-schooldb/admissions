@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { emailSet, isBootstrapAdmin, normalizeEmail } from "@/lib/auth/accessPolicy";
 import { requireAdminIdentity } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 
 export const dynamic = "force-dynamic";
 
@@ -50,8 +51,9 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-  const actor = await requireAdminIdentity();
-  if (actor.error) return actor.error;
+  const authorization = await requireAuditActor("admin");
+  if (authorization.error) return authorization.error;
+  const actor = authorization.actor;
 
   try {
     const parsed = createSchema.safeParse(await req.json());
@@ -82,6 +84,10 @@ export async function POST(req: Request) {
           afterRole: created.role,
           afterActive: true,
         },
+      });
+      await recordActivity(tx, actor, {
+        entityType: "USER", action: "CREATED", entityId: created.id,
+        entityLabel: created.email, after: created,
       });
       return created;
     });

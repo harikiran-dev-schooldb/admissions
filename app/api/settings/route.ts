@@ -4,6 +4,7 @@ import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
 import { requireAccess } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 
 const ageAsOfDateSchema = z.object({
   ageAsOfDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
@@ -27,15 +28,25 @@ export async function GET() {
 }
 
 export async function PUT(req: Request) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authorization = await requireAuditActor("admin");
+  if (authorization.error) return authorization.error;
+  const actor = authorization.actor;
   try {
     const parsed = ageAsOfDateSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json({ error: "Invalid age cutoff date", issues: parsed.error.flatten().fieldErrors }, { status: 400 });
-    const record = await prisma.admissionConfig.upsert({
-      where: { key: "ageAsOfDate" },
-      update: { value: parsed.data.ageAsOfDate },
-      create: { key: "ageAsOfDate", value: parsed.data.ageAsOfDate },
+    const record = await prisma.$transaction(async (tx) => {
+      const before = await tx.admissionConfig.findUnique({ where: { key: "ageAsOfDate" } });
+      const updated = await tx.admissionConfig.upsert({
+        where: { key: "ageAsOfDate" },
+        update: { value: parsed.data.ageAsOfDate },
+        create: { key: "ageAsOfDate", value: parsed.data.ageAsOfDate },
+      });
+      await recordActivity(tx, actor, {
+        entityType: "SETTINGS", action: before ? "UPDATED" : "CREATED",
+        entityId: updated.key, entityLabel: "Age calculation date",
+        before, after: updated,
+      });
+      return updated;
     });
     return NextResponse.json({ data: { ageAsOfDate: record.value } });
   } catch (error) {

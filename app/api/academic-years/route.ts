@@ -1,4 +1,5 @@
 import { getAuthorizedRole, requireAccess } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
@@ -31,12 +32,20 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const accessError = await requireAccess("admin");
-  if (accessError) return accessError;
+  const authorization = await requireAuditActor("admin");
+  if (authorization.error) return authorization.error;
+  const actor = authorization.actor;
   try {
     const parsed = academicYearCreateSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
-    const academicYear = await prisma.academicYear.create({ data: parsed.data });
+    const academicYear = await prisma.$transaction(async (tx) => {
+      const created = await tx.academicYear.create({ data: parsed.data });
+      await recordActivity(tx, actor, {
+        entityType: "ACADEMIC_YEAR", action: "CREATED", entityId: created.id,
+        entityLabel: created.academicYear, after: created,
+      });
+      return created;
+    });
     return NextResponse.json({ data: academicYear }, { status: 201 });
   } catch (error) {
     if (error instanceof SyntaxError) return NextResponse.json({ error: "Request body must be valid JSON" }, { status: 400 });

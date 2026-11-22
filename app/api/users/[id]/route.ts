@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { isBootstrapAdmin } from "@/lib/auth/accessPolicy";
 import { requireAdminIdentity } from "@/lib/auth/requireAccess";
+import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 
 type Context = { params: Promise<{ id: string }> };
 const updateSchema = z.object({
@@ -13,8 +14,9 @@ const updateSchema = z.object({
 });
 
 export async function PATCH(req: Request, { params }: Context) {
-  const actor = await requireAdminIdentity();
-  if (actor.error) return actor.error;
+  const authorization = await requireAuditActor("admin");
+  if (authorization.error) return authorization.error;
+  const actor = authorization.actor;
   try {
     const parsed = updateSchema.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json({ error: "Invalid role or account status" }, { status: 400 });
@@ -41,17 +43,22 @@ export async function PATCH(req: Request, { params }: Context) {
           updatedBy: actor.email,
         },
       });
+      const action = !nextActive && member.isActive ? "DEACTIVATED" :
+        nextActive && !member.isActive ? "REACTIVATED" : "ROLE_CHANGED";
       await tx.workspaceMemberAudit.create({
         data: {
           memberEmail: member.email,
           actorEmail: actor.email,
-          action: !nextActive && member.isActive ? "DEACTIVATED" :
-            nextActive && !member.isActive ? "REACTIVATED" : "ROLE_CHANGED",
+          action,
           beforeRole: member.role,
           afterRole: nextRole,
           beforeActive: member.isActive,
           afterActive: nextActive,
         },
+      });
+      await recordActivity(tx, actor, {
+        entityType: "USER", action, entityId: record.id,
+        entityLabel: record.email, before: member, after: record,
       });
       return record;
     });
