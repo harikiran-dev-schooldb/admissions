@@ -89,7 +89,7 @@ export default function NewFeeModal({ open, onClose, reload, defaultAcademicYear
               ariaLabel="Academic year"
               value={form.academicYear}
               onValueChange={(value) => updateField("academicYear", value)}
-              options={[form.academicYear, defaultAcademicYear, ...academicYears].filter((year, index, years) => year && years.indexOf(year) === index).map((year) => ({ label: year, value: year }))}
+              options={[...new Set(academicYears)].filter(Boolean).map((year) => ({ label: year, value: year }))}
             />
           </div>
 
