@@ -16,13 +16,21 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: "Choose a valid academic year" }, { status: 400 });
   }
   try {
-    // The dropdown needs only year names, not every historical fee record.
+    // Active configured years only; legacy and archived fee years stay stored but hidden.
     if (yearsOnly) {
-      const years = await withDatabaseRetry(() => prisma.feeRecord.groupBy({
-        by: ["academicYear"],
+      const years = await withDatabaseRetry(() => prisma.academicYear.findMany({
+        where: { isActive: true },
+        select: { academicYear: true },
         orderBy: { academicYear: "desc" },
       }));
       return NextResponse.json({ data: years, total: years.length }, { headers: { "Cache-Control": "private, no-store" } });
+    }
+    const matchingYear = await withDatabaseRetry(() => prisma.academicYear.findUnique({
+      where: { academicYear },
+      select: { isActive: true },
+    }));
+    if (!matchingYear?.isActive) {
+      return NextResponse.json({ data: [], total: 0 }, { headers: { "Cache-Control": "private, no-store" } });
     }
     const fees = await withDatabaseRetry(() => prisma.feeRecord.findMany({
       where: { academicYear },
