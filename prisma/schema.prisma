@@ -48,6 +48,10 @@ model Admission {
   /// *
   ///    * DATES
   enquiryDate    DateTime             @default(now())
+  entranceScheduledAt    DateTime?
+  entranceAssignedEmail  String?
+  interviewScheduledAt   DateTime?
+  interviewAssignedEmail String?
 
   followUps       AdmissionFollowUp[]
 
@@ -242,4 +246,35 @@ model PushDelivery {
 
   @@unique([subscriptionId, followUpId, reminderKind])
   @@index([sentAt])
+}
+
+/** Durable, private per-user alerts; eventKey makes retries idempotent. */
+model NotificationEvent {
+  id            String   @id @default(cuid())
+  email         String
+  eventKey      String
+  type          String
+  title         String
+  body          String
+  href          String   @default("/admissions")
+  createdAt     DateTime @default(now())
+  readAt        DateTime?
+  pushSentAt    DateTime?
+  pushClaimedAt DateTime?
+
+  @@unique([email, eventKey])
+  @@index([email, createdAt(sort: Desc)])
+  @@index([pushSentAt, createdAt])
+}
+
+/** Per-account alert preferences. Admin and Staff options are role-restricted. */
+model NotificationPreference {
+  id           String   @id @default(cuid())
+  email        String
+  type         String
+  inAppEnabled Boolean  @default(true)
+  pushEnabled  Boolean  @default(true)
+  updatedAt    DateTime @updatedAt
+
+  @@unique([email, type])
 }
