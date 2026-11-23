@@ -15,37 +15,35 @@ const fees = [
   ...Array.from({ length: 13 }, () => ({ academicYear: "2026-27" })),
 ];
 
-test("all 52 historical fees have a selectable academic year", () => {
-  assert.deepEqual(getFeeYearOptions(years, fees), ["2027-28", "2026-27", "2025-26", "2024-25", "2023-24"]);
+test("fees dropdown contains only active configured academic years", () => {
+  assert.deepEqual(getFeeYearOptions(years, fees), ["2027-28", "2026-27", "2025-26"]);
 });
 
-test("defaults to newest academic year even before any fees are configured", () => {
-  assert.equal(selectDefaultFeeYear(years, fees, ""), "2027-28");
-});
-
-test("honors explicit selection even for archived 2024-25", () => {
-  assert.equal(selectDefaultFeeYear(years, fees, "2024-25"), "2024-25");
-});
-
-test("when there are no fee records, selects newest active year", () => {
+test("defaults to newest active academic year even if no fees are configured", () => {
   assert.equal(selectDefaultFeeYear(years, [], ""), "2027-28");
 });
 
-test("when no active years exist, historical records remain viewable", () => {
-  assert.equal(selectDefaultFeeYear([], fees, ""), "2026-27");
+test("inactive and legacy fee-year selections revert to the latest active year", () => {
+  for (const year of ["2024-25", "2023-24", "2040-41"]) {
+    assert.equal(selectDefaultFeeYear(years, fees, year), "2027-28");
+  }
+  assert.equal(selectDefaultFeeYear(years, fees, "2025-26"), "2025-26");
 });
 
-test("an unknown selected year falls back to latest", () => {
-  assert.equal(selectDefaultFeeYear(years, fees, "2040-41"), "2027-28");
+test("when no active years exist, historical fee structures remain stored but are hidden", () => {
+  assert.deepEqual(getFeeYearOptions([], fees), []);
+  assert.equal(selectDefaultFeeYear([], fees, ""), "");
+  assert.equal(selectDefaultFeeYear([{ academicYear: "2023-24", isActive: false }], fees, "2023-24"), "");
 });
 
-test("latest configured archived year remains default and historical options stay selectable", () => {
+test("latest configured archived year never displaces an active year", () => {
   const archived = [...years, { academicYear: "2028-29", isActive: false }];
-  assert.equal(selectDefaultFeeYear(archived, fees, ""), "2028-29");
+  assert.equal(selectDefaultFeeYear(archived, fees, ""), "2027-28");
   assert.equal(selectDefaultFeeYear(archived, fees, "2026-27"), "2026-27");
+  assert.equal(selectDefaultFeeYear(archived, fees, "2028-29"), "2027-28");
 });
 
-test("latest configured academic year wins even if legacy fee rows have a later year", () => {
+test("legacy fee years do not add unconfigured options", () => {
   assert.equal(selectDefaultFeeYear(years, [...fees, { academicYear: "2030-31" }], ""), "2027-28");
-  assert.equal(selectDefaultFeeYear(years, [...fees, { academicYear: "2030-31" }], "2030-31"), "2030-31");
+  assert.equal(selectDefaultFeeYear(years, [...fees, { academicYear: "2030-31" }], "2030-31"), "2027-28");
 });
