@@ -6,10 +6,10 @@ const source = (path) => readFileSync(path, "utf8");
 
 test("fee page resolves configured academic year before requesting or displaying records", () => {
   const page = source("app/fees/page.tsx");
-  assert.match(page, /const yearReady = !yearsLoading && \(managedAcademicYears\.length > 0 \|\| !feeYearsLoading\)/);
+  assert.match(page, /const yearReady = !yearsLoading/);
   assert.match(page, /const academicYear = !yearReady \? ""/);
   assert.match(page, /useFees\(academicYear\)/);
-  assert.match(page, /getFeeYearOptions\(managedAcademicYears, feeYears\)/);
+  assert.match(page, /getFeeYearOptions\(managedAcademicYears, \[\]\)/);
   assert.match(page, /loading = !yearReady \|\| feesLoading/);
   assert.match(page, /canManage && !loading && <FeesKPISection/);
 });
@@ -20,8 +20,9 @@ test("fee API returns only selected year's records and supports metadata-only ye
   assert.match(api, /searchParams\.get\("academicYear"\)/);
   assert.match(api, /!yearsOnly && \(!academicYear/);
   assert.match(api, /where: \{ academicYear \}/);
-  assert.match(api, /prisma\.feeRecord\.groupBy\(\{/);
-  assert.match(api, /by: \["academicYear"\]/);
+  assert.match(api, /prisma\.academicYear\.findMany\(\{/);
+  assert.match(api, /where: \{ isActive: true \}/);
+  assert.match(api, /if \(!matchingYear\?\.isActive\)/);
   assert.match(hook, /if \(!academicYear\) return/);
   assert.match(hook, /"\/api\/fees\?academicYear=" \+ encodeURIComponent\(academicYear\)/);
   assert.match(hook, /result\.key === key/);
