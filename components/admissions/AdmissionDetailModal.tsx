@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   CalendarClock, CalendarDays, CheckCircle2, ClipboardCopy, Download, GraduationCap,
-  History, LayoutDashboard, MessageCircle, MessagesSquare, ReceiptText, UserRound, X,
+  Clock3, History, LayoutDashboard, MessageCircle, MessagesSquare, ReceiptText, UserRound, X,
 } from "lucide-react";
 import { toast } from "sonner";
 import type { Admission } from "@/src/generated/prisma/client";
@@ -12,6 +12,7 @@ import { downloadAdmissionCsv } from "@/services/export.service";
 import AdmissionFeePreview from "@/components/admissions/AdmissionFeePreview";
 import AdmissionFollowUpManager from "@/components/admissions/AdmissionFollowUpManager";
 import AdmissionSchedulePanel from "@/components/admissions/AdmissionSchedulePanel";
+import AdmissionActivityLogs from "@/components/admissions/AdmissionActivityLogs";
 import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 
 type Props = {
@@ -28,6 +29,7 @@ const PROFILE_TABS = [
   { id: "followups", label: "Follow-ups", icon: MessagesSquare },
   { id: "fees", label: "Fees", icon: ReceiptText },
   { id: "timeline", label: "Timeline", icon: History },
+  { id: "logs", label: "Logs", icon: Clock3 },
 ] as const;
 
 type ProfileTab = (typeof PROFILE_TABS)[number]["id"];
@@ -302,6 +304,10 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
 
             {activeTab === "fees" && (
               <AdmissionFeePreview key={student.id} student={student} onClose={() => setActiveTab("overview")} />
+            )}
+
+            {activeTab === "logs" && (
+              <AdmissionActivityLogs key={student.id} admissionId={student.id} />
             )}
 
             {activeTab === "timeline" && (
