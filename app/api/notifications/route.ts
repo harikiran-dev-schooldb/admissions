@@ -37,6 +37,8 @@ export async function GET() {
     const taskItems = tasks.map((task) => ({ ...task, kind: "FOLLOW_UP" as const }));
     return NextResponse.json({
       data: [...eventItems, ...taskItems], total: eventItems.length + taskCount,
+      mutedDue: allowed.get("FOLLOW_UP_DUE") === false,
+      mutedOverdue: allowed.get("FOLLOW_UP_OVERDUE") === false,
     }, { headers: noStore });
   } catch {
     console.error("NOTIFICATIONS_GET_ERROR");
