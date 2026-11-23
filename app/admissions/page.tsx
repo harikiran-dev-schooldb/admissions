@@ -179,7 +179,7 @@ export default function AdmissionsPage() {
           )}
           {(error || yearsError || (canManage && summaryError) || classesError) && <div role="alert" className="rounded-2xl border border-red-200 bg-red-50/90 p-4 text-sm font-semibold text-red-700 shadow-sm">{yearsError || error || (canManage && summaryError) || classesError}</div>}
           {(role === "staff" || role === "admin") && academicYear && (
-            <FollowUpQueue academicYear={academicYear} role={role} refreshToken={followUpRefresh}
+            <FollowUpQueue key={academicYear} academicYear={academicYear} role={role} refreshToken={followUpRefresh}
               onOpenAdmission={(id) => void openAdmissionFromQueue(id)} />
           )}
           <AdmissionsTable

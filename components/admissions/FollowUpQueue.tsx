@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { CalendarClock, ChevronLeft, ChevronRight, Eye, PhoneCall } from "lucide-react";
+import { indiaTodayBounds } from "@/lib/followUps/indiaDayBounds";
 import FollowUpCompletion from "@/components/admissions/FollowUpCompletion";
 import type { FollowUpItem, FollowUpResponse } from "@/types/followUps";
 
@@ -15,9 +16,7 @@ const tabs: { key: Tab; label: string }[] = [
 
 function queueSearch(year: string, tab: Tab, page: number) {
   const query = new URLSearchParams({ academicYear: year, status: tab === "completed" ? "COMPLETED" : "OPEN", page: String(page) });
-  const today = new Date();
-  const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-  const tomorrow = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
+  const { start, tomorrow } = indiaTodayBounds();
   if (tab === "overdue") query.set("before", start.toISOString());
   if (tab === "today") { query.set("after", start.toISOString()); query.set("before", tomorrow.toISOString()); }
   if (tab === "upcoming") query.set("after", tomorrow.toISOString());
@@ -34,40 +33,46 @@ export default function FollowUpQueue({
 }) {
   const [tab, setTab] = useState<Tab>("overdue");
   const [page, setPage] = useState(1);
-  const [data, setData] = useState<FollowUpItem[]>([]);
-  const [total, setTotal] = useState(0);
-  const [pageSize, setPageSize] = useState(30);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [refresh, setRefresh] = useState(0);
   const [completing, setCompleting] = useState("");
+  // Role and query changes invalidate the prior response before another request finishes.
+  const requestKey = `${academicYear}|${role}|${tab}|${page}|${refreshToken}|${refresh}`;
+  const [result, setResult] = useState<{
+    key: string; data: FollowUpItem[]; total: number; pageSize: number; error: string;
+  }>({ key: "", data: [], total: 0, pageSize: 30, error: "" });
+  const current = result.key === requestKey;
+  const data = current ? result.data : [];
+  const total = current ? result.total : 0;
+  const pageSize = current ? result.pageSize : 30;
+  const error = current ? result.error : "";
+  const loading = !current;
 
-  const reload = useCallback(async (signal?: AbortSignal) => {
-    if (!academicYear) return;
-    setLoading(true);
-    try {
-      const response = await fetch("/api/follow-ups?" + queueSearch(academicYear, tab, page).toString(), { cache: "no-store", signal });
-      const body = await response.json() as FollowUpResponse;
-      if (!response.ok) throw new Error(body.error || "Unable to load scheduled calls");
-      if (signal?.aborted) return;
-      setData(body.data);
-      setTotal(body.total);
-      setPageSize(body.pageSize);
-      setError("");
-    } catch (caught) {
-      if (signal?.aborted) return;
-      setData([]);
-      setTotal(0);
-      setError(caught instanceof Error ? caught.message : "Unable to load follow-ups");
-    } finally {
-      if (!signal?.aborted) setLoading(false);
-    }
-  }, [academicYear, tab, page]);
+  const reload = useCallback(() => setRefresh((value) => value + 1), []);
 
   useEffect(() => {
+    if (!academicYear) return;
     const controller = new AbortController();
-    void reload(controller.signal);
+    fetch("/api/follow-ups?" + queueSearch(academicYear, tab, page).toString(), {
+      cache: "no-store", signal: controller.signal,
+    })
+      .then(async (response) => {
+        const body = await response.json() as FollowUpResponse;
+        if (!response.ok) throw new Error(body.error || "Unable to load scheduled calls");
+        return body;
+      })
+      .then((body) => {
+        if (!controller.signal.aborted) setResult({
+          key: requestKey, data: body.data, total: body.total, pageSize: body.pageSize, error: "",
+        });
+      })
+      .catch((caught: unknown) => {
+        if (!controller.signal.aborted) setResult({
+          key: requestKey, data: [], total: 0, pageSize: 30,
+          error: caught instanceof Error ? caught.message : "Unable to load follow-ups",
+        });
+      });
     return () => controller.abort();
-  }, [reload, refreshToken]);
+  }, [academicYear, role, tab, page, requestKey]);
 
   function selectTab(next: Tab) {
     setTab(next);
@@ -95,7 +100,7 @@ export default function FollowUpQueue({
         ))}
       </div>
       {tab === "overdue" && !loading && !error && total > 0 && <p role="status" className="mt-4 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-bold text-amber-900">{total} overdue follow-up{total === 1 ? "" : "s"} need attention. Open an enquiry or log the outcome below.</p>}
-      {error && <p role="alert" className="mt-4 rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{error}</p>}
+      {error && <div role="alert" className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-rose-50 p-3 text-sm text-rose-700"><span>{error}</span><button type="button" onClick={reload} className="rounded-lg border border-rose-200 bg-white px-3 py-2 font-bold text-rose-700 hover:bg-rose-100">Retry</button></div>}
       <div className="mt-5 space-y-3" aria-live="polite">
         {loading && <p className="p-5 text-sm text-slate-500">Loading follow-ups…</p>}
         {!loading && !error && data.length === 0 && (
@@ -128,7 +133,7 @@ export default function FollowUpQueue({
               </div>
             </div>
             {completing === item.id && item.status === "OPEN" && (
-              <FollowUpCompletion id={item.id} onDone={() => { setCompleting(""); void reload(); }} />
+              <FollowUpCompletion id={item.id} onDone={() => { setCompleting(""); reload(); }} />
             )}
           </article>
         ))}
@@ -137,10 +142,10 @@ export default function FollowUpQueue({
         <footer className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 pt-4 text-xs font-semibold text-slate-600">
           <span>{total.toLocaleString("en-IN")} matching follow-ups</span>
           <div className="flex items-center gap-2">
-            <button aria-label="Previous follow-up page" type="button" disabled={page <= 1} onClick={() => setPage((n) => n - 1)}
+            <button aria-label="Previous follow-up page" type="button" disabled={loading || page <= 1} onClick={() => setPage((n) => n - 1)}
               className="grid size-9 place-items-center rounded-lg border border-slate-200 disabled:opacity-40"><ChevronLeft className="size-4" /></button>
             Page {page} of {Math.max(1, Math.ceil(total / pageSize))}
-            <button aria-label="Next follow-up page" type="button" disabled={page * pageSize >= total} onClick={() => setPage((n) => n + 1)}
+            <button aria-label="Next follow-up page" type="button" disabled={loading || page * pageSize >= total} onClick={() => setPage((n) => n + 1)}
               className="grid size-9 place-items-center rounded-lg border border-slate-200 disabled:opacity-40"><ChevronRight className="size-4" /></button>
           </div>
         </footer>

@@ -1,6 +1,7 @@
 "use client";
 
-import { CalendarDays, ChevronLeft, ChevronRight, Eye, Hash, MessageCircle, Phone, Search, SlidersHorizontal, UserRound, UsersRound, X } from "lucide-react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, Hash, MessageCircle, Phone, Search, SlidersHorizontal, UserRound, UsersRound, X } from "lucide-react";
+import { useState } from "react";
 import { ADMISSION_PAGE_SIZES, type AdmissionPageSize } from "@/lib/admissions/pagination";
 import { formatAdmissionDob } from "@/lib/admissions/formatAdmissionDob";
 import type { Admission } from "@/src/generated/prisma/client";
@@ -39,7 +40,10 @@ export default function AdmissionTable({
   applicationFilter, setApplicationFilter, page, pageSize, totalPages, onPageChange,
   onPageSizeChange, onView, reload,
 }: Props) {
+  const [filtersOpen, setFiltersOpen] = useState(false);
   const hasActiveFilters = Boolean(search.trim()) || classFilter !== "ALL" || finalStatusFilter !== "ALL" || applicationFilter !== "ALL";
+  const activeAdvancedFilters = [classFilter, finalStatusFilter, applicationFilter].filter((value) => value !== "ALL").length;
+  const showMobileFilters = filtersOpen;
   const start = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, totalCount);
   const pageWindowStart = Math.max(1, Math.min(page - 2, totalPages - 4));
@@ -53,6 +57,7 @@ export default function AdmissionTable({
     setClassFilter("ALL");
     setFinalStatusFilter("ALL");
     setApplicationFilter("ALL");
+    setFiltersOpen(false);
   }
 
   return (
@@ -74,9 +79,15 @@ export default function AdmissionTable({
         <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
           <div className="relative min-w-0 flex-1">
             <Search className="absolute left-5 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
-            <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search student, parent, enquiry number or mobile…" className="h-14 w-full rounded-2xl border border-slate-200/80 bg-white/80 pl-14 pr-5 text-sm outline-none transition-all focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100" />
+            <input type="search" aria-label="Search admissions" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search student, parent, enquiry number or mobile…" className="h-14 w-full rounded-2xl border border-slate-200/80 bg-white/80 pl-14 pr-5 text-sm outline-none transition-all focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100" />
           </div>
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-3 xl:w-[620px]">
+          <button type="button" aria-controls="admission-advanced-filters" aria-expanded={showMobileFilters}
+            onClick={() => setFiltersOpen((open) => !open)}
+            className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-indigo-200 bg-white px-4 text-sm font-bold text-indigo-700 xl:hidden">
+            <span className="inline-flex items-center gap-2"><SlidersHorizontal className="size-4" />Filters{activeAdvancedFilters > 0 ? ` (${activeAdvancedFilters} active)` : ""}</span>
+            <ChevronDown className={`size-4 transition-transform ${showMobileFilters ? "rotate-180" : ""}`} />
+          </button>
+          <div id="admission-advanced-filters" className={`${showMobileFilters ? "grid" : "hidden"} grid-cols-1 gap-2 sm:grid-cols-3 xl:grid xl:w-[620px]`}>
             <SchoolDbSelect ariaLabel="Filter by class" value={classFilter} onValueChange={setClassFilter} options={[{ label: "All classes", value: "ALL" }, ...classOptions.map((value) => ({ label: value, value }))]} />
             <SchoolDbSelect ariaLabel="Filter by admission status" value={finalStatusFilter} onValueChange={setFinalStatusFilter} options={[{ label: "All admission status", value: "ALL" }, { label: "Pending", value: "PENDING" }, { label: "Admitted", value: "ADMITTED" }, { label: "Cancelled", value: "CANCELLED" }]} />
             <SchoolDbSelect ariaLabel="Filter by application status" value={applicationFilter} onValueChange={setApplicationFilter} options={[{ label: "All applications", value: "ALL" }, { label: "Not started", value: "NO" }, { label: "Started", value: "YES" }, { label: "Submitted", value: "SUBMITTED" }]} />
