@@ -8,6 +8,7 @@ import { formatAdmissionDob } from "@/lib/admissions/formatAdmissionDob";
 import { downloadAdmissionCsv } from "@/services/export.service";
 import AdmissionFeePreview from "@/components/admissions/AdmissionFeePreview";
 import AdmissionFollowUpManager from "@/components/admissions/AdmissionFollowUpManager";
+import AdmissionSchedulePanel from "@/components/admissions/AdmissionSchedulePanel";
 import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 
 type Props = {
@@ -198,6 +199,8 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
               <StagePill label="Final admission" value={student.finalAdmission} />
             </div>
           </DetailCard>
+
+          <AdmissionSchedulePanel key={student.id} student={student} onChanged={onFollowUpChanged} />
 
           <AdmissionFollowUpManager key={student.id} admissionId={student.id}
             isOpenAdmission={student.finalAdmission === "PENDING"} onChanged={onFollowUpChanged} />
