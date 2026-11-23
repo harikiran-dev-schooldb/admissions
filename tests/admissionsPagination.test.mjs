@@ -49,12 +49,15 @@ test("latest year wins despite old server recommendation and missing enrolments"
   assert.equal(selectDefaultAdmissionYear(years, ""), "2027-28");
 });
 
-test("explicit archived selection remains viewable and invalid year falls back to newest", () => {
+test("inactive academic years are never selectable or chosen as the default", () => {
   const years = [
     { academicYear: "2028-29", isActive: false, admissionsCount: 0 },
     { academicYear: "2027-28", isActive: true, admissionsCount: 50 },
+    { academicYear: "2026-27", isActive: true, admissionsCount: 20 },
   ];
-  assert.equal(selectDefaultAdmissionYear(years, ""), "2028-29");
-  assert.equal(selectDefaultAdmissionYear(years, "2027-28"), "2027-28");
-  assert.equal(selectDefaultAdmissionYear(years, "2040-41"), "2028-29");
+  assert.equal(selectDefaultAdmissionYear(years, ""), "2027-28");
+  assert.equal(selectDefaultAdmissionYear(years, "2028-29"), "2027-28");
+  assert.equal(selectDefaultAdmissionYear(years, "2026-27"), "2026-27");
+  assert.equal(selectDefaultAdmissionYear(years, "2040-41"), "2027-28");
+  assert.equal(selectDefaultAdmissionYear([{ academicYear: "2028-29", isActive: false }], ""), "");
 });
