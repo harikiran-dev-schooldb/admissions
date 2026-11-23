@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { deliverPushToEmail } from "@/lib/notifications/deliverToEmail";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
@@ -8,6 +9,7 @@ import { parsePage } from "@/lib/admissions/pagination";
 
 const noStore = { "Cache-Control": "private, no-store, max-age=0" };
 const PAGE_SIZE = 30;
+export const maxDuration = 30;
 
 export async function GET(req: Request) {
   const authz = await requireAuditActor("read");
@@ -97,6 +99,20 @@ export async function POST(req: Request) {
         entityLabel: admission.enquiryNo, after: item,
       });
       return item;
+    });
+    // Push assignment immediately rather than waiting for the once-daily cron.
+    // after() keeps notification delivery from delaying or reversing the saved follow-up.
+    after(async () => {
+      try {
+        await deliverPushToEmail(assignedToEmail, {
+          title: "New admission follow-up assigned",
+          body: "A follow-up is waiting for you in SchoolDB Admissions.",
+          tag: `follow-up-assigned-${created.id}`,
+          url: "/admissions",
+        });
+      } catch {
+        console.error("FOLLOW_UP_ASSIGNMENT_PUSH_FAILED");
+      }
     });
     return NextResponse.json({ data: created }, { status: 201, headers: noStore });
   } catch (error) {
