@@ -53,6 +53,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 ::selection { background: color-mix(in oklab, var(--primary) 18%, transparent); color: var(--foreground); }
 
 .premium-page { min-height: 100vh; color: var(--foreground); }
+/* Keep scrollable content clear of the anchored PWA navigation and iOS home indicator. */
+@media (max-width: 1023px) {
+  .premium-page { padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); }
+}
 .premium-topbar {
   border-bottom: 1px solid color-mix(in oklab, var(--primary) 12%, var(--border));
   background: rgb(255 255 255 / .92);

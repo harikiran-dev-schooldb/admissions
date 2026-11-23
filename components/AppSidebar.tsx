@@ -1,8 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { createPortal } from "react-dom";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { authClient } from "@/lib/auth/client";
 import { useAccess } from "@/hooks/useAccess";
 import AccountMenu from "@/components/AccountMenu";
@@ -29,6 +30,11 @@ const nav: NavItem[] = [
   { label: "Users & Roles", href: "/users", icon: UserRoundCog, group: "Administration", adminOnly: true },
   { label: "Audit Logs", href: "/audit-logs", icon: History, group: "Administration", adminOnly: true },
 ];
+
+// Server markup remains identical during hydration; the navigation can portal after hydration.
+const subscribeToClient = () => () => {};
+const getClientSnapshot = () => true;
+const getServerSnapshot = () => false;
 
 function isActiveRoute(href: string, pathname: string) {
   return pathname === href || (href !== "/admissions" && pathname.startsWith(href + "/"));
@@ -57,7 +63,10 @@ export default function AppSidebar() {
   const [signingOut, setSigningOut] = useState(false);
   const [signOutError, setSignOutError] = useState("");
   const [moreOpen, setMoreOpen] = useState(false);
+  const mobileNavReady = useSyncExternalStore(subscribeToClient, getClientSnapshot, getServerSnapshot);
   const moreRef = useRef<HTMLDivElement>(null);
+
+  // Portaling to body avoids mobile Safari treating fixed bars as part of a scrolling page.
   const visibleNav = nav.filter((item) => !item.adminOnly || role === "admin");
   const visibleGroups = (["Workspace", "Administration"] as const).filter((group) => visibleNav.some((item) => item.group === group));
   const mobilePrimary = visibleNav.slice(0, 4);
@@ -170,9 +179,10 @@ export default function AppSidebar() {
       </header>
       {signOutError && <div role="alert" className="fixed inset-x-3 top-20 z-50 rounded-xl bg-rose-50 p-3 text-center text-xs font-bold text-rose-700 lg:hidden">{signOutError}</div>}
 
+      {mobileNavReady && createPortal(
       <div ref={moreRef} className="lg:hidden">
         {mobileSecondary.length > 0 && moreOpen && (
-          <div className="fixed inset-x-4 bottom-24 z-50 rounded-[23px] border border-indigo-100 bg-white p-2 shadow-[0_20px_70px_rgba(15,23,42,.22)]">
+          <div style={{ bottom: "calc(6rem + env(safe-area-inset-bottom, 0px))" }} className="fixed inset-x-4 bottom-24 z-50 rounded-[23px] border border-indigo-100 bg-white p-2 shadow-[0_20px_70px_rgba(15,23,42,.22)]">
             <div className="flex items-center justify-between px-3 py-2">
               <p className="text-[11px] font-black uppercase tracking-[.16em] text-slate-400">More destinations</p>
               <button type="button" onClick={() => setMoreOpen(false)} aria-label="Close more navigation" className="grid size-8 place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><X className="size-4" /></button>
@@ -181,7 +191,7 @@ export default function AppSidebar() {
               <NavLink key={item.href} item={item} active={isActiveRoute(item.href, pathname)} onNavigate={() => setMoreOpen(false)} />)}
           </div>
         )}
-        <nav aria-label="Mobile navigation" className={`fixed inset-x-3 bottom-3 z-40 grid ${mobileNavColumns} gap-1 rounded-[24px] border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl`}>
+        <nav aria-label="Mobile navigation" style={{ bottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }} className={`fixed inset-x-3 bottom-3 z-40 grid ${mobileNavColumns} gap-1 rounded-[24px] border border-slate-200 bg-white/95 p-2 shadow-[0_18px_50px_rgba(15,23,42,.16)] backdrop-blur-2xl`}>
           {mobilePrimary.map((item) => {
             const Icon = item.icon;
             const active = isActiveRoute(item.href, pathname);
@@ -199,7 +209,9 @@ export default function AppSidebar() {
             More
           </button>}
         </nav>
-      </div>
+      </div>,
+      document.body,
+      )}
     </>
   );
 }

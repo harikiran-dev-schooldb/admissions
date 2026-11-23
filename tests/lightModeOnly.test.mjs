@@ -8,7 +8,7 @@ const read = (path) => readFileSync(path, "utf8");
 test("all app routes, including the installed PWA, declare light-only appearance", () => {
   const layout = read("app/layout.tsx");
   const css = read("app/globals.css");
-  assert.match(layout, /export const viewport: Viewport = \{ colorScheme: "light" \}/);
+  assert.match(layout, /export const viewport: Viewport = \{[^}]*colorScheme: "light"[^}]*\}/);
   assert.match(css, /:root\s*\{[^}]*color-scheme:\s*light;/s);
   assert.match(css, /--background:\s*oklch\(0\.975/);
 });
