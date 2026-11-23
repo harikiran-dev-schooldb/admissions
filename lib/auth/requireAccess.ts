@@ -46,7 +46,18 @@ export async function getAuthorizedRole(): Promise<AccessResult> {
 
     // No database dependency is needed to recover from a broken migration.
     const bootstrapRole = resolveAccessRole(email, admins, undefined);
-    if (bootstrapRole === "admin") return { role: "admin", email, name: displayMemberName(email, name), error: null };
+    if (bootstrapRole === "admin") {
+      // Recovery admins remain authorized even if the workspace database is
+      // temporarily unavailable. A saved display name is best-effort metadata.
+      let savedName: string | null | undefined;
+      try {
+        const profile = await prisma.workspaceMember.findUnique({
+          where: { email }, select: { name: true },
+        });
+        savedName = profile?.name;
+      } catch { /* Do not make bootstrap access depend on the database. */ }
+      return { role: "admin", email, name: displayMemberName(email, savedName || name), error: null };
+    }
 
     const member = await prisma.workspaceMember.findUnique({
       where: { email },
