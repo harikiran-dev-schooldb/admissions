@@ -104,6 +104,11 @@ export async function POST(req: Request) {
     // after() keeps notification delivery from delaying or reversing the saved follow-up.
     after(async () => {
       try {
+        const pref = await prisma.notificationPreference.findUnique({
+          where: { email_type: { email: assignedToEmail, type: "FOLLOW_UP_ASSIGNED" } },
+          select: { pushEnabled: true },
+        });
+        if (pref?.pushEnabled === false) return;
         await deliverPushToEmail(assignedToEmail, {
           title: "New admission follow-up assigned",
           body: "A follow-up is waiting for you in SchoolDB Admissions.",

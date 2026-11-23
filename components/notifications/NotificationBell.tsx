@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, BellRing, CheckCheck, Clock3, RefreshCw } from "lucide-react";
 import { useAccess } from "@/hooks/useAccess";
 import { toast } from "sonner";
+import NotificationPreferences from "@/components/notifications/NotificationPreferences";
 
 type Item = {
   id: string;
@@ -11,8 +12,12 @@ type Item = {
   assignedToEmail: string;
   note: string | null;
   admission: { enquiryNo: string; student: string };
+  kind?: "EVENT" | "FOLLOW_UP";
+  title?: string;
+  href?: string;
+  readAt?: string | null;
 };
-type Feed = { data: Item[]; total: number };
+type Feed = { data: Item[]; total: number; mutedDue?: boolean; mutedOverdue?: boolean };
 
 const POLL_MS = 60_000;
 const storageKey = (email: string) => `schooldb:notifications:read:${email.toLowerCase()}`;
@@ -21,6 +26,7 @@ const popupKey = (email: string) => `schooldb:notifications:popups:${email.toLow
 export default function NotificationBell() {
   const { email, role } = useAccess();
   const [open, setOpen] = useState(false);
+  const [preferencesOpen, setPreferencesOpen] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
   const [total, setTotal] = useState(0);
   const [readIds, setReadIds] = useState<string[]>([]);
@@ -84,15 +90,32 @@ export default function NotificationBell() {
         if (Array.isArray(parsed)) read = parsed;
       } catch { /* Unread state will be fetched separately. */ }
       const newDue = body.data.filter((item) => {
+        if (item.kind === "EVENT") return false;
         const due = new Date(item.dueAt).getTime();
         if (!Number.isFinite(due) || due > now + 60 * 60 * 1000 || read.includes(item.id)) return false;
         const kind = due <= now ? "OVERDUE" : "DUE_SOON";
+        if (kind === "OVERDUE" ? body.mutedOverdue : body.mutedDue) return false;
         const id = `${item.id}:${kind}`;
         if (alerted.current.has(id) || seen[id]) return false;
         alerted.current.add(id);
         seen[id] = now;
         return true;
       });
+      const freshEvents = body.data.filter((item) => {
+        if (item.kind !== "EVENT" || item.readAt || read.includes(item.id)) return false;
+        if (alerted.current.has(item.id) || seen[item.id]) return false;
+        alerted.current.add(item.id);
+        seen[item.id] = now;
+        return true;
+      });
+      if (freshEvents.length) {
+        const firstEvent = freshEvents[0];
+        toast.info(freshEvents.length > 1 ? `${freshEvents.length} SchoolDB admission updates` : (firstEvent.title || "SchoolDB update"), {
+          description: firstEvent.note || "View your latest admission updates",
+          action: { label: "Open", onClick: () => window.location.assign(firstEvent.href || "/admissions") },
+          duration: 9000,
+        });
+      }
       if (newDue.length) {
         const first = newDue[0];
         const overdue = new Date(first.dueAt).getTime() <= now;
@@ -102,6 +125,8 @@ export default function NotificationBell() {
           action: { label: "Open", onClick: () => window.location.assign("/admissions") },
           duration: 9000,
         });
+      }
+      if (newDue.length || freshEvents.length) {
         try {
           localStorage.setItem(seenKey, JSON.stringify(Object.entries(seen)
             .filter(([, timestamp]) => typeof timestamp === "number" && now - timestamp < 7 * 24 * 60 * 60 * 1000)
@@ -124,13 +149,23 @@ export default function NotificationBell() {
     return () => { window.clearInterval(interval); window.removeEventListener("focus", onFocus); };
   }, [refresh]);
 
-  const unread = useMemo(() => items.filter((item) => !readIds.includes(item.id)), [items, readIds]);
+  const unread = useMemo(() => items.filter((item) =>
+    !readIds.includes(item.id) && (item.kind !== "EVENT" || !item.readAt)), [items, readIds]);
   const count = unread.length;
   function markRead(ids: string[]) {
     if (!email) return;
     const next = Array.from(new Set([...readIds, ...ids])).slice(-500);
     setReadIds(next);
     localStorage.setItem(storageKey(email), JSON.stringify(next));
+    const eventIds = ids.filter((id) => id.startsWith("event:"));
+    if (eventIds.length) {
+      void fetch("/api/notifications", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ids: eventIds }),
+      }).then((response) => {
+        if (!response.ok) throw new Error("Could not save read state");
+      }).catch(() => { /* The next refresh will reconcile the server state. */ });
+    }
   }
   async function enableAlerts() {
     setPushError("");
@@ -224,16 +259,22 @@ export default function NotificationBell() {
       <div className="mt-3 max-h-[360px] space-y-2 overflow-y-auto">
         {!items.length && <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">No open tasks assigned to you.</p>}
         {items.map((item) => {
-          const overdue = new Date(item.dueAt).getTime() < Date.now();
-          return <button type="button" key={item.id} onClick={() => { markRead([item.id]); setOpen(false); window.location.assign("/admissions"); }}
+          const isEvent = item.kind === "EVENT";
+          const overdue = !isEvent && new Date(item.dueAt).getTime() < Date.now();
+          return <button type="button" key={item.id} onClick={() => { markRead([item.id]); setOpen(false); window.location.assign(item.href || "/admissions"); }}
             className={`block w-full rounded-xl border p-3 text-left hover:border-indigo-300 ${readIds.includes(item.id) ? "border-slate-100 bg-white" : "border-indigo-100 bg-indigo-50/70"}`}>
-            <span className="flex items-center gap-1 text-xs font-extrabold text-slate-900"><Clock3 className="size-3.5" />{overdue ? "Overdue task" : "Upcoming task"} · {item.admission.enquiryNo}</span>
-            <span className="mt-1 block truncate text-xs font-semibold text-slate-700">{item.admission.student}</span>
+            <span className="flex items-center gap-1 text-xs font-extrabold text-slate-900"><Clock3 className="size-3.5" />{isEvent ? item.title : `${overdue ? "Overdue task" : "Upcoming task"} · ${item.admission.enquiryNo}`}</span>
+            {!isEvent && <span className="mt-1 block truncate text-xs font-semibold text-slate-700">{item.admission.student}</span>}
             <span className="mt-1 block line-clamp-2 text-xs text-slate-500">{item.note || "Parent follow-up"}</span>
-            <span className={`mt-1 block text-[11px] font-bold ${overdue ? "text-rose-700" : "text-indigo-700"}`}>Due {new Date(item.dueAt).toLocaleString()}</span>
+            <span className={`mt-1 block text-[11px] font-bold ${overdue ? "text-rose-700" : "text-indigo-700"}`}>{isEvent ? new Date(item.dueAt).toLocaleString() : `Due ${new Date(item.dueAt).toLocaleString()}`}</span>
           </button>;
         })}
       </div>
+      <button type="button" aria-expanded={preferencesOpen} onClick={() => setPreferencesOpen((value) => !value)}
+        className="mt-3 w-full rounded-xl border border-indigo-200 bg-white p-2 text-xs font-bold text-indigo-700">
+        {preferencesOpen ? "Hide notification settings" : "Notification settings"}
+      </button>
+      {preferencesOpen && <NotificationPreferences />}
       {!pushEnabled && <button type="button" onClick={() => void enableAlerts()} className="mt-3 w-full rounded-xl bg-indigo-50 p-2 text-xs font-bold text-indigo-700">Enable background push notifications</button>}
       {pushEnabled && <div className="mt-3 grid grid-cols-2 gap-2">
         <button type="button" onClick={() => void sendTestPush()} disabled={testingPush}

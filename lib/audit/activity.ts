@@ -10,7 +10,7 @@ export type AuditValue = string | number | boolean | null;
 
 /** Explicit allowlist prevents storing DOB, phone, parent details, tokens, etc. */
 const auditableFields: Record<AuditEntity, readonly string[]> = {
-  ADMISSION: ["enquiryNo","academicYear","admClass","eligibleStatus","application","entrance","interview","finalAdmission","admissionGiven"],
+  ADMISSION: ["enquiryNo","academicYear","admClass","eligibleStatus","application","entrance","interview","finalAdmission","admissionGiven","entranceScheduledAt","interviewScheduledAt","entranceAssignedEmail","interviewAssignedEmail"],
   FEE: ["academicYear","className","age","termFee","annualFees"],
   ACADEMIC_YEAR: ["academicYear","startDate","endDate","isActive"],
   SETTINGS: ["key","value"],
