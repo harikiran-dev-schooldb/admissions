@@ -32,7 +32,7 @@ test("live academic-year dropdowns exclude inactive options without losing admin
   assert.ok(fees.includes("activeLinkedClass && activeAcademicYears.includes(linkedClass.year)"));
   assert.ok(fees.includes("activeLinkedClass?.year ?? selectDefaultFeeYear"));
   assert.ok(!fees.includes("useFeeYears()"));
-  assert.ok(yearsPage.includes('label: "INACTIVE"'));
+  assert.ok(yearsPage.includes('value: "INACTIVE"'));
 });
 
 test("fee API hides inactive-year records even for direct links, without deleting them", () => {
