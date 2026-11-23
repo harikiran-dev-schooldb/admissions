@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendWebPush } from "@/lib/notifications/webPush";
 import { queueAdminAlert, dispatchPendingAlerts } from "@/lib/notifications/events";
 import { indiaDayWindow } from "@/lib/notifications/catalog";
+import { resolveAccessRole } from "@/lib/auth/accessPolicy";
 
 export const runtime = "nodejs";
 export const maxDuration = 60;
@@ -28,9 +29,17 @@ export async function GET(request: Request) {
     select: { email: true, type: true, pushEnabled: true },
   });
   const prefs = new Map(reminderPreferences.map((p) => [`${p.email}:${p.type}`, p.pushEnabled]));
+  const members = await prisma.workspaceMember.findMany({
+    where: { email: { in: [...new Set(tasks.map((task) => task.assignedToEmail.toLowerCase()))] } },
+    select: { email: true, role: true, isActive: true },
+  });
+  const memberByEmail = new Map(members.map((member) => [member.email, member]));
   let sent = 0;
   let failed = 0;
   for (const task of tasks) {
+    const assigneeEmail = task.assignedToEmail.toLowerCase();
+    if (!resolveAccessRole(assigneeEmail, process.env.ADMISSIONS_ADMIN_EMAILS,
+      process.env.ADMISSIONS_STAFF_EMAILS, memberByEmail.get(assigneeEmail))) continue;
     const overdue = task.dueAt.getTime() <= now.getTime();
     const kind = overdue ? "OVERDUE" : "DUE_SOON";
     const preferenceType = overdue ? "FOLLOW_UP_OVERDUE" : "FOLLOW_UP_DUE";
