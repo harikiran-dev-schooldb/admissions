@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bell, BellRing, CheckCheck, Clock3, RefreshCw } from "lucide-react";
 import { useAccess } from "@/hooks/useAccess";
+import { toast } from "sonner";
 
 type Item = {
   id: string;
@@ -15,6 +16,7 @@ type Feed = { data: Item[]; total: number };
 
 const POLL_MS = 60_000;
 const storageKey = (email: string) => `schooldb:notifications:read:${email.toLowerCase()}`;
+const popupKey = (email: string) => `schooldb:notifications:popups:${email.toLowerCase()}`;
 
 export default function NotificationBell() {
   const { email, role } = useAccess();
@@ -26,6 +28,8 @@ export default function NotificationBell() {
   const alerted = useRef<Set<string>>(new Set());
   const popoverRef = useRef<HTMLDivElement>(null);
   const [pushEnabled, setPushEnabled] = useState(false);
+  const [testingPush, setTestingPush] = useState(false);
+  const [testFeedback, setTestFeedback] = useState("");
   const [pushError, setPushError] = useState("");
   const [permission, setPermission] = useState<NotificationPermission>("default");
 
@@ -65,18 +69,47 @@ export default function NotificationBell() {
       const body: Feed = await response.json();
       setItems(body.data);
       setTotal(body.total);
-      if ("Notification" in window && Notification.permission === "granted") {
-        const now = Date.now();
-        for (const item of body.data) {
-          const due = new Date(item.dueAt).getTime();
-          if (due <= now + 60 * 60 * 1000 && !alerted.current.has(item.id)) {
-            alerted.current.add(item.id);
-            new Notification(due < now ? "Overdue admission follow-up" : "Admission follow-up due soon", {
-              body: `${item.admission.enquiryNo}: ${item.admission.student}`,
-              tag: `schooldb-follow-up-${item.id}`,
-            });
-          }
-        }
+      // In-app popups work on iPhone PWAs too. The Notification constructor used
+      // previously is unsupported in iOS web apps and silently lost alerts.
+      const now = Date.now();
+      const seenKey = popupKey(email);
+      let seen: Record<string, number> = {};
+      try {
+        const parsed = JSON.parse(localStorage.getItem(seenKey) ?? "{}");
+        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) seen = parsed;
+      } catch { /* Ignore corrupted local popup history. */ }
+      let read: string[] = [];
+      try {
+        const parsed = JSON.parse(localStorage.getItem(storageKey(email)) ?? "[]");
+        if (Array.isArray(parsed)) read = parsed;
+      } catch { /* Unread state will be fetched separately. */ }
+      const newDue = body.data.filter((item) => {
+        const due = new Date(item.dueAt).getTime();
+        if (!Number.isFinite(due) || due > now + 60 * 60 * 1000 || read.includes(item.id)) return false;
+        const kind = due <= now ? "OVERDUE" : "DUE_SOON";
+        const id = `${item.id}:${kind}`;
+        if (alerted.current.has(id) || seen[id]) return false;
+        alerted.current.add(id);
+        seen[id] = now;
+        return true;
+      });
+      if (newDue.length) {
+        const first = newDue[0];
+        const overdue = new Date(first.dueAt).getTime() <= now;
+        toast.warning(newDue.length > 1 ? `${newDue.length} admission follow-ups need attention` :
+          overdue ? "Overdue admission follow-up" : "Admission follow-up due soon", {
+          description: `${first.admission.enquiryNo}: ${first.admission.student}`,
+          action: { label: "Open", onClick: () => window.location.assign("/admissions") },
+          duration: 9000,
+        });
+        try {
+          localStorage.setItem(seenKey, JSON.stringify(Object.entries(seen)
+            .filter(([, timestamp]) => typeof timestamp === "number" && now - timestamp < 7 * 24 * 60 * 60 * 1000)
+            .slice(-500).reduce<Record<string, number>>((acc, [key, timestamp]) => {
+              acc[key] = timestamp;
+              return acc;
+            }, {})));
+        } catch { /* Storage may be unavailable; session ref still prevents repeats. */ }
       }
     } catch {
       // Keep the last successfully loaded feed on transient network errors.
@@ -107,7 +140,12 @@ export default function NotificationBell() {
       }
       const permissionResult = await Notification.requestPermission();
       setPermission(permissionResult);
-      if (permissionResult !== "granted") return;
+      if (permissionResult !== "granted") {
+        setPushError(permissionResult === "denied"
+          ? "Notifications are blocked in device settings. Allow notifications for SchoolDB, then retry."
+          : "Allow notification permission to receive phone pop-ups.");
+        return;
+      }
       const keyResponse = await fetch("/api/notifications/subscriptions", { cache: "no-store" });
       if (!keyResponse.ok) throw new Error("Push setup unavailable");
       const { publicKey } = await keyResponse.json();
@@ -126,10 +164,28 @@ export default function NotificationBell() {
       });
       if (!response.ok) throw new Error("Could not save push subscription.");
       setPushEnabled(true);
+      setTestFeedback("");
+      toast.success("Push alerts enabled", { description: "Use Send test notification to verify the device banner." });
     } catch (error) {
       setPushError(error instanceof Error ? error.message : "Unable to enable notifications");
     }
   }
+  async function sendTestPush() {
+    setPushError("");
+    setTestFeedback("");
+    setTestingPush(true);
+    try {
+      const response = await fetch("/api/notifications/test", { method: "POST", cache: "no-store" });
+      const body: { error?: string; message?: string; accepted?: number } = await response.json();
+      if (!response.ok) throw new Error(body.error || "Test push delivery failed");
+      setTestFeedback(body.message || "Push provider accepted the test notification.");
+    } catch (error) {
+      setPushError(error instanceof Error ? error.message : "Unable to test notifications.");
+    } finally {
+      setTestingPush(false);
+    }
+  }
+
   async function disableAlerts() {
     setPushError("");
     try {
@@ -144,6 +200,7 @@ export default function NotificationBell() {
         await subscription.unsubscribe();
       }
       setPushEnabled(false);
+      setTestFeedback("");
     } catch (error) {
       setPushError(error instanceof Error ? error.message : "Unable to disable notifications");
     }
@@ -178,9 +235,19 @@ export default function NotificationBell() {
         })}
       </div>
       {!pushEnabled && <button type="button" onClick={() => void enableAlerts()} className="mt-3 w-full rounded-xl bg-indigo-50 p-2 text-xs font-bold text-indigo-700">Enable background push notifications</button>}
-      {pushEnabled && <button type="button" onClick={() => void disableAlerts()} className="mt-3 w-full rounded-xl bg-slate-50 p-2 text-xs font-bold text-slate-700">Disable background push notifications</button>}
+      {pushEnabled && <div className="mt-3 grid grid-cols-2 gap-2">
+        <button type="button" onClick={() => void sendTestPush()} disabled={testingPush}
+          className="rounded-xl bg-indigo-600 p-2 text-xs font-bold text-white hover:bg-indigo-700 disabled:opacity-50">
+          {testingPush ? "Sending test…" : "Send test pop-up"}
+        </button>
+        <button type="button" onClick={() => void disableAlerts()}
+          className="rounded-xl bg-slate-50 p-2 text-xs font-bold text-slate-700 hover:bg-slate-100">
+          Disable push
+        </button>
+      </div>}
+      {testFeedback && <p role="status" className="mt-2 text-xs font-semibold text-emerald-700">{testFeedback}</p>}
       {pushError && <p role="alert" className="mt-2 text-xs text-rose-600">{pushError}</p>}
-      <p className="mt-3 text-[11px] text-slate-500">{pushEnabled ? "Push alerts are subscribed on this device." : "Enable push alerts to receive follow-up reminders."} Read status is stored on this device.</p>
+      <p className="mt-3 text-[11px] text-slate-500">{pushEnabled ? "This browser has a push subscription. Send a test to verify delivery and system notification permissions." : "Phone banners need permission, an installed iPhone Home Screen app, and a subscription for the assigned account."} Reminders appear for follow-ups assigned to your signed-in email.</p>
     </div>}
   </div>;
 }
