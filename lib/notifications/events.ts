@@ -1,6 +1,6 @@
 import type { Prisma } from "@/src/generated/prisma/client";
-import { emailSet } from "@/lib/auth/accessPolicy";
-import type { AlertType } from "@/lib/notifications/catalog";
+import { emailSet, resolveAccessRole } from "@/lib/auth/accessPolicy";
+import { canReceiveAlert, isAlertType, type AlertType } from "@/lib/notifications/catalog";
 import { prisma } from "@/lib/prisma";
 import { deliverPushToEmail } from "@/lib/notifications/deliverToEmail";
 
@@ -63,9 +63,17 @@ export async function dispatchPendingAlerts(emails?: string[]) {
     where: { email: { in: [...new Set(pending.map((n) => n.email))] } },
   });
   const lookup = new Map(preferences.map((p) => [`${p.email}:${p.type}`, p]));
+  const members = await prisma.workspaceMember.findMany({
+    where: { email: { in: [...new Set(pending.map((n) => n.email))] } },
+    select: { email: true, role: true, isActive: true },
+  });
+  const byEmail = new Map(members.map((member) => [member.email, member]));
   let accepted = 0;
   let failed = 0;
   for (const event of pending) {
+    const role = resolveAccessRole(event.email, process.env.ADMISSIONS_ADMIN_EMAILS,
+      process.env.ADMISSIONS_STAFF_EMAILS, byEmail.get(event.email));
+    if (!role || !isAlertType(event.type) || !canReceiveAlert(role, event.type)) continue;
     if (lookup.get(`${event.email}:${event.type}`)?.pushEnabled === false) continue;
     const claim = await prisma.notificationEvent.updateMany({
       where: {
