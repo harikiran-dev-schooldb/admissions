@@ -11,7 +11,7 @@ test("fee page resolves configured academic year before requesting or displaying
   assert.match(page, /useFees\(academicYear\)/);
   assert.match(page, /getFeeYearOptions\(managedAcademicYears, \[\]\)/);
   assert.match(page, /loading = !yearReady \|\| feesLoading/);
-  assert.match(page, /canManage && !loading && <FeesKPISection/);
+  assert.match(page, /canManage && selectedYearIsActive && !loading && <FeesKPISection/);
 });
 
 test("fee API returns only selected year's records and supports metadata-only years", () => {
