@@ -206,6 +206,36 @@ changes cannot be attributed retroactively and are not fabricated. New
 events are recorded from the deployment onward. Direct SQL changes and
 Neon Auth sign-ins are outside application API auditing.
 
+## Admission event notifications and preferences
+
+SchoolDB now persists per-account notification events for **new enquiries, submitted
+applications, scheduled entrance exams, scheduled interviews, admitted students,
+cancelled admissions, completed parent follow-ups, and the daily admissions
+summary**. Existing follow-up assigned, due-soon and overdue alerts remain
+available. User-facing history is recorded in `NotificationEvent`; events are
+created in the **same transaction** as the underlying business change, with a
+per-user idempotency key. Delivery runs after the response, with retry support
+in the existing daily cron.
+
+The bell contains a private feed of admission updates and operational follow-ups.
+Select **Notification settings** to control **In-app** and **Push** separately
+for each type. Only authorized alert types appear for that role. User read
+acknowledgements are saved to Neon. Background push still requires enabling
+the device's subscription and OS notification permission. Web Push (VAPID) is
+used; Firebase is not required.
+
+For real scheduled exam/interview notices, open an admission profile and choose
+a **date, time, and assigned staff** in **Exam & interview appointments**.
+The schedule is persisted to the admission record and audited. No imaginary
+appointment is generated merely because a stage changes to PENDING.
+
+At **08:30 IST** the existing once-daily protected Vercel cron compiles the
+**previous completed IST day's** new enquiries, admissions, cancellations,
+and total pending, and sends the summary to administrators. It also retries
+outstanding event pushes and runs due/overdue reminder checks. Scheduled
+reminder pushes are **not exact-time** reminders on the current once-daily
+schedule. A successful provider response does not guarantee iOS banner display.
+
 ## Follow-up notifications and phone pop-ups
 
 - The bell lists **open follow-ups assigned to the signed-in email**. A bell count is not proof that any phone push was sent.
