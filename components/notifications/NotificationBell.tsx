@@ -17,7 +17,7 @@ type Item = {
   href?: string;
   readAt?: string | null;
 };
-type Feed = { data: Item[]; total: number };
+type Feed = { data: Item[]; total: number; mutedDue?: boolean; mutedOverdue?: boolean };
 
 const POLL_MS = 60_000;
 const storageKey = (email: string) => `schooldb:notifications:read:${email.toLowerCase()}`;
@@ -94,6 +94,7 @@ export default function NotificationBell() {
         const due = new Date(item.dueAt).getTime();
         if (!Number.isFinite(due) || due > now + 60 * 60 * 1000 || read.includes(item.id)) return false;
         const kind = due <= now ? "OVERDUE" : "DUE_SOON";
+        if (kind === "OVERDUE" ? body.mutedOverdue : body.mutedDue) return false;
         const id = `${item.id}:${kind}`;
         if (alerted.current.has(id) || seen[id]) return false;
         alerted.current.add(id);
