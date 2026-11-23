@@ -16,6 +16,16 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [logoutError, setLogoutError] = useState("");
   const menuRef = useRef<HTMLDivElement>(null);
+  // Both responsive headers exist in the DOM; only the visible bell may poll.
+  const [mobileViewport, setMobileViewport] = useState<boolean | null>(null);
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 1023px)");
+    const update = () => setMobileViewport(media.matches);
+    update();
+    media.addEventListener("change", update);
+    return () => media.removeEventListener("change", update);
+  }, []);
+  const showNotificationBell = mobileViewport !== null && (compact ? mobileViewport : !mobileViewport);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -58,7 +68,7 @@ export default function AccountMenu({ compact = false }: { compact?: boolean }) 
   }
 
   return (
-    <div className="flex items-center gap-2"><NotificationBell />
+    <div className="flex items-center gap-2">{showNotificationBell && <NotificationBell />}
     <div ref={menuRef} className="relative z-50 shrink-0">
       <button type="button" aria-label="Open account menu" aria-haspopup="true" aria-expanded={isOpen}
         onClick={() => setIsOpen((opened) => !opened)}
