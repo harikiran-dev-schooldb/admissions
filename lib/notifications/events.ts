@@ -73,8 +73,15 @@ export async function dispatchPendingAlerts(emails?: string[]) {
   for (const event of pending) {
     const role = resolveAccessRole(event.email, process.env.ADMISSIONS_ADMIN_EMAILS,
       process.env.ADMISSIONS_STAFF_EMAILS, byEmail.get(event.email));
-    if (!role || !isAlertType(event.type) || !canReceiveAlert(role, event.type)) continue;
-    if (lookup.get(`${event.email}:${event.type}`)?.pushEnabled === false) continue;
+    if (!role || !isAlertType(event.type) || !canReceiveAlert(role, event.type) ||
+      lookup.get(`${event.email}:${event.type}`)?.pushEnabled === false) {
+      // Not eligible for push: stop retrying stale suppressed events.
+      await prisma.notificationEvent.updateMany({
+        where: { id: event.id, pushSentAt: null },
+        data: { pushSentAt: new Date() },
+      });
+      continue;
+    }
     const claim = await prisma.notificationEvent.updateMany({
       where: {
         id: event.id, pushSentAt: null,
@@ -87,7 +94,9 @@ export async function dispatchPendingAlerts(emails?: string[]) {
       const result = await deliverPushToEmail(event.email, {
         title: event.title, body: event.body, url: event.href, tag: `schooldb-event-${event.id}`,
       });
-      if (result.accepted) {
+      if (result.accepted || result.subscribed === 0 || result.expired === result.subscribed) {
+        // No eligible device to push to: keep the in-app history, but do not
+        // repeatedly clog the delivery queue with this old event.
         await prisma.notificationEvent.update({ where: { id: event.id }, data: { pushSentAt: new Date() } });
         accepted += result.accepted;
       } else {
