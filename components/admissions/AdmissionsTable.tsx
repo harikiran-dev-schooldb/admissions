@@ -1,9 +1,8 @@
 "use client";
 
-import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, Hash, MessageCircle, Phone, Search, SlidersHorizontal, UserRound, UsersRound, X } from "lucide-react";
 import { useState } from "react";
+import { CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Eye, Hash, MessageCircle, Phone, Search, SlidersHorizontal, UsersRound, X } from "lucide-react";
 import { ADMISSION_PAGE_SIZES, type AdmissionPageSize } from "@/lib/admissions/pagination";
-import { formatAdmissionDob } from "@/lib/admissions/formatAdmissionDob";
 import type { Admission } from "@/src/generated/prisma/client";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import AdmissionStages from "./AdmissionStages";
@@ -26,12 +25,18 @@ function initials(name: string) {
 function statusStyle(value: string) {
   if (["ADMITTED", "PASS", "SELECTED"].includes(value)) return "border-emerald-200 bg-emerald-50 text-emerald-700";
   if (value === "PENDING") return "border-amber-200 bg-amber-50 text-amber-700";
-  if (["FAIL", "REJECTED", "CANCELLED"].includes(value)) return "border-red-200 bg-red-50 text-red-700";
+  if (["FAIL", "REJECTED", "CANCELLED"].includes(value)) return "border-rose-200 bg-rose-50 text-rose-700";
   return "border-slate-200 bg-slate-50 text-slate-600";
 }
 
 function prettyStatus(value: string) {
   return value.replaceAll("_", " ").toLowerCase().replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function whatsappHref(mobile: string) {
+  const digits = (mobile || "").replace(/\D/g, "");
+  const number = digits.length === 10 ? "91" + digits : digits;
+  return number.length >= 10 ? "https://wa.me/" + number : null;
 }
 
 export default function AdmissionTable({
@@ -41,16 +46,14 @@ export default function AdmissionTable({
   onPageSizeChange, onView, reload,
 }: Props) {
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [expandedStudent, setExpandedStudent] = useState<string | null>(null);
   const hasActiveFilters = Boolean(search.trim()) || classFilter !== "ALL" || finalStatusFilter !== "ALL" || applicationFilter !== "ALL";
   const activeAdvancedFilters = [classFilter, finalStatusFilter, applicationFilter].filter((value) => value !== "ALL").length;
   const showMobileFilters = filtersOpen;
   const start = totalCount === 0 ? 0 : (page - 1) * pageSize + 1;
   const end = Math.min(page * pageSize, totalCount);
   const pageWindowStart = Math.max(1, Math.min(page - 2, totalPages - 4));
-  const visiblePages = Array.from(
-    { length: Math.min(5, totalPages) },
-    (_, index) => pageWindowStart + index,
-  );
+  const visiblePages = Array.from({ length: Math.min(5, totalPages) }, (_, index) => pageWindowStart + index);
 
   function clearFilters() {
     setSearch("");
@@ -58,120 +61,217 @@ export default function AdmissionTable({
     setFinalStatusFilter("ALL");
     setApplicationFilter("ALL");
     setFiltersOpen(false);
+    setExpandedStudent(null);
+  }
+
+  function changePage(next: number) {
+    setExpandedStudent(null);
+    onPageChange(next);
   }
 
   return (
-    <div id="admissions-results" className="scroll-mt-28 space-y-5">
-      <div className="premium-panel overflow-hidden rounded-[26px]">
-        <div className="flex flex-col gap-3 border-b border-indigo-100/70 bg-gradient-to-r from-indigo-50/80 via-white to-violet-50/60 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex items-center gap-3">
-            <div className="grid size-10 place-items-center rounded-2xl bg-indigo-600 text-white shadow-lg shadow-indigo-200"><UsersRound className="size-4" /></div>
-            <div>
-              <h3 className="text-lg font-black tracking-[-.02em] text-slate-950">Student directory</h3>
-              <p className="mt-0.5 text-sm font-semibold text-slate-500" aria-live="polite">
-                {loading ? "Updating records…" : `${totalCount.toLocaleString("en-IN")} matching enquiries${yearTotal === undefined ? "" : ` · ${yearTotal.toLocaleString("en-IN")} in this academic year`}` }
+    <div id="admissions-results" className="scroll-mt-28 space-y-4">
+      <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_4px_18px_rgba(15,23,42,.04)]" aria-label="Admission directory search and filters">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-6">
+          <div className="flex min-w-0 items-center gap-3">
+            <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-indigo-50 text-indigo-600"><UsersRound className="size-5" /></span>
+            <div className="min-w-0">
+              <h3 className="text-lg font-bold tracking-tight text-slate-950">Student directory</h3>
+              <p className="mt-0.5 text-xs font-medium text-slate-500 sm:text-sm" aria-live="polite">
+                {loading ? "Updating records…" : totalCount.toLocaleString("en-IN") + " matching enquiries" +
+                  (yearTotal === undefined ? "" : " · " + yearTotal.toLocaleString("en-IN") + " this year")}
               </p>
             </div>
           </div>
-          {hasActiveFilters && <button onClick={clearFilters} className="inline-flex h-9 items-center justify-center gap-2 self-start rounded-xl border border-indigo-200 bg-white px-3 text-sm font-bold text-indigo-700 shadow-sm transition hover:bg-indigo-50 sm:self-auto"><X className="size-4" />Clear filters</button>}
+          {hasActiveFilters && (
+            <button type="button" onClick={clearFilters} className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-indigo-700 hover:bg-indigo-50">
+              <X className="size-4" /> Clear filters
+            </button>
+          )}
         </div>
-        <div className="p-4">
-        <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
+
+        <div className="flex flex-col gap-3 p-4 sm:p-5 xl:flex-row xl:items-center">
           <div className="relative min-w-0 flex-1">
-            <Search className="absolute left-5 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
-            <input type="search" aria-label="Search admissions" value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search student, parent, enquiry number or mobile…" className="h-14 w-full rounded-2xl border border-slate-200/80 bg-white/80 pl-14 pr-5 text-sm outline-none transition-all focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100" />
+            <Search aria-hidden="true" className="absolute left-4 top-1/2 size-5 -translate-y-1/2 text-slate-400" />
+            <input type="search" aria-label="Search admissions" value={search} onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search name, enquiry, parent, or phone…"
+              className="h-12 w-full rounded-2xl border border-slate-200 bg-slate-50/70 pl-12 pr-4 text-sm text-slate-900 outline-none transition focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-100" />
           </div>
           <button type="button" aria-controls="admission-advanced-filters" aria-expanded={showMobileFilters}
             onClick={() => setFiltersOpen((open) => !open)}
-            className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-indigo-200 bg-white px-4 text-sm font-bold text-indigo-700 xl:hidden">
-            <span className="inline-flex items-center gap-2"><SlidersHorizontal className="size-4" />Filters{activeAdvancedFilters > 0 ? ` (${activeAdvancedFilters} active)` : ""}</span>
-            <ChevronDown className={`size-4 transition-transform ${showMobileFilters ? "rotate-180" : ""}`} />
+            className="flex min-h-11 items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:border-indigo-200 xl:hidden">
+            <span className="inline-flex items-center gap-2"><SlidersHorizontal className="size-4 text-indigo-600" /> Filters{activeAdvancedFilters > 0 ? " (" + activeAdvancedFilters + " active)" : ""}</span>
+            <ChevronDown className={"size-4 transition-transform " + (showMobileFilters ? "rotate-180" : "")} />
           </button>
-          <div id="admission-advanced-filters" className={`${showMobileFilters ? "grid" : "hidden"} grid-cols-1 gap-2 sm:grid-cols-3 xl:grid xl:w-[620px]`}>
-            <SchoolDbSelect ariaLabel="Filter by class" value={classFilter} onValueChange={setClassFilter} options={[{ label: "All classes", value: "ALL" }, ...classOptions.map((value) => ({ label: value, value }))]} />
-            <SchoolDbSelect ariaLabel="Filter by admission status" value={finalStatusFilter} onValueChange={setFinalStatusFilter} options={[{ label: "All admission status", value: "ALL" }, { label: "Pending", value: "PENDING" }, { label: "Admitted", value: "ADMITTED" }, { label: "Cancelled", value: "CANCELLED" }]} />
-            <SchoolDbSelect ariaLabel="Filter by application status" value={applicationFilter} onValueChange={setApplicationFilter} options={[{ label: "All applications", value: "ALL" }, { label: "Not started", value: "NO" }, { label: "Started", value: "YES" }, { label: "Submitted", value: "SUBMITTED" }]} />
+          <div id="admission-advanced-filters" className={(showMobileFilters ? "grid" : "hidden") + " grid-cols-1 gap-2 sm:grid-cols-3 xl:grid xl:w-[620px]"}>
+            <SchoolDbSelect ariaLabel="Filter by class" value={classFilter} onValueChange={setClassFilter}
+              options={[{ label: "All classes", value: "ALL" }, ...classOptions.map((value) => ({ label: value, value }))]} />
+            <SchoolDbSelect ariaLabel="Filter by admission status" value={finalStatusFilter} onValueChange={setFinalStatusFilter}
+              options={[{ label: "All admission status", value: "ALL" }, { label: "Pending", value: "PENDING" }, { label: "Admitted", value: "ADMITTED" }, { label: "Cancelled", value: "CANCELLED" }]} />
+            <SchoolDbSelect ariaLabel="Filter by application status" value={applicationFilter} onValueChange={setApplicationFilter}
+              options={[{ label: "All applications", value: "ALL" }, { label: "Not started", value: "NO" }, { label: "Started", value: "YES" }, { label: "Submitted", value: "SUBMITTED" }]} />
           </div>
-          <SlidersHorizontal className="hidden size-5 shrink-0 text-indigo-500 xl:block" />
         </div>
+        {activeAdvancedFilters > 0 && !filtersOpen && (
+          <p className="border-t border-slate-100 px-5 py-2 text-xs font-semibold text-indigo-600 xl:hidden">
+            {activeAdvancedFilters} active filter{activeAdvancedFilters === 1 ? "" : "s"} applied
+          </p>
+        )}
+      </section>
+
+      <section className="overflow-hidden rounded-[24px] border border-slate-200 bg-white shadow-[0_4px_18px_rgba(15,23,42,.035)]" aria-label="Admissions results" aria-busy={loading}>
+        <div className="hidden grid-cols-[minmax(210px,1.2fr)_minmax(175px,1fr)_minmax(100px,.6fr)_minmax(150px,.9fr)_auto] items-center gap-4 border-b border-slate-100 bg-slate-50/80 px-5 py-3 text-[11px] font-bold uppercase tracking-wider text-slate-500 xl:grid">
+          <span>Student</span><span>Parent contact</span><span>Class</span><span>Admission status</span><span className="text-right">Actions</span>
         </div>
-      </div>
 
-      <section className="premium-table overflow-hidden rounded-[28px] p-2 sm:p-3">
-        <div className="hidden grid-cols-[minmax(235px,1.1fr)_minmax(190px,.9fr)_170px_minmax(330px,1.5fr)_150px] gap-5 px-5 pb-3 pt-2 text-xs font-black uppercase tracking-[.13em] text-slate-400 xl:grid">
-          <div>Student profile</div><div>Family contact</div><div>Age &amp; class</div><div>Admission journey</div><div className="text-right">Status &amp; actions</div>
-        </div>
+        {loading && (
+          <div role="status" aria-label="Loading admissions" className="divide-y divide-slate-100">
+            {Array.from({ length: 3 }, (_, index) => (
+              <div key={index} className="flex animate-pulse items-center gap-4 px-5 py-5">
+                <span className="size-11 shrink-0 rounded-2xl bg-slate-100" />
+                <span className="flex-1 space-y-2"><span className="block h-3 w-2/5 rounded-full bg-slate-100" /><span className="block h-2.5 w-3/5 rounded-full bg-slate-100" /></span>
+                <span className="hidden h-9 w-24 rounded-xl bg-slate-100 sm:block" />
+              </div>
+            ))}
+          </div>
+        )}
+        {!loading && students.length === 0 && (
+          <div className="grid min-h-52 place-items-center px-5 py-12 text-center">
+            <div className="space-y-2">
+              <span className="mx-auto grid size-12 place-items-center rounded-2xl bg-indigo-50 text-indigo-600"><Search className="size-5" /></span>
+              <p className="font-bold text-slate-900">No admissions found</p>
+              <p className="text-sm text-slate-500">Try a different name, class, or admission status.</p>
+              {hasActiveFilters && <button type="button" onClick={clearFilters} className="mt-2 min-h-10 rounded-xl bg-indigo-50 px-4 text-sm font-bold text-indigo-700 hover:bg-indigo-100">Clear filters</button>}
+            </div>
+          </div>
+        )}
 
-        {loading && <div className="grid min-h-40 place-items-center rounded-[22px] bg-slate-50/70 text-sm font-semibold text-slate-500">Loading admissions…</div>}
-        {!loading && students.length === 0 && <div className="grid min-h-40 place-items-center rounded-[22px] bg-slate-50/70 text-center"><div><p className="font-black text-slate-800">No admissions found</p><p className="mt-1 text-sm text-slate-500">Try changing the search or filters.</p></div></div>}
+        {!loading && <div className="divide-y divide-slate-100">
+          {students.map((student) => {
+            const expanded = expandedStudent === student.id;
+            const whatsApp = whatsappHref(student.mobile);
+            return (
+              <article key={student.id} aria-labelledby={"admission-row-name-" + student.id} className="bg-white transition-colors hover:bg-slate-50/50">
+                <div className="grid gap-3 px-4 py-4 sm:px-5 xl:grid-cols-[minmax(210px,1.2fr)_minmax(175px,1fr)_minmax(100px,.6fr)_minmax(150px,.9fr)_auto] xl:items-center xl:gap-4">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-2xl bg-indigo-50 text-sm font-bold text-indigo-700 ring-1 ring-indigo-100">
+                      {initials(student.student || "Unknown")}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <button type="button" id={"admission-row-name-" + student.id} onClick={() => onView(student)}
+                        className="block max-w-full truncate text-left text-sm font-bold text-slate-950 hover:text-indigo-700 sm:text-[15px]" title={student.student}>
+                        {student.student || "Name not provided"}
+                      </button>
+                      <p className="mt-1 flex items-center gap-1.5 text-[11px] font-semibold text-slate-500">
+                        <Hash className="size-3" aria-hidden="true" /> <span className="truncate">{student.enquiryNo}</span>
+                      </p>
+                    </div>
+                    <span className={"shrink-0 rounded-lg border px-2.5 py-1 text-[11px] font-bold xl:hidden " + statusStyle(student.finalAdmission)}>
+                      {prettyStatus(student.finalAdmission)}
+                    </span>
+                  </div>
 
-        <div className="space-y-2">
-          {!loading && students.map((student) => (
-            <article key={student.id} className="group rounded-[22px] border border-slate-200/80 bg-white shadow-[0_2px_10px_rgba(15,23,42,.035)] transition-all duration-200 hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-[0_14px_35px_rgba(79,70,229,.10)]">
-              <div className="hidden grid-cols-[minmax(235px,1.1fr)_minmax(190px,.9fr)_170px_minmax(330px,1.5fr)_150px] items-center gap-5 p-5 xl:grid">
-                <div className="flex min-w-0 items-center gap-3.5">
-                  <div className="relative grid size-12 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-black text-white shadow-[0_8px_20px_rgba(79,70,229,.25)] ring-4 ring-indigo-50">{initials(student.student || "Unknown")}<span className="absolute -bottom-1 -right-1 size-3.5 rounded-full border-2 border-white bg-emerald-400" /></div>
-                  <div className="min-w-0">
-                    <button onClick={() => onView(student)} className="block max-w-full truncate text-left text-base font-black tracking-[-.02em] text-slate-950 transition-colors hover:text-indigo-600">{student.student || "Name not provided"}</button>
-                    <div className="mt-1.5 flex flex-wrap items-center gap-2 text-xs font-semibold text-slate-500"><span className="inline-flex items-center gap-1 rounded-lg bg-indigo-50 px-2 py-1 text-indigo-700"><Hash className="size-3" />{student.enquiryNo}</span><span>{new Date(student.enquiryDate).toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" })}</span></div>
+                  <div className="grid min-w-0 grid-cols-2 gap-3 rounded-xl bg-slate-50/75 px-3 py-2.5 sm:grid-cols-3 xl:block xl:bg-transparent xl:p-0">
+                    <div className="min-w-0 sm:col-span-2 xl:col-span-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 xl:hidden">Parent</p>
+                      <p className="mt-0.5 truncate text-xs font-semibold text-slate-800 sm:text-sm" title={student.parent || undefined}>{student.parent || "—"}</p>
+                    </div>
+                    <div className="min-w-0 xl:mt-1">
+                      <p className="text-[10px] font-semibold uppercase tracking-wide text-slate-400 xl:hidden">Phone</p>
+                      {student.mobile ? (
+                        <a href={"tel:" + student.mobile} className="mt-0.5 inline-flex items-center gap-1.5 text-xs font-medium text-slate-600 hover:text-indigo-700">
+                          <Phone className="hidden size-3.5 xl:inline" aria-hidden="true" />{student.mobile}
+                        </a>
+                      ) : <span className="text-xs text-slate-400">—</span>}
+                    </div>
+                  </div>
+
+                  <div className="hidden xl:block">
+                    <span className="inline-flex rounded-lg bg-indigo-50 px-2.5 py-1 text-sm font-bold text-indigo-700">{student.admClass}</span>
+                    <p className="mt-1.5 text-xs text-slate-500">{student.age || "Age not set"}</p>
+                  </div>
+                  <div className="flex items-center justify-between gap-2 xl:block">
+                    <div className="min-w-0">
+                      <p className="text-[11px] font-semibold text-slate-500 xl:hidden">
+                        <CalendarDays className="mr-1 inline size-3.5" aria-hidden="true" /> {student.admClass} · {student.age || "Age not set"}
+                      </p>
+                      <span className={"hidden rounded-lg border px-2.5 py-1 text-xs font-bold xl:inline-flex " + statusStyle(student.finalAdmission)}>
+                        {prettyStatus(student.finalAdmission)}
+                      </span>
+                      <p className="mt-1.5 text-xs text-slate-500">Application: {prettyStatus(student.application)}</p>
+                    </div>
+                    <span className="hidden text-xs text-slate-400 lg:inline xl:hidden">{student.entrance === "PASS" ? "Entrance passed" : "Entrance " + prettyStatus(student.entrance)}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2 xl:justify-end">
+                    <button type="button" onClick={() => onView(student)} aria-label={"View " + student.student}
+                      className="inline-flex min-h-11 flex-1 items-center justify-center gap-1.5 rounded-xl bg-indigo-600 px-3 text-xs font-bold text-white hover:bg-indigo-700 xl:flex-none">
+                      <Eye className="size-4" /> <span className="xl:sr-only">View profile</span>
+                    </button>
+                    <button type="button" aria-expanded={expanded} aria-controls={"admission-journey-" + student.id}
+                      onClick={() => setExpandedStudent(expanded ? null : student.id)}
+                      className="inline-flex min-h-11 flex-1 items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-700 hover:border-indigo-200 hover:text-indigo-700 xl:flex-none">
+                      {canManageAdmissions ? "Update stage" : "View stages"} <ChevronDown aria-hidden="true" className={"size-3.5 transition-transform " + (expanded ? "rotate-180" : "")} />
+                    </button>
+                    {whatsApp && (
+                      <a href={whatsApp} target="_blank" rel="noopener noreferrer" aria-label={"WhatsApp " + student.parent}
+                        className="grid size-11 shrink-0 place-items-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100">
+                        <MessageCircle className="size-4" />
+                      </a>
+                    )}
                   </div>
                 </div>
+                <div id={"admission-journey-" + student.id} hidden={!expanded}
+                  className="border-t border-slate-100 bg-slate-50/70 px-4 py-4 sm:px-5">
+                  {expanded && (
+                    <div className="max-w-lg">
+                      <p className="mb-2 text-xs font-bold uppercase tracking-wider text-slate-500">{canManageAdmissions ? "Quick stage verification" : "Admission journey"}</p>
+                      <AdmissionStages student={student} reload={reload} canManage={canManageAdmissions} />
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>}
 
-                <div className="min-w-0"><p className="flex items-center gap-2 truncate font-bold text-slate-800"><UserRound className="size-4 shrink-0 text-indigo-500" />{student.parent}</p><p className="mt-2 flex items-center gap-2 text-sm font-semibold text-slate-500"><Phone className="size-4 shrink-0 text-emerald-500" />{student.mobile}</p></div>
-
-                <div><div className="flex items-center gap-2"><span className="rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-black text-indigo-700">{student.admClass}</span><span className="text-sm font-bold text-slate-700">{student.age || "—"}</span></div><p className="mt-2 flex items-center gap-1.5 text-xs font-semibold text-slate-500"><CalendarDays className="size-3.5" />DOB {student.dob ? formatAdmissionDob(student.dob) : "not set"}</p></div>
-
-                <AdmissionStages student={student} reload={reload} canManage={canManageAdmissions} />
-
-                <div className="flex flex-col items-end gap-3"><span className={`inline-flex rounded-full border px-3 py-1.5 text-xs font-black ${statusStyle(student.finalAdmission)}`}>{prettyStatus(student.finalAdmission)}</span><div className="flex gap-2"><button onClick={() => onView(student)} aria-label={`View ${student.student}`} className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:border-indigo-200 hover:bg-indigo-50 hover:text-indigo-700"><Eye className="size-4" /></button><a href={`https://wa.me/91${student.mobile}`} target="_blank" rel="noreferrer" aria-label={`WhatsApp ${student.parent}`} className="grid size-10 place-items-center rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-700 shadow-sm transition hover:bg-emerald-100"><MessageCircle className="size-4" /></a></div></div>
-              </div>
-
-              <div className="space-y-5 p-5 xl:hidden">
-                <div className="flex items-start justify-between gap-4"><div className="flex min-w-0 items-center gap-3"><div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-sm font-black text-white shadow-lg shadow-indigo-200">{initials(student.student || "Unknown")}</div><div className="min-w-0"><h3 className="truncate text-lg font-black text-slate-950">{student.student || "Name not provided"}</h3><p className="mt-0.5 truncate text-sm font-semibold text-slate-500">{student.parent} · {student.mobile}</p></div></div><span className="shrink-0 rounded-xl border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-black text-indigo-700">{student.admClass}</span></div>
-                <div className="grid grid-cols-2 gap-3 rounded-2xl bg-slate-50 p-4 text-sm"><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Enquiry</p><p className="mt-1 font-bold text-slate-800">{student.enquiryNo}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Age</p><p className="mt-1 font-bold text-slate-800">{student.age || "—"}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Date of birth</p><p className="mt-1 font-bold text-slate-800">{formatAdmissionDob(student.dob)}</p></div><div><p className="text-xs font-bold uppercase tracking-wider text-slate-400">Final status</p><span className={`mt-1 inline-flex rounded-full border px-2.5 py-1 text-xs font-black ${statusStyle(student.finalAdmission)}`}>{prettyStatus(student.finalAdmission)}</span></div></div>
-                <AdmissionStages student={student} reload={reload} canManage={canManageAdmissions} />
-                <div className="flex gap-3"><button onClick={() => onView(student)} className="premium-button h-11 flex-1 px-4 text-sm font-bold"><Eye className="size-4" />View profile</button><a href={`https://wa.me/91${student.mobile}`} target="_blank" rel="noreferrer" className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-bold text-emerald-700"><MessageCircle className="size-4" />WhatsApp</a></div>
-              </div>
-            </article>
-          ))}
-        </div>
-        <footer className="mt-4 flex flex-col gap-4 rounded-[22px] border border-indigo-100/70 bg-gradient-to-r from-indigo-50/75 via-white to-violet-50/75 px-4 py-4 sm:px-5" aria-label="Admissions pagination">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            <div className="text-sm font-semibold text-slate-600" aria-live="polite">
-              {loading ? "Loading page…" : totalCount === 0
-                ? "No matching admissions"
-                : <>Showing <strong className="tabular-nums text-slate-900">{start.toLocaleString("en-IN")}–{end.toLocaleString("en-IN")}</strong> of <strong className="tabular-nums text-slate-900">{totalCount.toLocaleString("en-IN")}</strong> enquiries</>}
-            </div>
+        <footer className="flex flex-col gap-3 border-t border-slate-200 bg-slate-50/70 px-4 py-4 sm:px-5" aria-label="Admissions pagination">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs font-medium text-slate-600" aria-live="polite">
+              {loading ? "Loading page…" : totalCount === 0 ? "No matching admissions" :
+                <>Showing <strong className="tabular-nums text-slate-900">{start.toLocaleString("en-IN")}–{end.toLocaleString("en-IN")}</strong> of <strong className="tabular-nums text-slate-900">{totalCount.toLocaleString("en-IN")}</strong> enquiries</>}
+            </p>
             <div className="flex items-center gap-2">
-              <span className="whitespace-nowrap text-xs font-bold text-slate-500">Rows per page</span>
+              <span className="whitespace-nowrap text-xs font-semibold text-slate-500">Rows per page</span>
               <div className="w-24">
-                <SchoolDbSelect ariaLabel="Admissions rows per page" value={String(pageSize)} onValueChange={(value) => onPageSizeChange(Number(value) as AdmissionPageSize)}
+                <SchoolDbSelect ariaLabel="Admissions rows per page" value={String(pageSize)}
+                  onValueChange={(value) => { setExpandedStudent(null); onPageSizeChange(Number(value) as AdmissionPageSize); }}
                   options={ADMISSION_PAGE_SIZES.map((size) => ({ value: String(size), label: String(size) }))} />
               </div>
             </div>
           </div>
-          <nav aria-label="Admission result pages" className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-end">
-            <button type="button" disabled={loading || page <= 1} onClick={() => onPageChange(page - 1)}
-              aria-label="Previous admissions page" className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-indigo-300 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
+          <nav aria-label="Admission result pages" className="flex items-center justify-between gap-2 sm:justify-end">
+            <button type="button" disabled={loading || page <= 1} onClick={() => changePage(page - 1)}
+              aria-label="Previous admissions page" className="grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:text-indigo-700 disabled:opacity-40">
               <ChevronLeft className="size-4" />
             </button>
-            {pageWindowStart > 1 && <span className="px-1 text-sm text-slate-400" aria-hidden="true">…</span>}
-            {visiblePages.map((number) => (
-              <button type="button" key={number} aria-label={`Admissions page ${number}`}
-                aria-current={number === page ? "page" : undefined}
-                disabled={loading} onClick={() => onPageChange(number)}
-                className={`min-w-10 rounded-xl px-3 py-2.5 text-sm font-extrabold tabular-nums transition disabled:opacity-40 ${number === page
-                  ? "bg-gradient-to-r from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-100"
-                  : "border border-slate-200 bg-white text-slate-600 hover:border-indigo-300 hover:text-indigo-700"}`}>
-                {number}
-              </button>
-            ))}
-            {visiblePages.at(-1) !== totalPages && <span className="px-1 text-sm text-slate-400" aria-hidden="true">…</span>}
-            <button type="button" disabled={loading || page >= totalPages} onClick={() => onPageChange(page + 1)}
-              aria-label="Next admissions page" className="grid size-10 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 transition hover:border-indigo-300 hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
+            <span className="text-xs font-semibold text-slate-600 sm:hidden">Page {page} of {totalPages}</span>
+            <div className="hidden flex-wrap items-center justify-center gap-1 sm:flex">
+              {pageWindowStart > 1 && <span className="px-1 text-slate-400" aria-hidden="true">…</span>}
+              {visiblePages.map((number) => (
+                <button key={number} type="button" aria-label={"Admissions page " + number}
+                  aria-current={number === page ? "page" : undefined} disabled={loading} onClick={() => changePage(number)}
+                  className={"min-w-10 rounded-xl px-3 py-2.5 text-sm font-bold transition disabled:opacity-40 " +
+                    (number === page ? "bg-indigo-600 text-white" : "border border-slate-200 bg-white text-slate-600 hover:border-indigo-300 hover:text-indigo-700")}>
+                  {number}
+                </button>
+              ))}
+              {visiblePages.at(-1) !== totalPages && <span className="px-1 text-slate-400" aria-hidden="true">…</span>}
+            </div>
+            <button type="button" disabled={loading || page >= totalPages} onClick={() => changePage(page + 1)}
+              aria-label="Next admissions page" className="grid size-11 shrink-0 place-items-center rounded-xl border border-slate-200 bg-white text-slate-700 hover:border-indigo-300 hover:text-indigo-700 disabled:opacity-40">
               <ChevronRight className="size-4" />
             </button>
-            <span className="ml-2 hidden whitespace-nowrap text-xs font-semibold text-slate-500 md:inline">Page {page} of {totalPages}</span>
           </nav>
         </footer>
       </section>

@@ -208,7 +208,7 @@ export default function AdmissionsPage() {
         </main>
       </div>
 
-      <AdmissionDetailModal student={selectedStudent} open={openDetail} onClose={() => setOpenDetail(false)} onFollowUpChanged={() => setFollowUpRefresh((value) => value + 1)} />
+      <AdmissionDetailModal key={selectedStudent?.id ?? "no-selection"} student={selectedStudent} open={openDetail} onClose={() => setOpenDetail(false)} onFollowUpChanged={() => setFollowUpRefresh((value) => value + 1)} />
       {canManageAdmissions && <NewAdmissionModal open={openNew} onClose={() => setOpenNew(false)} reload={reload} academicYear={academicYear} canManageFees={canManage} />}
     </div>
   );

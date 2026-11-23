@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { CalendarDays, CheckCircle2, ClipboardCopy, Download, GraduationCap, MessageCircle, ReceiptText, UserRound, X } from "lucide-react";
+import {
+  CalendarClock, CalendarDays, CheckCircle2, ClipboardCopy, Download, GraduationCap,
+  History, LayoutDashboard, MessageCircle, MessagesSquare, ReceiptText, UserRound, X,
+} from "lucide-react";
 import { toast } from "sonner";
 import type { Admission } from "@/src/generated/prisma/client";
 import { formatAdmissionDob } from "@/lib/admissions/formatAdmissionDob";
@@ -17,6 +20,17 @@ type Props = {
   onClose: () => void;
   onFollowUpChanged?: () => void;
 };
+
+const PROFILE_TABS = [
+  { id: "overview", label: "Overview", icon: LayoutDashboard },
+  { id: "journey", label: "Journey", icon: GraduationCap },
+  { id: "appointments", label: "Appointments", icon: CalendarClock },
+  { id: "followups", label: "Follow-ups", icon: MessagesSquare },
+  { id: "fees", label: "Fees", icon: ReceiptText },
+  { id: "timeline", label: "Timeline", icon: History },
+] as const;
+
+type ProfileTab = (typeof PROFILE_TABS)[number]["id"];
 
 function stageColors(status: string) {
   if (["PASS", "SELECTED", "GIVEN", "ADMITTED", "SUBMITTED"].includes(status))
@@ -34,14 +48,14 @@ function DetailCard({ title, description, icon: Icon, children }: {
   children: React.ReactNode;
 }) {
   return (
-    <section className="rounded-[24px] border border-slate-200/80 bg-white p-5 shadow-[0_7px_24px_rgba(15,23,42,.045)] sm:p-6">
-      <div className="mb-5 flex items-center gap-3">
-        <span className="grid size-11 shrink-0 place-items-center rounded-2xl border border-indigo-100 bg-indigo-50 text-indigo-700">
+    <section className="rounded-[22px] border border-slate-200 bg-white p-4 shadow-[0_4px_18px_rgba(15,23,42,.035)] sm:p-6">
+      <div className="mb-4 flex items-center gap-3">
+        <span className="grid size-10 shrink-0 place-items-center rounded-2xl bg-indigo-50 text-indigo-600">
           <Icon className="size-5" />
         </span>
         <div className="min-w-0">
-          <h3 className="text-lg font-black tracking-tight text-slate-900">{title}</h3>
-          <p className="mt-0.5 text-sm text-slate-500">{description}</p>
+          <h3 className="text-base font-bold tracking-tight text-slate-950 sm:text-lg">{title}</h3>
+          <p className="mt-0.5 text-xs text-slate-500 sm:text-sm">{description}</p>
         </div>
       </div>
       {children}
@@ -51,28 +65,36 @@ function DetailCard({ title, description, icon: Icon, children }: {
 
 function DataField({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <div className="min-w-0 rounded-xl bg-slate-50/80 p-3">
-      <p className="text-xs font-bold uppercase tracking-wide text-slate-500">{label}</p>
-      <p className="mt-1 break-words text-sm font-bold text-slate-900">{value || "—"}</p>
+    <div className="min-w-0 rounded-2xl border border-slate-100 bg-slate-50/65 px-4 py-3">
+      <p className="text-[11px] font-bold uppercase tracking-wider text-slate-500">{label}</p>
+      <p className="mt-1 break-words text-sm font-semibold leading-6 text-slate-900">{value || "—"}</p>
     </div>
   );
 }
 
 function StagePill({ label, value }: { label: string; value: string }) {
   return (
-    <div className="min-w-0 rounded-2xl border border-slate-200/70 bg-white p-3">
-      <p className="text-xs font-bold text-slate-500">{label}</p>
-      <span className={`mt-2 inline-flex max-w-full rounded-lg border px-3 py-1.5 text-xs font-black tracking-wide ${stageColors(value)}`}>
+    <div className="min-w-0 rounded-2xl border border-slate-200 bg-white p-4">
+      <p className="text-xs font-semibold text-slate-500">{label}</p>
+      <span className={"mt-2 inline-flex max-w-full rounded-lg border px-3 py-1.5 text-xs font-bold " + stageColors(value)}>
         {value.replaceAll("_", " ")}
       </span>
     </div>
   );
 }
 
+function indiaDateTime(value: Date | string) {
+  return new Date(value).toLocaleString("en-IN", {
+    timeZone: "Asia/Kolkata", day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit", hour12: true,
+  });
+}
+
 export default function AdmissionDetailModal({ student, open, onClose, onFollowUpChanged }: Props) {
-  const [openFeeFor, setOpenFeeFor] = useState<string | null>(null);
-  const showFees = Boolean(student && openFeeFor === student.id);
+  const [activeTab, setActiveTab] = useState<ProfileTab>("overview");
   const closeRef = useRef<HTMLButtonElement>(null);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const showFees = activeTab === "fees";
 
   useEffect(() => {
     if (!open || !student) return;
@@ -82,6 +104,20 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
     closeRef.current?.focus();
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") onClose();
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(
+        'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex="0"]',
+      ) ?? []).filter((element) => element.getClientRects().length > 0);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKeyDown);
     return () => {
@@ -98,6 +134,7 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
   const statusLabel = isAdmitted ? "Admitted" : student.finalAdmission === "CANCELLED" ? "Cancelled" : "In progress";
   const contact = (student.mobile || "").replace(/\D/g, "");
   const whatsappNumber = contact.length === 10 ? "91" + contact : contact;
+  const canMessage = whatsappNumber.length >= 10;
 
   function exportDetails() {
     try {
@@ -120,97 +157,162 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
   }
 
   function toggleFees() {
-    setOpenFeeFor(showFees ? null : student?.id ?? null);
+    setActiveTab((current) => current === "fees" ? "overview" : "fees");
+  }
+
+  function handleTabKeys(event: React.KeyboardEvent<HTMLButtonElement>, index: number) {
+    let next = index;
+    if (event.key === "ArrowRight") next = (index + 1) % PROFILE_TABS.length;
+    else if (event.key === "ArrowLeft") next = (index - 1 + PROFILE_TABS.length) % PROFILE_TABS.length;
+    else if (event.key === "Home") next = 0;
+    else if (event.key === "End") next = PROFILE_TABS.length - 1;
+    else return;
+    event.preventDefault();
+    const target = PROFILE_TABS[next].id;
+    setActiveTab(target);
+    dialogRef.current?.querySelector<HTMLButtonElement>("#admission-profile-tab-" + target)?.focus();
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/50 backdrop-blur-[3px]">
+    <div className="fixed inset-0 z-50 flex justify-end bg-slate-950/45 backdrop-blur-[2px]">
       <div className="absolute inset-0" aria-hidden="true" onClick={onClose} />
-      <div role="dialog" aria-modal="true" aria-labelledby="admission-profile-heading"
-        className="relative flex h-full w-full max-w-[920px] flex-col overflow-hidden border-l border-indigo-100 bg-[#f8faff] shadow-[-24px_0_90px_rgba(15,23,42,.22)] sm:w-[min(920px,92vw)]">
-        <header className="z-20 flex shrink-0 items-start justify-between gap-4 border-b border-indigo-100 bg-white/95 px-5 py-4 backdrop-blur-xl sm:px-7 sm:py-5">
-          <div className="min-w-0">
-            <p className="text-[11px] font-extrabold uppercase tracking-[.15em] text-indigo-600">Admission profile</p>
-            <h2 id="admission-profile-heading" className="mt-1 break-words text-xl font-black tracking-[-.035em] text-slate-950 sm:text-2xl">{student.student}</h2>
-            <div className="mt-2 flex flex-wrap items-center gap-2">
-              <button type="button" onClick={() => void copyEnquiryNo()}
-                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-50 px-2.5 py-1.5 text-xs font-bold text-indigo-700 transition hover:bg-indigo-100"
-                title="Copy enquiry number">
-                {student.enquiryNo} <ClipboardCopy className="size-3.5" />
-              </button>
-              <span className="rounded-lg border border-slate-200 bg-slate-50 px-2.5 py-1.5 text-xs font-bold text-slate-700">{student.admClass} · {student.academicYear}</span>
-              <span className={`rounded-lg border px-2.5 py-1.5 text-xs font-black ${stageColors(student.finalAdmission)}`}>{statusLabel}</span>
+      <div ref={dialogRef} role="dialog" aria-modal="true" aria-labelledby="admission-profile-heading"
+        className="relative flex h-[100dvh] w-full max-w-[920px] flex-col overflow-hidden border-l border-slate-200 bg-[#f7f8fc] shadow-[-20px_0_70px_rgba(15,23,42,.18)] sm:w-[min(920px,94vw)]">
+        <header className="z-20 shrink-0 border-b border-slate-200 bg-white px-4 pb-3 pt-[max(16px,env(safe-area-inset-top,0px))] sm:px-7 sm:py-6">
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <span aria-hidden="true" className="grid size-11 shrink-0 place-items-center rounded-2xl bg-indigo-600 text-base font-bold text-white">
+                {(student.student || "?").trim().slice(0, 1).toUpperCase()}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-bold uppercase tracking-[.16em] text-indigo-600">Student profile</p>
+                <h2 id="admission-profile-heading" className="mt-0.5 truncate text-xl font-bold tracking-tight text-slate-950 sm:text-2xl" title={student.student}>{student.student}</h2>
+                <p className="mt-1 text-xs font-medium text-slate-500">{student.admClass} · {student.academicYear}</p>
+              </div>
             </div>
+            <button ref={closeRef} type="button" onClick={onClose} aria-label="Close admission details"
+              className="grid size-11 shrink-0 place-items-center rounded-2xl border border-slate-200 bg-slate-50 text-slate-600 transition hover:bg-indigo-50 hover:text-indigo-700 focus-visible:ring-4 focus-visible:ring-indigo-100">
+              <X className="size-5" />
+            </button>
           </div>
-          <button ref={closeRef} type="button" onClick={onClose} aria-label="Close admission details"
-            className="grid size-11 shrink-0 place-items-center rounded-2xl bg-slate-100 text-slate-700 transition hover:bg-indigo-100 hover:text-indigo-800 focus-visible:ring-4 focus-visible:ring-indigo-100">
-            <X className="size-5" />
-          </button>
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <button type="button" onClick={() => void copyEnquiryNo()}
+              className="inline-flex min-h-8 items-center gap-1.5 rounded-lg bg-indigo-50 px-2.5 py-1 text-xs font-semibold text-indigo-700 hover:bg-indigo-100" title="Copy enquiry number">
+              {student.enquiryNo} <ClipboardCopy className="size-3.5" />
+            </button>
+            <span className={"rounded-lg border px-2.5 py-1 text-xs font-bold " + stageColors(student.finalAdmission)}>{statusLabel}</span>
+          </div>
         </header>
 
-        <div className="min-h-0 flex-1 space-y-5 overflow-y-auto overscroll-contain px-4 py-5 sm:space-y-6 sm:px-7 sm:py-6">
-          <section className="rounded-[22px] border border-indigo-100 bg-gradient-to-r from-indigo-50 via-white to-violet-50 p-4 sm:p-5" aria-label="Admission quick actions">
-            <div className="mb-3 flex items-center gap-2">
-              <CheckCircle2 className="size-4 text-indigo-600" />
-              <h3 className="text-sm font-black text-slate-900">Quick actions</h3>
-            </div>
-            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
-              <a href={`https://wa.me/${whatsappNumber}`} target="_blank" rel="noopener noreferrer"
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 py-2 text-sm font-extrabold text-white shadow-sm transition hover:bg-emerald-700">
-                <MessageCircle className="size-4" /> WhatsApp parent
-              </a>
-              <button type="button" aria-expanded={showFees} aria-controls="admission-fee-preview" onClick={toggleFees}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-white px-3 py-2 text-sm font-extrabold text-indigo-700 shadow-sm transition hover:bg-indigo-50">
-                <ReceiptText className="size-4" /> {showFees ? "Hide fees" : "View fees"}
-              </button>
-              <button type="button" onClick={exportDetails}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-violet-600 px-3 py-2 text-sm font-extrabold text-white shadow-sm transition hover:bg-violet-700">
-                <Download className="size-4" /> Export details (CSV)
-              </button>
-            </div>
-          </section>
+        <div role="tablist" aria-label="Admission profile sections"
+          className="z-10 flex shrink-0 snap-x gap-1 overflow-x-auto border-b border-slate-200 bg-white px-3 py-2 sm:gap-1.5 sm:px-6">
+          {PROFILE_TABS.map(({ id, label, icon: Icon }, index) => (
+            <button type="button" key={id} id={"admission-profile-tab-" + id} role="tab"
+              aria-selected={activeTab === id} aria-controls="admission-profile-panel"
+              tabIndex={activeTab === id ? 0 : -1} onKeyDown={(event) => handleTabKeys(event, index)}
+              onClick={() => setActiveTab(id)}
+              className={"flex min-h-11 shrink-0 snap-start items-center gap-1.5 rounded-xl px-3 text-xs font-bold transition sm:px-4 sm:text-sm " +
+                (activeTab === id ? "bg-indigo-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100 hover:text-slate-950")}>
+              <Icon className="size-4" aria-hidden="true" />
+              {label}
+            </button>
+          ))}
+        </div>
 
-          {showFees && <AdmissionFeePreview key={student.id} student={student} onClose={() => setOpenFeeFor(null)} />}
+        <div id="admission-profile-panel" role="tabpanel" aria-labelledby={"admission-profile-tab-" + activeTab}
+          tabIndex={0} className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3 py-4 pb-[max(20px,env(safe-area-inset-bottom,0px))] sm:px-7 sm:py-6">
+          <div className="mx-auto max-w-[850px] space-y-4 sm:space-y-5">
+            {activeTab === "overview" && (
+              <>
+                <section aria-label="Admission quick actions" className="rounded-[22px] border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
+                  <div className="mb-3 flex items-center gap-2">
+                    <CheckCircle2 className="size-4 text-indigo-600" />
+                    <h3 className="text-sm font-bold text-slate-900">Quick actions</h3>
+                  </div>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                    {canMessage ? (
+                      <a href={"https://wa.me/" + whatsappNumber} target="_blank" rel="noopener noreferrer"
+                        className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 text-sm font-bold text-white transition hover:bg-emerald-700">
+                        <MessageCircle className="size-4" /> WhatsApp parent
+                      </a>
+                    ) : (
+                      <span className="inline-flex min-h-11 items-center justify-center rounded-xl bg-slate-100 px-3 text-xs font-semibold text-slate-500">No WhatsApp number</span>
+                    )}
+                    <button type="button" aria-expanded={showFees} aria-controls="admission-profile-panel" onClick={toggleFees}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-indigo-200 bg-indigo-50 px-3 text-sm font-bold text-indigo-700 hover:bg-indigo-100">
+                      <ReceiptText className="size-4" /> View fees
+                    </button>
+                    <button type="button" onClick={exportDetails}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 hover:bg-slate-50">
+                      <Download className="size-4" /> Export CSV
+                    </button>
+                  </div>
+                </section>
+                <DetailCard title="Student information" description="Contact and eligibility details" icon={UserRound}>
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
+                    <DataField label="Parent" value={student.parent} />
+                    <DataField label="Mobile" value={student.mobile} />
+                    <DataField label="Applied class" value={student.admClass} />
+                    <DataField label="Date of birth" value={formatAdmissionDob(student.dob)} />
+                    <DataField label="Age" value={student.age} />
+                    <DataField label="Eligible class" value={student.eligibleClass} />
+                  </div>
+                </DetailCard>
+                <button type="button" onClick={() => setActiveTab("journey")}
+                  className="flex w-full items-center justify-between gap-3 rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-left text-sm font-semibold text-indigo-800 hover:bg-indigo-100">
+                  <span>View all five admission stages</span>
+                  <GraduationCap className="size-5" />
+                </button>
+              </>
+            )}
 
-          <DetailCard title="Student information" description="Enquiry details and eligibility" icon={UserRound}>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              <DataField label="Parent" value={student.parent} />
-              <DataField label="Mobile" value={student.mobile} />
-              <DataField label="Applied class" value={student.admClass} />
-              <DataField label="Date of birth" value={formatAdmissionDob(student.dob)} />
-              <DataField label="Age" value={student.age} />
-              <DataField label="Eligible class" value={student.eligibleClass} />
-            </div>
-          </DetailCard>
+            {activeTab === "journey" && (
+              <>
+                <DetailCard title="Admission journey" description="Latest verified stage statuses" icon={GraduationCap}>
+                  <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+                    <StagePill label="Application" value={student.application} />
+                    <StagePill label="Entrance" value={student.entrance} />
+                    <StagePill label="Interview" value={student.interview} />
+                    <StagePill label="Admission given" value={student.admissionGiven} />
+                    <StagePill label="Final admission" value={student.finalAdmission} />
+                  </div>
+                </DetailCard>
+                <section className="rounded-2xl border border-indigo-100 bg-indigo-50/70 px-4 py-3">
+                  <p className="text-xs font-bold uppercase tracking-wider text-indigo-600">Next workflow step · {nextAction.stage}</p>
+                  <p className="mt-1 font-semibold text-slate-900">{nextAction.title}</p>
+                  <p className="mt-1 text-sm leading-6 text-slate-600">{nextAction.description}</p>
+                  {student.finalAdmission === "PENDING" && (
+                    <button type="button" onClick={() => setActiveTab("followups")}
+                      className="mt-3 inline-flex min-h-10 items-center rounded-xl border border-indigo-200 bg-white px-4 text-xs font-bold text-indigo-700 hover:bg-indigo-100">
+                      Assign an owner and due date in Parent follow-ups
+                    </button>
+                  )}
+                </section>
+              </>
+            )}
 
-          <section aria-label="Recommended next workflow action" className="rounded-[22px] border border-indigo-200 bg-indigo-50/70 p-4 sm:p-5">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-indigo-700">Next action · {nextAction.stage}</p>
-            <h3 className="mt-1 text-lg font-black text-slate-950">{nextAction.title}</h3>
-            <p className="mt-1 text-sm leading-6 text-slate-700">{nextAction.description}</p>
-            {student.finalAdmission === "PENDING" && <p className="mt-3 text-xs font-semibold text-indigo-700">Assign an owner and due date in Parent follow-ups below.</p>}
-          </section>
+            {activeTab === "appointments" && (
+              <AdmissionSchedulePanel key={student.id} student={student} onChanged={onFollowUpChanged} />
+            )}
 
-          <DetailCard title="Admission journey" description="Latest verified stage statuses" icon={GraduationCap}>
-            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
-              <StagePill label="Application" value={student.application} />
-              <StagePill label="Entrance" value={student.entrance} />
-              <StagePill label="Interview" value={student.interview} />
-              <StagePill label="Admission given" value={student.admissionGiven} />
-              <StagePill label="Final admission" value={student.finalAdmission} />
-            </div>
-          </DetailCard>
+            {activeTab === "followups" && (
+              <AdmissionFollowUpManager key={student.id} admissionId={student.id}
+                isOpenAdmission={student.finalAdmission === "PENDING"} onChanged={onFollowUpChanged} />
+            )}
 
-          <AdmissionSchedulePanel key={student.id} student={student} onChanged={onFollowUpChanged} />
+            {activeTab === "fees" && (
+              <AdmissionFeePreview key={student.id} student={student} onClose={() => setActiveTab("overview")} />
+            )}
 
-          <AdmissionFollowUpManager key={student.id} admissionId={student.id}
-            isOpenAdmission={student.finalAdmission === "PENDING"} onChanged={onFollowUpChanged} />
-
-          <DetailCard title="Record timeline" description="When this enquiry was created and last changed" icon={CalendarDays}>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <DataField label="Enquiry created" value={new Date(student.enquiryDate).toLocaleString("en-IN")} />
-              <DataField label="Last updated" value={new Date(student.updatedAt).toLocaleString("en-IN")} />
-            </div>
-          </DetailCard>
+            {activeTab === "timeline" && (
+              <DetailCard title="Record timeline" description="All times shown in Indian Standard Time" icon={CalendarDays}>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <DataField label="Enquiry created" value={indiaDateTime(student.enquiryDate)} />
+                  <DataField label="Last updated" value={indiaDateTime(student.updatedAt)} />
+                </div>
+              </DetailCard>
+            )}
+          </div>
         </div>
       </div>
     </div>
