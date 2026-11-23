@@ -1,4 +1,5 @@
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { queueAdminAlert, dispatchForRecipients } from "@/lib/notifications/events";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
@@ -22,6 +23,7 @@ export async function PATCH(req: Request, { params }: Context) {
     if (!parsed.success) {
       return NextResponse.json({ error: "Choose a contact outcome and enter a note under 2000 characters" }, { status: 400 });
     }
+    let alertRecipients: string[] = [];
     const updated = await prisma.$transaction(async (tx) => {
       const before = await tx.admissionFollowUp.findUnique({
         where: { id }, include: { admission: { select: { enquiryNo: true } } },
@@ -45,8 +47,14 @@ export async function PATCH(req: Request, { params }: Context) {
         entityType: "FOLLOW_UP", action: "COMPLETED", entityId: next.id,
         entityLabel: before.admission.enquiryNo, before, after: next,
       });
+      alertRecipients = await queueAdminAlert(tx, {
+        type: "FOLLOW_UP_COMPLETED", eventKey: `follow-up:${next.id}:completed`,
+        title: "Parent follow-up completed",
+        body: `Enquiry ${before.admission.enquiryNo} · Follow-up completed`,
+      });
       return next;
     });
+    if (alertRecipients.length) after(() => dispatchForRecipients(alertRecipients));
     return NextResponse.json({ data: updated }, { headers: noStore });
   } catch (error) {
     if (error instanceof CompletionConflict) {
