@@ -29,7 +29,7 @@ test("live academic-year dropdowns exclude inactive options without losing admin
   assert.ok(analytics.includes("createdAcademicYears.filter((year) => year.isActive)"));
   assert.ok(analytics.includes("options={activeAcademicYears.map"));
   assert.ok(fees.includes("getFeeYearOptions(managedAcademicYears, [])"));
-  assert.ok(fees.includes("activeLinkedClass && activeAcademicYears.includes(linkedClass.year)"));
+  assert.ok(fees.includes("linkedClass && activeAcademicYears.includes(linkedClass.year)"));
   assert.ok(fees.includes("activeLinkedClass?.year ?? selectDefaultFeeYear"));
   assert.ok(!fees.includes("useFeeYears()"));
   assert.ok(yearsPage.includes('value: "INACTIVE"'));
