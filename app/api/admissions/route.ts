@@ -1,6 +1,7 @@
 import { requireAccess } from "@/lib/auth/requireAccess";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { queueAdminAlert, dispatchForRecipients } from "@/lib/notifications/events";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createEnquiryNumber, shouldSkipEntrance } from "@/lib/admissions";
@@ -79,6 +80,7 @@ export async function POST(req: Request) {
 
     for (let attempt = 0; attempt < 3; attempt++) {
       try {
+        let alertRecipients: string[] = [];
         const admission = await prisma.$transaction(async (tx) => {
           const created = await tx.admission.create({
           data: {
@@ -115,8 +117,13 @@ export async function POST(req: Request) {
             entityType: "ADMISSION", action: "CREATED", entityId: created.id,
             entityLabel: created.enquiryNo, after: created,
           });
+          alertRecipients = await queueAdminAlert(tx, {
+            type: "NEW_ENQUIRY", eventKey: `admission:${created.id}:created`,
+            title: "New admission enquiry", body: `Enquiry ${created.enquiryNo} · ${created.admClass}`,
+          });
           return created;
         });
+        after(() => dispatchForRecipients(alertRecipients));
         return NextResponse.json({ data: admission }, { status: 201 });
       } catch (error) {
         if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002" || attempt === 2) throw error;
