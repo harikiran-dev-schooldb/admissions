@@ -5,13 +5,19 @@ import { prisma } from "@/lib/prisma";
 import { emailSet, isBootstrapAdmin, normalizeEmail } from "@/lib/auth/accessPolicy";
 import { requireAdminIdentity } from "@/lib/auth/requireAccess";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
+import { displayMemberName, validMemberName } from "@/lib/users/displayMemberName";
 
 export const dynamic = "force-dynamic";
 
 const createSchema = z.object({
   email: z.email().max(254),
   role: z.enum(["ADMIN", "STAFF"]),
-}).strict();
+  name: z.string().trim().min(2).max(120).optional(),
+}).strict().superRefine(({ role, name }, ctx) => {
+  if (role === "STAFF" && !name) ctx.addIssue({
+    code: "custom", path: ["name"], message: "Enter the staff name",
+  });
+});
 
 const noStore = { "Cache-Control": "private, no-store, max-age=0" };
 
@@ -22,7 +28,10 @@ export async function GET(req: Request) {
     const url = new URL(req.url);
     const page = Math.max(1, Math.min(10000, Number.parseInt(url.searchParams.get("page") ?? "1", 10) || 1));
     const search = normalizeEmail(url.searchParams.get("q") ?? "").slice(0, 254);
-    const where = search ? { email: { contains: search, mode: "insensitive" as const } } : {};
+    const where = search ? { OR: [
+      { email: { contains: search, mode: "insensitive" as const } },
+      { name: { contains: search, mode: "insensitive" as const } },
+    ] } : {};
 
     const [users, total] = await Promise.all([
       prisma.workspaceMember.findMany({
@@ -34,9 +43,20 @@ export async function GET(req: Request) {
       prisma.workspaceMember.count({ where }),
     ]);
 
+    const actorEmails = [...new Set(users.flatMap((user) => [user.createdBy, user.updatedBy]).filter((email): email is string => Boolean(email)))];
+    const actors = await prisma.workspaceMember.findMany({
+      where: { email: { in: actorEmails } }, select: { email: true, name: true },
+    });
+    const actorNames = new Map(actors.map((person) => [person.email, person.name]));
+    const data = users.map((user) => ({
+      ...user,
+      createdByName: user.createdBy ? displayMemberName(user.createdBy, actorNames.get(user.createdBy)) : null,
+      updatedByName: user.updatedBy ? displayMemberName(user.updatedBy, actorNames.get(user.updatedBy)) : null,
+    }));
+
     // Only administrators may see the configured bootstrap identities.
     return NextResponse.json({
-      data: users,
+      data,
       total,
       page,
       pageSize: 25,
@@ -57,8 +77,12 @@ export async function POST(req: Request) {
 
   try {
     const parsed = createSchema.safeParse(await req.json());
-    if (!parsed.success) return NextResponse.json({ error: "Enter a valid email address and role" }, { status: 400 });
+    if (!parsed.success) return NextResponse.json({
+      error: parsed.error.issues.find((issue) => issue.path.includes("name"))?.message ?? "Enter a valid email, name and role",
+    }, { status: 400 });
     const email = normalizeEmail(parsed.data.email);
+    const name = parsed.data.name ? validMemberName(parsed.data.name) : null;
+    if (parsed.data.name && !name) return NextResponse.json({ error: "Enter a valid name" }, { status: 400 });
     if (isBootstrapAdmin(email, process.env.ADMISSIONS_ADMIN_EMAILS)) {
       return NextResponse.json({ error: "This email is already a protected administrator" }, { status: 409 });
     }
@@ -70,6 +94,7 @@ export async function POST(req: Request) {
       const created = await tx.workspaceMember.create({
         data: {
           email,
+          name,
           role: parsed.data.role,
           isActive: true,
           createdBy: actor.email,
@@ -87,7 +112,7 @@ export async function POST(req: Request) {
       });
       await recordActivity(tx, actor, {
         entityType: "USER", action: "CREATED", entityId: created.id,
-        entityLabel: created.email, after: created,
+        entityLabel: created.name || created.email, after: created,
       });
       return created;
     });
