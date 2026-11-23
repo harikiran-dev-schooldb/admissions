@@ -26,7 +26,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ data: years, total: years.length }, { headers: { "Cache-Control": "private, no-store" } });
     }
     const matchingYear = await withDatabaseRetry(() => prisma.academicYear.findUnique({
-      where: { academicYear },
+      where: { academicYear: academicYear! },
       select: { isActive: true },
     }));
     if (!matchingYear?.isActive) {
