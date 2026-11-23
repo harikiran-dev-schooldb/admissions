@@ -23,7 +23,8 @@ export default function AdmissionsPage() {
   const { canManage, canManageAdmissions, role, error: accessError } = useAccess();
   const { academicYears: createdAcademicYears, loading: yearsLoading, error: yearsError } = useAcademicYears();
   const [selectedAcademicYear, setSelectedAcademicYear] = useState("");
-  const academicYear = selectDefaultAdmissionYear(createdAcademicYears, selectedAcademicYear);
+  const activeAcademicYears = createdAcademicYears.filter((year) => year.isActive);
+  const academicYear = yearsLoading ? "" : selectDefaultAdmissionYear(activeAcademicYears, selectedAcademicYear);
   const selectedYearIsActive = createdAcademicYears.some((year) => year.academicYear === academicYear && year.isActive);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -129,12 +130,12 @@ export default function AdmissionsPage() {
               </div>
               <div className="w-[118px] sm:w-[143px]">
                 <SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined} onValueChange={selectYear}
-                  options={createdAcademicYears.map((year) => ({
-                    label: `${year.academicYear}${!year.isActive ? " · Archived" : ""}`,
+                  options={activeAcademicYears.map((year) => ({
+                    label: `${year.academicYear}`,
                     value: year.academicYear,
                   }))}
-                  placeholder={yearsLoading ? "Loading…" : "No years"}
-                  disabled={yearsLoading || createdAcademicYears.length === 0}
+                  placeholder={yearsLoading ? "Loading…" : "No active years"}
+                  disabled={yearsLoading || activeAcademicYears.length === 0}
                   className="!h-11 !rounded-[14px] !border-indigo-100 !bg-indigo-50/70 !font-extrabold !text-indigo-800" />
               </div>
               {canManageAdmissions && <button onClick={() => setOpenNew(true)} disabled={!academicYear || !selectedYearIsActive}
@@ -151,7 +152,7 @@ export default function AdmissionsPage() {
           <section className="premium-hero rounded-[26px] p-5 sm:rounded-[30px] sm:p-7 xl:p-8">
             <div className={`relative z-10 grid items-center gap-5 sm:gap-6 ${canManage ? "xl:grid-cols-[minmax(0,1fr)_minmax(0,360px)]" : ""}`}>
               <div className="min-w-0 max-w-2xl">
-                <p className="premium-kicker flex items-center gap-2"><Sparkles className="size-4" />{academicYear ? `${academicYear.replace("-", "–")} admission desk` : "Create an academic year"}</p>
+                <p className="premium-kicker flex items-center gap-2"><Sparkles className="size-4" />{academicYear ? `${academicYear.replace("-", "–")} admission desk` : "Activate an academic year"}</p>
                 <h2 className="mt-3 text-[27px] font-black leading-[1.12] tracking-[-0.045em] sm:text-[32px]">Your admissions, at a glance.</h2>
                 <p className="mt-2 max-w-lg text-sm leading-6 text-slate-600 sm:text-[15px]">Track enquiries from application to admission, with every follow-up in one place.</p>
               </div>
