@@ -133,6 +133,19 @@ and run migrations **before** deploying this code. GitHub Actions migrations
 only target its temporary CI PostgreSQL instance; passing CI does NOT apply
 migrations to Neon Production.
 
+## Staff display names and activity attribution
+
+Administrators add a **Staff name** plus login email in **Users & Roles**.
+New staff memberships require a name; administrator names are optional.
+Existing members can be renamed inline without changing their login email,
+authorization, account status or history. Only administrators can edit names.
+
+Staff names appear on account profiles, the user list, follow-up assignments,
+exam/interview assignees and access/audit activity. Existing entries without a
+saved name use the login **username** (the part before `@`) as a fallback;
+historical email identifiers remain in the database for reliable attribution.
+Name changes create access-history and immutable activity entries.
+
 ## Database migrations on Vercel Production
 
 The `build` script runs `scripts/deploy-migrations.mjs` before Prisma Client

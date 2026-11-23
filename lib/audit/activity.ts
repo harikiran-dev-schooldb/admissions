@@ -14,7 +14,7 @@ const auditableFields: Record<AuditEntity, readonly string[]> = {
   FEE: ["academicYear","className","age","termFee","annualFees"],
   ACADEMIC_YEAR: ["academicYear","startDate","endDate","isActive"],
   SETTINGS: ["key","value"],
-  USER: ["email","role","isActive"],
+  USER: ["email","name","role","isActive"],
   // Private parent conversation notes never enter the shared audit log.
   FOLLOW_UP: ["assignedToEmail","dueAt","status","outcome"],
 };

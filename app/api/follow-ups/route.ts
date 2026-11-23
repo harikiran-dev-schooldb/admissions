@@ -6,6 +6,7 @@ import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { normalizeEmail, resolveAccessRole } from "@/lib/auth/accessPolicy";
 import { admissionFollowUpId, followUpCreateSchema } from "@/lib/validation/followUps";
 import { parsePage } from "@/lib/admissions/pagination";
+import { displayMemberName } from "@/lib/users/displayMemberName";
 
 const noStore = { "Cache-Control": "private, no-store, max-age=0" };
 const PAGE_SIZE = 30;
@@ -54,7 +55,20 @@ export async function GET(req: Request) {
       }),
       prisma.admissionFollowUp.count({ where }),
     ]);
-    return NextResponse.json({ data: items, total, page, pageSize: PAGE_SIZE }, { headers: noStore });
+    const emails = [...new Set(items.flatMap((item) =>
+      [item.assignedToEmail, item.createdByEmail, item.completedByEmail]
+        .filter((email): email is string => Boolean(email))))];
+    const people = await prisma.workspaceMember.findMany({
+      where: { email: { in: emails } }, select: { email: true, name: true },
+    });
+    const names = new Map(people.map((person) => [person.email, person.name]));
+    const data = items.map((item) => ({
+      ...item,
+      assignedToName: displayMemberName(item.assignedToEmail, names.get(item.assignedToEmail)),
+      createdByName: displayMemberName(item.createdByEmail, names.get(item.createdByEmail)),
+      completedByName: item.completedByEmail ? displayMemberName(item.completedByEmail, names.get(item.completedByEmail)) : null,
+    }));
+    return NextResponse.json({ data, total, page, pageSize: PAGE_SIZE }, { headers: noStore });
   } catch (error) {
     console.error("GET_ADMISSION_FOLLOWUPS_ERROR", error);
     return NextResponse.json({ error: "Could not load follow-ups" }, { status: 500, headers: noStore });

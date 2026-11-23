@@ -4,6 +4,9 @@ export type FollowUpItem = {
   id: string;
   admissionId: string;
   assignedToEmail: string;
+  assignedToName?: string;
+  createdByName?: string;
+  completedByName?: string | null;
   dueAt: string;
   status: FollowUpStatus;
   note: string | null;

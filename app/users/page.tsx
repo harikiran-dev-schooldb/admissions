@@ -15,6 +15,9 @@ type Role = "ADMIN" | "STAFF";
 type Member = {
   id: string;
   email: string;
+  name: string | null;
+  createdByName: string | null;
+  updatedByName: string | null;
   role: Role;
   isActive: boolean;
   updatedAt: string;
@@ -24,6 +27,8 @@ type Audit = {
   id: string;
   memberEmail: string;
   actorEmail: string;
+  actorName: string;
+  memberName: string;
   action: string;
   beforeRole: Role | null;
   afterRole: Role | null;
@@ -61,6 +66,9 @@ export default function UserManagementPage() {
   const [error, setError] = useState("");
   const [notice, setNotice] = useState("");
   const [newEmail, setNewEmail] = useState("");
+  const [newName, setNewName] = useState("");
+  const [editingNameId, setEditingNameId] = useState("");
+  const [editingName, setEditingName] = useState("");
   const [newRole, setNewRole] = useState<Role>("STAFF");
   const [saving, setSaving] = useState(false);
   const [busyId, setBusyId] = useState("");
@@ -103,9 +111,10 @@ export default function UserManagementPage() {
       await readJson(await fetch("/api/users", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: newEmail.trim(), role: newRole }),
+        body: JSON.stringify({ email: newEmail.trim(), role: newRole, ...(newName.trim() ? { name: newName.trim() } : {}) }),
       }));
       setNewEmail("");
+      setNewName("");
       setNewRole("STAFF");
       setNotice("Access granted. The person can request a sign-in code at their authorized email.");
       setPage(1);
@@ -114,6 +123,32 @@ export default function UserManagementPage() {
       setError(caught instanceof Error ? caught.message : "Could not add user");
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function saveMemberName(member: Member) {
+    if (!canManage || busyId || editingNameId !== member.id) return;
+    const name = editingName.trim().replace(/\s+/g, " ");
+    if (name.length < 2 || name.length > 120) {
+      setError("Staff name must contain between 2 and 120 characters.");
+      return;
+    }
+    setBusyId(member.id);
+    setError("");
+    setNotice("");
+    try {
+      await readJson(await fetch(`/api/users/${encodeURIComponent(member.id)}`, {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      }));
+      setEditingNameId("");
+      setEditingName("");
+      setNotice(`Name updated for ${name}.`);
+      refreshData();
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Could not save staff name");
+    } finally {
+      setBusyId("");
     }
   }
 
@@ -208,6 +243,15 @@ export default function UserManagementPage() {
                 </div>
                 <form onSubmit={addMember} className="mt-6 space-y-4">
                   <div>
+                    <label htmlFor="member-name" className="mb-1.5 block text-sm font-bold text-slate-800">
+                      {newRole === "STAFF" ? "Staff name" : "Administrator name (optional)"}
+                    </label>
+                    <input id="member-name" type="text" required={newRole === "STAFF"} minLength={2} maxLength={120}
+                      autoComplete="name" placeholder={newRole === "STAFF" ? "Enter staff full name" : "Enter administrator name"}
+                      value={newName} onChange={(e) => setNewName(e.target.value)}
+                      className="premium-input h-12 w-full rounded-xl px-4 text-sm" />
+                  </div>
+                  <div>
                     <label htmlFor="member-email" className="mb-1.5 block text-sm font-bold text-slate-800">Login email</label>
                     <input id="member-email" type="email" required maxLength={254} autoComplete="off" placeholder="staff@school.com" value={newEmail} onChange={(e) => setNewEmail(e.target.value)}
                       className="premium-input h-12 w-full rounded-xl px-4 text-sm" />
@@ -217,7 +261,7 @@ export default function UserManagementPage() {
                     <SchoolDbSelect ariaLabel="New account access level" value={newRole} onValueChange={(value) => setNewRole(value as Role)}
                       options={[{ value: "STAFF", label: "Staff — Enquiries & workflow" }, { value: "ADMIN", label: "Administrator — Full access" }]} />
                   </div>
-                  <button type="submit" disabled={saving || !newEmail.trim()} className="premium-button h-12 w-full justify-center text-sm font-bold disabled:opacity-50">
+                  <button type="submit" disabled={saving || !newEmail.trim() || (newRole === "STAFF" && newName.trim().length < 2)} className="premium-button h-12 w-full justify-center text-sm font-bold disabled:opacity-50">
                     {saving ? <Loader2 className="size-4 animate-spin" /> : <Plus className="size-4" />} {saving ? "Adding user…" : "Grant access"}
                   </button>
                 </form>
@@ -251,7 +295,7 @@ export default function UserManagementPage() {
                 <form onSubmit={searchUsers} className="flex min-w-0 gap-2">
                   <div className="relative min-w-0 flex-1">
                     <Search className="absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" />
-                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by email" className="premium-input h-11 w-full rounded-xl pl-10 pr-3 text-sm" />
+                    <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Search by name or email" className="premium-input h-11 w-full rounded-xl pl-10 pr-3 text-sm" />
                   </div>
                   <button type="submit" className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 text-sm font-bold text-indigo-700">Search</button>
                 </form>
@@ -259,14 +303,37 @@ export default function UserManagementPage() {
               <div className="overflow-x-auto">
                 <table className="w-full min-w-[830px]">
                   <thead className="bg-indigo-50/60"><tr>
-                    {["Email", "Role", "Status", "Last changed by", "Actions"].map((label) =>
+                    {["Staff name / Email", "Role", "Status", "Activity by", "Actions"].map((label) =>
                       <th key={label} className="px-5 py-4 text-left text-xs font-black uppercase tracking-wide text-slate-500">{label}</th>)}
                   </tr></thead>
                   <tbody>
                     {loading && <tr><td colSpan={5} className="p-10 text-center text-sm text-slate-500"><Loader2 className="mr-2 inline size-4 animate-spin" />Loading members…</td></tr>}
                     {!loading && members.length === 0 && <tr><td colSpan={5} className="p-10 text-center text-sm font-semibold text-slate-500">No accounts match your search. Use Add account to grant access.</td></tr>}
                     {!loading && members.map((member) => <tr key={member.id} className="border-t border-slate-100 hover:bg-indigo-50/30">
-                      <td className="px-5 py-4 text-sm font-bold text-slate-900">{member.email}</td>
+                      <td className="px-5 py-4 text-sm text-slate-900">
+                        {editingNameId === member.id ? (
+                          <div className="min-w-[185px] space-y-2">
+                            <input aria-label={`Edit name for ${member.email}`} value={editingName} maxLength={120}
+                              onChange={(event) => setEditingName(event.target.value)}
+                              className="premium-input h-10 w-full rounded-xl px-3 text-sm" />
+                            <div className="flex gap-2">
+                              <button type="button" disabled={busyId !== "" || editingName.trim().length < 2}
+                                onClick={() => void saveMemberName(member)}
+                                className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-40">Save</button>
+                              <button type="button" disabled={busyId !== ""} onClick={() => setEditingNameId("")}
+                                className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-600">Cancel</button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <p className="font-extrabold">{member.name || member.email.split("@")[0]}</p>
+                            <p className="mt-0.5 break-all text-xs font-medium text-slate-500">{member.email}</p>
+                            <button type="button" disabled={busyId !== ""} aria-label={`Edit name for ${member.email}`}
+                              onClick={() => { setEditingNameId(member.id); setEditingName(member.name ?? ""); }}
+                              className="mt-2 text-xs font-bold text-indigo-700 hover:underline disabled:opacity-40">Edit name</button>
+                          </>
+                        )}
+                      </td>
                       <td className="px-5 py-4">
 <SchoolDbSelect ariaLabel={`Role for ${member.email}`} value={member.role}
                           disabled={busyId !== "" || !member.isActive}
@@ -274,7 +341,15 @@ export default function UserManagementPage() {
                           options={[{ value: "STAFF", label: "Staff" }, { value: "ADMIN", label: "Admin" }]} />
                       </td>
                       <td className="px-5 py-4"><span className={`inline-flex rounded-lg px-2.5 py-1.5 text-xs font-black ${member.isActive ? "bg-emerald-50 text-emerald-700" : "bg-slate-100 text-slate-500"}`}>{member.isActive ? "Active" : "Disabled"}</span></td>
-                      <td className="px-5 py-4"><p className="max-w-[220px] truncate text-xs font-semibold text-slate-600" title={member.updatedBy ?? ""}>{member.updatedBy ?? "—"}</p><p className="mt-1 text-xs text-slate-400">{new Date(member.updatedAt).toLocaleString("en-IN")}</p></td>
+                      <td className="px-5 py-4">
+                        <p className="max-w-[220px] truncate text-xs font-bold text-slate-700" title={member.updatedByName ?? ""}>
+                          Updated by {member.updatedByName ?? "—"}
+                        </p>
+                        <p className="mt-1 max-w-[220px] truncate text-xs text-slate-500" title={member.createdByName ?? ""}>
+                          Created by {member.createdByName ?? "—"}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-400">{new Date(member.updatedAt).toLocaleString("en-IN")}</p>
+                      </td>
                       <td className="px-5 py-4">
                         <button disabled={busyId !== ""} onClick={() => void updateMember(member, { isActive: !member.isActive })}
                           className={`inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-bold disabled:opacity-50 ${member.isActive ? "bg-rose-50 text-rose-700 hover:bg-rose-100" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100"}`}>
@@ -305,7 +380,7 @@ export default function UserManagementPage() {
               <div className="mt-4 divide-y divide-slate-100">
                 {audit.length === 0 && <p className="py-4 text-sm text-slate-500">No changes recorded yet.</p>}
                 {audit.map((entry) => <div key={entry.id} className="flex flex-wrap items-center justify-between gap-2 py-3 text-sm">
-                  <div><p className="font-bold text-slate-800">{entry.memberEmail}</p><p className="mt-0.5 text-xs text-slate-500">{entry.action.replaceAll("_", " ")} by {entry.actorEmail}</p></div>
+                  <div><p className="font-bold text-slate-800">{entry.memberName}</p><p className="mt-0.5 text-xs text-slate-500">{entry.action.replaceAll("_", " ")} by {entry.actorName}</p></div>
                   <time className="text-xs font-semibold text-slate-400">{new Date(entry.createdAt).toLocaleString("en-IN")}</time>
                 </div>)}
               </div>

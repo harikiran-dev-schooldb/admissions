@@ -18,7 +18,7 @@ export default function AdmissionSchedulePanel({ student, onChanged }: {
   student: Admission; onChanged?: () => void;
 }) {
   const { role, email } = useAccess();
-  const [assignees, setAssignees] = useState<{ email: string; role: string }[]>([]);
+  const [assignees, setAssignees] = useState<{ email: string; role: string; name: string }[]>([]);
   const [dates, setDates] = useState<Record<Kind, string>>({
     ENTRANCE: localValue(student.entranceScheduledAt),
     INTERVIEW: localValue(student.interviewScheduledAt),
@@ -89,7 +89,7 @@ export default function AdmissionSchedulePanel({ student, onChanged }: {
                 className="premium-input mt-1.5 min-h-11 w-full rounded-xl px-3 text-sm">
                 <option value={email}>Myself</option>
                 {assignees.filter((person) => person.email !== email).map((person) => (
-                  <option key={person.email} value={person.email}>{person.email}</option>
+                  <option key={person.email} value={person.email}>{person.name}</option>
                 ))}
               </select>
             </label>}

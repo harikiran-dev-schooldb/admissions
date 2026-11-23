@@ -176,8 +176,7 @@ export default function ActivityLogPageClient() {
                         </time>
                       </div>
                       <p className="text-sm text-slate-600">
-                        <span className="font-bold text-slate-900">{entry.actorName || entry.actorEmail}</span>
-                        {entry.actorName && <span className="ml-2 text-xs text-slate-500">{entry.actorEmail}</span>}
+                        <span className="font-bold text-slate-900">{entry.actorName || entry.actorEmail.split("@")[0]}</span>
                         <span className="ml-2 rounded-md bg-slate-100 px-2 py-0.5 text-xs font-bold capitalize text-slate-600">{entry.actorRole}</span>
                       </p>
                       <details className="rounded-xl bg-slate-50/90 px-3 py-2 text-sm">

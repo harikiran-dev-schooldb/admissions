@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { Prisma } from "@/src/generated/prisma/client";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth/server";
+import { displayMemberName } from "@/lib/users/displayMemberName";
 import {
   canAccess,
   normalizeEmail,
@@ -45,11 +46,11 @@ export async function getAuthorizedRole(): Promise<AccessResult> {
 
     // No database dependency is needed to recover from a broken migration.
     const bootstrapRole = resolveAccessRole(email, admins, undefined);
-    if (bootstrapRole === "admin") return { role: "admin", email, name, error: null };
+    if (bootstrapRole === "admin") return { role: "admin", email, name: displayMemberName(email, name), error: null };
 
     const member = await prisma.workspaceMember.findUnique({
       where: { email },
-      select: { role: true, isActive: true },
+      select: { role: true, isActive: true, name: true },
     });
 
     const role = resolveAccessRole(
@@ -59,7 +60,7 @@ export async function getAuthorizedRole(): Promise<AccessResult> {
       member,
     );
     if (!role) return reject("You do not have access to this workspace", 403);
-    return { role, email, name, error: null };
+    return { role, email, name: displayMemberName(email, member?.name || name), error: null };
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2021") {
       return reject("Database setup is incomplete. An administrator must apply the database migrations.", 503);

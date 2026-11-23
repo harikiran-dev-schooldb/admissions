@@ -94,6 +94,7 @@ model AcademicYear {
 model WorkspaceMember {
   id        String        @id @default(cuid())
   email     String        @unique
+  name      String?
   role      WorkspaceRole
   isActive  Boolean       @default(true)
   createdBy String?

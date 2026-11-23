@@ -113,7 +113,7 @@ export default function FollowUpQueue({
                 <p className="mt-1 text-xs font-semibold text-slate-600">
                   {item.admission.admClass} · {new Date(item.dueAt).toLocaleString("en-IN", { dateStyle: "medium", timeStyle: "short" })}
                 </p>
-                <p className="mt-1 break-all text-xs text-slate-500">Assigned to {item.assignedToEmail}</p>
+                <p className="mt-1 break-all text-xs text-slate-500">Assigned to {item.assignedToName || item.assignedToEmail.split("@")[0]}</p>
                 {item.note && <p className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-700">{item.note}</p>}
                 {item.status === "COMPLETED" && <p className="mt-2 text-xs font-bold text-emerald-700">Outcome: {item.outcome?.replaceAll("_", " ")}</p>}
                 {item.completionNote && <p className="mt-1 whitespace-pre-wrap break-words text-sm text-slate-600">{item.completionNote}</p>}
