@@ -139,6 +139,10 @@ Administrators add a **Staff name** plus login email in **Users & Roles**.
 New staff memberships require a name; administrator names are optional.
 Existing members can be renamed inline without changing their login email,
 authorization, account status or history. Only administrators can edit names.
+Protected recovery administrators can now set their own display names in the
+**Protected recovery admins** section; saving a name never changes their roles
+or Vercel bootstrap access. This also fixes assignee labels and existing parent
+follow-up history when the assigned account has no managed staff record.
 
 Staff names appear on account profiles, the user list, follow-up assignments,
 exam/interview assignees and access/audit activity. Existing entries without a

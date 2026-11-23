@@ -54,9 +54,21 @@ export async function GET(req: Request) {
       updatedByName: user.updatedBy ? displayMemberName(user.updatedBy, actorNames.get(user.updatedBy)) : null,
     }));
 
+    const bootstrapEmails = [...emailSet(process.env.ADMISSIONS_ADMIN_EMAILS)].sort();
+    const protectedMembers = await prisma.workspaceMember.findMany({
+      where: { email: { in: bootstrapEmails } },
+      select: { email: true, name: true },
+    });
+    const protectedNames = new Map(protectedMembers.map((member) => [member.email, member.name]));
+    const bootstrapAdminProfiles = bootstrapEmails.map((email) => ({
+      email,
+      name: protectedNames.get(email) ?? null,
+    }));
+
     // Only administrators may see the configured bootstrap identities.
     return NextResponse.json({
       data,
+      bootstrapAdminProfiles,
       total,
       page,
       pageSize: 25,
