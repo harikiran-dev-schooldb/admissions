@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { sendWebPush } from "@/lib/notifications/webPush";
+import { resolveAccessRole } from "@/lib/auth/accessPolicy";
 
 type PushPayload = { title: string; body: string; tag: string; url: string };
 export type PushSummary = { subscribed: number; accepted: number; failed: number; expired: number };
@@ -10,6 +11,11 @@ export type PushSummary = { subscribed: number; accepted: number; failed: number
  * Invalid subscriptions are removed; other failures are logged without leaking endpoints.
  */
 export async function deliverPushToEmail(email: string, payload: PushPayload): Promise<PushSummary> {
+  const recipient = email.trim().toLowerCase();
+  const member = await prisma.workspaceMember.findUnique({ where: { email: recipient } });
+  if (!resolveAccessRole(recipient, process.env.ADMISSIONS_ADMIN_EMAILS, process.env.ADMISSIONS_STAFF_EMAILS, member)) {
+    return { subscribed: 0, accepted: 0, failed: 0, expired: 0 };
+  }
   const subscriptions = await prisma.pushSubscription.findMany({
     where: { email: email.trim().toLowerCase() }, take: 20,
   });
