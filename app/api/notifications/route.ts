@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { requireAuditActor } from "@/lib/audit/activity";
+import { isAlertType, canReceiveAlert } from "@/lib/notifications/catalog";
 
 const noStore = { "Cache-Control": "private, no-store, max-age=0" };
 
@@ -27,7 +28,7 @@ export async function GET() {
       prisma.notificationPreference.findMany({ where: { email }, select: { type: true, inAppEnabled: true } }),
     ]);
     const allowed = new Map(preferences.map((p) => [p.type, p.inAppEnabled]));
-    const eventItems = events.filter((event) => allowed.get(event.type) !== false).map((event) => ({
+    const eventItems = events.filter((event) => isAlertType(event.type) && canReceiveAlert(authz.actor.role, event.type) && allowed.get(event.type) !== false).map((event) => ({
       id: `event:${event.id}`, kind: "EVENT" as const,
       title: event.title, note: event.body, eventType: event.type,
       readAt: event.readAt, href: event.href,
