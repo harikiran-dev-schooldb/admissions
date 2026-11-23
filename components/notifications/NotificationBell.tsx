@@ -245,6 +245,7 @@ export default function NotificationBell() {
           Disable push
         </button>
       </div>}
+      {pushEnabled && permission !== "granted" && <p role="status" className="mt-2 text-xs font-semibold text-amber-700">This device has not granted notification permission. Allow SchoolDB notifications in your browser or phone Settings.</p>}
       {testFeedback && <p role="status" className="mt-2 text-xs font-semibold text-emerald-700">{testFeedback}</p>}
       {pushError && <p role="alert" className="mt-2 text-xs text-rose-600">{pushError}</p>}
       <p className="mt-3 text-[11px] text-slate-500">{pushEnabled ? "This browser has a push subscription. Send a test to verify delivery and system notification permissions." : "Phone banners need permission, an installed iPhone Home Screen app, and a subscription for the assigned account."} Reminders appear for follow-ups assigned to your signed-in email.</p>
