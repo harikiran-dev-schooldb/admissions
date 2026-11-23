@@ -39,7 +39,8 @@ export default function AdmissionsPage() {
   const [followUpRefresh, setFollowUpRefresh] = useState(0);
 
   useEffect(() => {
-    const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 300);
+    // Wait for a full second of inactivity before fetching directory rows and KPI totals.
+    const timeout = window.setTimeout(() => setDebouncedSearch(search.trim()), 1000);
     return () => window.clearTimeout(timeout);
   }, [search]);
 
