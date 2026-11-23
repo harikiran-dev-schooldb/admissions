@@ -4,7 +4,8 @@ import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@/src/generated/prisma/client";
 import { revalidatePath } from "next/cache";
-import { NextResponse } from "next/server";
+import { NextResponse, after } from "next/server";
+import { queueAdminAlert, dispatchForRecipients } from "@/lib/notifications/events";
 import { admissionStageSchema, validationError } from "@/lib/validation/admissions";
 
 class StageConflict extends Error {
@@ -25,6 +26,7 @@ export async function PATCH(req: Request) {
     }
 
     const { id, field, value } = parsed.data;
+    let alertRecipients: string[] = [];
     const updated = await prisma.$transaction(async (tx) => {
       const current = await tx.admission.findUnique({ where: { id } });
       if (!current) throw new StageConflict("This enquiry was not found. Refresh the directory.", 404);
@@ -86,10 +88,25 @@ export async function PATCH(req: Request) {
         before: current,
         after: changed,
       });
+      const events = [
+        ...(current.application !== "SUBMITTED" && changed.application === "SUBMITTED"
+          ? [{ type: "APPLICATION_SUBMITTED" as const, title: "Application submitted", body: `Application submitted · ${changed.enquiryNo}` }] : []),
+        ...(current.finalAdmission !== "ADMITTED" && changed.finalAdmission === "ADMITTED"
+          ? [{ type: "STUDENT_ADMITTED" as const, title: "Student admitted", body: `Admission confirmed · ${changed.enquiryNo}` }] : []),
+        ...(current.finalAdmission !== "CANCELLED" && changed.finalAdmission === "CANCELLED"
+          ? [{ type: "ADMISSION_CANCELLED" as const, title: "Admission cancelled", body: `Admission cancelled · ${changed.enquiryNo}` }] : []),
+      ];
+      for (const event of events) {
+        const recipients = await queueAdminAlert(tx, {
+          ...event, eventKey: `admission:${id}:${event.type}:${changed.updatedAt.toISOString()}`,
+        });
+        alertRecipients = [...new Set([...alertRecipients, ...recipients])];
+      }
       return changed;
     });
 
     revalidatePath("/admissions");
+    if (alertRecipients.length) after(() => dispatchForRecipients(alertRecipients));
     return NextResponse.json({ success: true, data: updated }, { headers: noStore });
   } catch (error) {
     if (error instanceof StageConflict) {
