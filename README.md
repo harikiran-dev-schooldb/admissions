@@ -206,6 +206,16 @@ changes cannot be attributed retroactively and are not fabricated. New
 events are recorded from the deployment onward. Direct SQL changes and
 Neon Auth sign-ins are outside application API auditing.
 
+## Follow-up notifications and phone pop-ups
+
+- The bell lists **open follow-ups assigned to the signed-in email**. A bell count is not proof that any phone push was sent.
+- When a follow-up is newly assigned, the server makes a best-effort immediate push attempt to devices subscribed under that assignee's login. Due/overdue reminders also run from `/api/cron/push-reminders` using a protected Vercel cron.
+- The current `vercel.json` cron runs at **03:00 UTC (08:30 IST), once daily**. This does not guarantee delivery at the exact follow-up due time. More frequent background due reminders require a scheduler supported by the project's Vercel plan or another authenticated scheduler.
+- When SchoolDB is open, a once-per-event in-app toast displays due follow-ups even if system notification permission is unavailable. Read/acknowledged items are not repeatedly toasted.
+- For **iPhone notifications**: install the PWA using Safari → Share → Add to Home Screen, open the installed SchoolDB app, open the bell, and choose **Enable background push notifications**. Allow the iOS permission prompt, then use **Send test pop-up**. Browser tabs alone cannot receive iOS web push in the same way as installed Home Screen apps.
+- A successful test response means the push provider **accepted** the payload, not that iOS displayed a banner. Also check iPhone Settings → Notifications → SchoolDB, Focus mode, and whether the task is assigned to the email currently logged in. If the test says no subscription, disable and re-enable push for that account.
+- VAPID settings required in Vercel Production: `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, plus `CRON_SECRET` for cron authentication. Never expose the private key or cron secret in the browser.
+
 ## Premium navigation and app notifications
 
 Navigation groups day-to-day workspace pages and administrator-only controls.
