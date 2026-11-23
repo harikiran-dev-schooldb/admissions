@@ -40,6 +40,7 @@ type Listing = {
   pageSize: number;
   total: number;
   bootstrapAdmins: string[];
+  bootstrapAdminProfiles: { email: string; name: string | null }[];
   legacyStaff: string[];
   currentUserEmail: string;
 };
@@ -51,10 +52,13 @@ async function readJson(response: Response) {
 }
 
 export default function UserManagementPage() {
-  const { role, loading: accessLoading, error: accessError } = useAccess();
+  const { role, loading: accessLoading, error: accessError, refreshAccess } = useAccess();
   const canManage = role === "admin";
   const [members, setMembers] = useState<Member[]>([]);
   const [bootstrapAdmins, setBootstrapAdmins] = useState<string[]>([]);
+  const [bootstrapAdminProfiles, setBootstrapAdminProfiles] = useState<{ email: string; name: string | null }[]>([]);
+  const [editingProtected, setEditingProtected] = useState("");
+  const [protectedName, setProtectedName] = useState("");
   const [legacyStaff, setLegacyStaff] = useState<string[]>([]);
   const [audit, setAudit] = useState<Audit[]>([]);
   const [total, setTotal] = useState(0);
@@ -88,6 +92,7 @@ export default function UserManagementPage() {
         if (disposed) return;
         setMembers(listing.data);
         setBootstrapAdmins(listing.bootstrapAdmins);
+        setBootstrapAdminProfiles(listing.bootstrapAdminProfiles ?? []);
         setLegacyStaff(listing.legacyStaff);
         setTotal(listing.total);
         setAudit(history.data);
@@ -100,6 +105,33 @@ export default function UserManagementPage() {
     void load();
     return () => { disposed = true; };
   }, [canManage, page, query, refresh]);
+
+  async function saveProtectedName(email: string) {
+    if (!canManage || busyId || editingProtected !== email) return;
+    const name = protectedName.trim().replace(/\s+/g, " ");
+    if (name.length < 2 || name.length > 120) {
+      setError("Display name must be between 2 and 120 characters.");
+      return;
+    }
+    setBusyId(email);
+    setError("");
+    setNotice("");
+    try {
+      await readJson(await fetch("/api/users/bootstrap-names", {
+        method: "PATCH", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, name }),
+      }));
+      setEditingProtected("");
+      setProtectedName("");
+      setNotice(`Display name saved for ${name}.`);
+      refreshData();
+      void refreshAccess().catch(() => {});
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "Unable to update protected administrator name");
+    } finally {
+      setBusyId("");
+    }
+  }
 
   async function addMember(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -275,9 +307,34 @@ export default function UserManagementPage() {
                   <div><h3 className="text-xl font-black text-slate-950">Protected recovery admins</h3><p className="text-sm text-slate-500">Cannot be demoted or disabled here</p></div>
                 </div>
                 <div className="mt-5 space-y-2">
-                  {bootstrapAdmins.map((email) => <div key={email} className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-indigo-100 bg-indigo-50/50 px-4 py-3">
-                    <span className="min-w-0 break-all text-sm font-bold text-slate-800">{email}</span>
-                    <span className="rounded-lg bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-800">Protected Admin</span>
+                  {bootstrapAdminProfiles.map((profile) => <div key={profile.email} className="rounded-xl border border-indigo-100 bg-indigo-50/50 px-4 py-3">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="break-words text-sm font-extrabold text-slate-800">{profile.name || profile.email.split("@")[0]}</p>
+                        <p className="mt-0.5 break-all text-xs text-slate-500">{profile.email}</p>
+                      </div>
+                      <span className="rounded-lg bg-indigo-100 px-2.5 py-1 text-xs font-bold text-indigo-800">Protected Admin</span>
+                    </div>
+                    {editingProtected === profile.email ? (
+                      <div className="mt-3 space-y-2">
+                        <label htmlFor={`protected-name-${profile.email}`} className="block text-xs font-bold text-slate-700">Administrator display name</label>
+                        <input id={`protected-name-${profile.email}`} value={protectedName} maxLength={120}
+                          onChange={(event) => setProtectedName(event.target.value)} autoComplete="name"
+                          placeholder="Enter full name" className="premium-input h-10 w-full rounded-xl px-3 text-sm" />
+                        <div className="flex gap-2">
+                          <button type="button" onClick={() => void saveProtectedName(profile.email)}
+                            disabled={busyId !== "" || protectedName.trim().length < 2}
+                            className="rounded-lg bg-indigo-600 px-3 py-2 text-xs font-bold text-white disabled:opacity-40">Save name</button>
+                          <button type="button" disabled={busyId !== ""} onClick={() => setEditingProtected("")}
+                            className="rounded-lg border border-slate-200 px-3 py-2 text-xs font-bold text-slate-700">Cancel</button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button type="button" disabled={busyId !== ""} onClick={() => { setEditingProtected(profile.email); setProtectedName(profile.name ?? ""); }}
+                        className="mt-2 text-xs font-bold text-indigo-700 hover:underline disabled:opacity-40">
+                        {profile.name ? "Edit display name" : "Add display name"}
+                      </button>
+                    )}
                   </div>)}
                   {loading && <p className="text-sm text-slate-500">Loading accounts…</p>}
                 </div>
