@@ -42,6 +42,15 @@ test("follow-up creation triggers immediate best-effort push to the assigned acc
   assert.ok(!delivery.includes("console.log(subscription)"));
 });
 
+test("only the visible responsive header mounts a notification bell", () => {
+  const account = source("components/AccountMenu.tsx");
+  const sidebar = source("components/AppSidebar.tsx");
+  assert.ok(account.includes("window.matchMedia"));
+  assert.ok(account.includes("showNotificationBell && <NotificationBell />"));
+  assert.ok(account.includes("compact ? mobileViewport : !mobileViewport"));
+  assert.ok(sidebar.includes("<AccountMenu compact />"));
+});
+
 test("service worker shows push notifications; cron remains authenticated", () => {
   const worker = source("public/push-sw.js");
   const cron = source("app/api/cron/push-reminders/route.ts");
