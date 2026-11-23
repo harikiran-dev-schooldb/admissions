@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 :root {
+  /* Always render the workspace and native browser controls in light mode. */
+  color-scheme: light;
   --radius: .9rem;
   --background: oklch(0.975 0.006 255);
   --foreground: oklch(0.19 0.025 255);

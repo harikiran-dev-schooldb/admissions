@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Script from "next/script";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -7,6 +7,9 @@ import { AccessProvider } from "@/components/auth/AccessProvider";
 
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
+
+// Prevent OS dark-mode preferences from changing native controls or the PWA shell.
+export const viewport: Viewport = { colorScheme: "light" };
 
 export const metadata: Metadata = {
   title: { default: "SchoolDB Admissions", template: "%s | SchoolDB Admissions" },
