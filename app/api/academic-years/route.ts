@@ -15,7 +15,7 @@ export async function GET() {
     const academicYears = await withDatabaseRetry(() => prisma.academicYear.findMany({ orderBy: { academicYear: "desc" }, include: { _count: { select: { admissions: true } } } }));
     // Admissions, Analytics and Fees default to the latest configured year,
     // even if it has not received enrolments or fee structures yet.
-    const latestYear = academicYears[0]?.academicYear;
+    const latestYear = academicYears.find((year) => year.isActive)?.academicYear;
     return NextResponse.json({
       data: academicYears.map(({ _count, ...year }) => ({
         ...year,

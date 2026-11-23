@@ -70,7 +70,7 @@ test("fee page deep-links back to the exact filtered class and year", () => {
   assert.match(fees, /useSearchParams\(\)/);
   assert.match(fees, /params\.get\("year"\)/);
   assert.match(fees, /params\.get\("class"\)/);
-  assert.match(fees, /linkedClass\?\.year \?\? selectDefaultFeeYear/);
+  assert.match(fees, /activeLinkedClass\?\.year \?\? selectDefaultFeeYear/);
   assert.match(fees, /fee\.className\.trim\(\)\.toLowerCase\(\) === effectiveClassFilter\.trim\(\)\.toLowerCase\(\)/);
   assert.match(fees, /Linked from an admission/);
   assert.match(fees, /Show all fees/);

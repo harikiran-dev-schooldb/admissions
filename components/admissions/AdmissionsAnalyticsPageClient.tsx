@@ -22,7 +22,8 @@ const AdmissionsAnalytics = dynamic(
 export default function AdmissionsAnalyticsPageClient() {
   const { academicYears: createdAcademicYears, loading: yearsLoading, error: yearsError } = useAcademicYears();
   const [selectedAcademicYear, setSelectedAcademicYear] = useState("");
-  const academicYear = yearsLoading ? "" : selectDefaultAdmissionYear(createdAcademicYears, selectedAcademicYear);
+  const activeAcademicYears = createdAcademicYears.filter((year) => year.isActive);
+  const academicYear = yearsLoading ? "" : selectDefaultAdmissionYear(activeAcademicYears, selectedAcademicYear);
   const { groups, loading: analyticsLoading, error, reload } = useAdmissionAnalytics(academicYear);
   const [classFilter, setClassFilter] = useState("ALL");
   const [finalStatusFilter, setFinalStatusFilter] = useState("ALL");
@@ -62,9 +63,9 @@ export default function AdmissionsAnalyticsPageClient() {
               <div className="w-36">
                 <SchoolDbSelect ariaLabel="Academic year" value={academicYear || undefined}
                   onValueChange={selectYear}
-                  options={createdAcademicYears.map((year) => ({ label: year.academicYear, value: year.academicYear }))}
-                  placeholder={yearsLoading ? "Loading years…" : "No academic years"}
-                  disabled={yearsLoading || createdAcademicYears.length === 0} className="font-bold" />
+                  options={activeAcademicYears.map((year) => ({ label: year.academicYear, value: year.academicYear }))}
+                  placeholder={yearsLoading ? "Loading years…" : "No active years"}
+                  disabled={yearsLoading || activeAcademicYears.length === 0} className="font-bold" />
               </div>
               <div className="hidden border-l border-slate-200 pl-3 lg:block"><AccountMenu /></div>
             </div>
@@ -135,14 +136,14 @@ export default function AdmissionsAnalyticsPageClient() {
           {!failure && loading && <AnalyticsLoadingSkeleton />}
           {!failure && !loading && !academicYear && (
             <section className="premium-panel rounded-[28px] p-10 text-center">
-              <h3 className="text-xl font-black text-slate-900">No academic year configured</h3>
-              <p className="mt-2 text-sm text-slate-500">Create an academic year to view admission performance.</p>
+              <h3 className="text-xl font-black text-slate-900">No active academic year</h3>
+              <p className="mt-2 text-sm text-slate-500">Activate an academic year to view admission performance.</p>
             </section>
           )}
           {!failure && !loading && academicYear && groups.length === 0 && (
             <section className="premium-panel rounded-[28px] p-10 text-center">
               <h3 className="text-xl font-black text-slate-900">No enquiries for {academicYear}</h3>
-              <p className="mt-2 text-sm text-slate-500">The latest academic year is selected. Choose an older year to review historical admissions.</p>
+              <p className="mt-2 text-sm text-slate-500">The latest active academic year is selected. Choose another active year to compare admissions.</p>
             </section>
           )}
           {!failure && !loading && groups.length > 0 && summary.total === 0 && (

@@ -26,6 +26,11 @@ export async function GET(_req: Request, { params }: Context) {
     const { id } = await params;
     const fee = await prisma.feeRecord.findUnique({ where: { id } });
     if (!fee) return NextResponse.json({ error: "Fee structure not found" }, { status: 404 });
+    const academicYear = await prisma.academicYear.findUnique({
+      where: { academicYear: fee.academicYear },
+      select: { isActive: true },
+    });
+    if (!academicYear?.isActive) return NextResponse.json({ error: "Fee structure not found" }, { status: 404 });
     return NextResponse.json({ data: fee });
   } catch (error) {
     return feeError(error, "GET");
