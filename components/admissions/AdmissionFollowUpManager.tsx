@@ -13,7 +13,7 @@ export default function AdmissionFollowUpManager({
 }: { admissionId: string; isOpenAdmission: boolean; onChanged?: () => void }) {
   const { role, email } = useAccess();
   const [items, setItems] = useState<FollowUpItem[]>([]);
-  const [assignees, setAssignees] = useState<{ email: string; role: string }[]>([]);
+  const [assignees, setAssignees] = useState<{ email: string; role: string; name: string }[]>([]);
   const [assignedToEmail, setAssignedToEmail] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [note, setNote] = useState("");
@@ -105,7 +105,7 @@ export default function AdmissionFollowUpManager({
                   onChange={(event) => setAssignedToEmail(event.target.value)}
                   className="premium-input mt-1.5 h-11 w-full rounded-xl px-3 text-sm">
                   {!assignees.some((person) => person.email === email) && <option value={email}>Myself</option>}
-                  {assignees.map((person) => <option key={person.email} value={person.email}>{person.email}</option>)}
+                  {assignees.map((person) => <option key={person.email} value={person.email}>{person.name}</option>)}
                 </select>
               </label>
             ) : (
@@ -134,7 +134,7 @@ export default function AdmissionFollowUpManager({
                 {item.status === "OPEN" ? "Scheduled" : "Completed"}
               </span>
             </div>
-            <p className="mt-1 break-all text-xs text-slate-500">Assigned: {item.assignedToEmail}</p>
+            <p className="mt-1 break-all text-xs text-slate-500">Assigned: {item.assignedToName || item.assignedToEmail.split("@")[0]}</p>
             {item.note && <p className="mt-2 whitespace-pre-wrap break-words text-sm text-slate-700">{item.note}</p>}
             {item.status === "COMPLETED" && <p className="mt-2 text-sm font-semibold text-emerald-700">Outcome: {item.outcome?.replaceAll("_", " ")}</p>}
             {item.completionNote && <p className="mt-1 whitespace-pre-wrap break-words text-sm text-slate-600">{item.completionNote}</p>}
