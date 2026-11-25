@@ -15,7 +15,7 @@ const auditableFields: Record<AuditEntity, readonly string[]> = {
   ACADEMIC_YEAR: ["academicYear","startDate","endDate","isActive"],
   SETTINGS: ["key","value"],
   USER: ["email","name","role","isActive"],
-  ADMISSION_CASE: ["source","cancellationReason","waitlistedAt"],
+  ADMISSION_CASE: ["source","cancellationReason","waitlistedAt","applicationSavedAt"],
   DOCUMENT: ["kind","status","verifiedAt"],
   // Private parent conversation notes never enter the shared audit log.
   FOLLOW_UP: ["assignedToEmail","dueAt","status","outcome"],

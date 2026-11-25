@@ -5,12 +5,14 @@ import { toast } from "sonner";
 import type { Admission } from "@/src/generated/prisma/client";
 import { TEMPLATE_TYPES, parentMessage, whatsappContact, type TemplateType } from "@/lib/admissions/communication";
 import { labelCode } from "@/lib/admissions/casePolicy";
+import DigitalApplicationForm from "@/components/admissions/DigitalApplicationForm";
 const PRINT_TYPES=["acknowledgement","entrance","interview","fees","confirmation"] as const;
 export default function AdmissionCommunication({student}:{student:Admission}){
   const [type,setType]=useState<TemplateType>("ACKNOWLEDGEMENT");
   const message=parentMessage(type,student,"the school");
   const phone=whatsappContact(student.mobile);
   return <div className="space-y-4">
+    <DigitalApplicationForm key={student.id} student={student}/>
     <section className="premium-panel rounded-[22px] p-4 sm:p-6"><h3 className="text-lg font-black">Parent communication</h3><p className="mt-1 text-sm text-slate-600">Review the message before sending manually. Nothing is sent automatically.</p>
       <label className="mt-4 block text-sm font-bold">Message template<select className="mt-1 min-h-11 w-full rounded-xl border border-slate-200 bg-white px-3 text-sm" value={type} onChange={event=>setType(event.target.value as TemplateType)}>{TEMPLATE_TYPES.map(value=><option key={value} value={value}>{labelCode(value)}</option>)}</select></label>
       <p className="mt-3 whitespace-pre-wrap rounded-xl bg-slate-50 p-4 text-sm leading-6">{message??"Not available until this appointment or admission is confirmed."}</p>

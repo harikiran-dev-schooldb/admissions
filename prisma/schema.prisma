@@ -289,6 +289,11 @@ model AdmissionCase {
   source String @default("UNSPECIFIED")
   cancellationReason String?
   waitlistedAt DateTime?
+  previousSchool String?
+  previousClass String?
+  correspondenceAddress String?
+  preferredLanguage String?
+  applicationSavedAt DateTime?
   updatedAt DateTime @updatedAt
 
   @@index([waitlistedAt])
