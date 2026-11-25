@@ -292,3 +292,19 @@ Historical imports sometimes contain incomplete earlier stages while already
 marked ADMITTED. The directory displays their final decision correctly and
 flags the discrepancy instead of silently rewriting those historical records.
 No existing admission statuses are bulk-modified by this fix.
+
+
+### Admissions V3 configuration
+
+The parent portal at `/enquire` is disabled unless all of these **server-side** settings are configured in the production environment:
+
+- `ADMISSIONS_PUBLIC_PORTAL_ENABLED=true` — enable only after school approval
+- `ADMISSIONS_PUBLIC_YEAR=2027-28` (example; must be an active approved year)
+- `ADMISSIONS_PUBLIC_HOST` — exact public hostname, without scheme
+- `ADMISSIONS_SCHOOL_NAME` — approved school name for print documents and parent portal
+- `TURNSTILE_SITE_KEY` and `TURNSTILE_SECRET_KEY` — Cloudflare Turnstile widget restricted to that hostname
+- `ADMISSIONS_PUBLIC_FEES_ENABLED=true` — optional, publish that year's configured fees only after approval
+
+Review submitted enquiries in **Parent inbox**. Acceptance uses the authenticated standard enquiry creation route, with duplicate detection and follow-up creation in the same transaction; dismissed or converted submission details are redacted from the inbox. The portal is not an admission decision or payment page. No documents are uploaded.
+
+**Recovery** restores enquiries archived after this release, including follow-ups, document status and case metadata. It is not a disaster-recovery backup. Verify Neon point-in-time restore settings and establish a school-approved retention policy separately. Seat capacity remains a planning target; waiting-list membership is explicit. WhatsApp templates are manual drafts, not automated messages.

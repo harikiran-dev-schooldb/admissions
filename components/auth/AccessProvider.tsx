@@ -30,7 +30,7 @@ const REVALIDATE_MS = 5 * 60 * 1000;
 export function AccessProvider({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const isLoginPage = pathname === "/login";
+  const isLoginPage = pathname === "/login" || pathname === "/enquire";
   const [state, setState] = useState<AccessState>(emptyAccess);
   const profileRef = useRef<Profile | null>(null);
   const requestRef = useRef<Promise<AccessRole> | null>(null);

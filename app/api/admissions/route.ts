@@ -1,3 +1,5 @@
+import { z } from "zod";
+import { ENQUIRY_SOURCES } from "@/lib/admissions/casePolicy";
 import { requireAccess } from "@/lib/auth/requireAccess";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { NextResponse, after } from "next/server";
@@ -62,15 +64,19 @@ export async function GET(req: Request) {
   }
 }
 
+class PublicEnquiryConflict extends Error {}
+const createWithSource = admissionCreateSchema.extend({ source: z.enum(ENQUIRY_SOURCES).optional(), publicEnquiryId: z.string().min(1).max(120).optional() });
+
 export async function POST(req: Request) {
   const authz = await requireAuditActor("enquiry");
   if (authz.error) return authz.error;
   const actor = authz.actor;
   try {
-    const parsed = admissionCreateSchema.safeParse(await req.json());
+    const parsed = createWithSource.safeParse(await req.json());
     if (!parsed.success) return NextResponse.json(validationError(parsed.error), { status: 400 });
 
     const body = parsed.data;
+    if(body.publicEnquiryId && actor.role!=="admin")return NextResponse.json({error:"Administrator review required"},{status:403});
     const managedYear = await prisma.academicYear.findUnique({ where: { academicYear: body.academicYear } });
     if (!managedYear?.isActive) {
       return NextResponse.json({ error: "Choose an active academic year before creating an admission" }, { status: 400 });
@@ -85,6 +91,10 @@ export async function POST(req: Request) {
       try {
         let alertRecipients: string[] = [];
         const admission = await prisma.$transaction(async (tx) => {
+          if(body.publicEnquiryId){
+            const pending=await tx.publicAdmissionEnquiry.findUnique({where:{id:body.publicEnquiryId}});
+            if(!pending||pending.status!=="PENDING"||pending.academicYear!==body.academicYear||pending.student!==body.student||pending.parent!==body.parent||pending.mobile!==body.mobile||pending.dob!==body.dob||pending.admClass!==body.admClass)throw new PublicEnquiryConflict("Online enquiry changed or was already reviewed.");
+          }
           await assertUniqueEnquiry(tx, body);
           const created = await tx.admission.create({
           data: {
@@ -105,6 +115,15 @@ export async function POST(req: Request) {
             finalAdmission: "PENDING",
           },
           });
+          const source=body.publicEnquiryId?"WEBSITE":body.source??"UNSPECIFIED";
+          if(source!=="UNSPECIFIED"){
+            const details=await tx.admissionCase.create({data:{admissionId:created.id,source}});
+            await recordActivity(tx,actor,{entityType:"ADMISSION_CASE",action:"CREATED",entityId:created.id,entityLabel:created.enquiryNo,after:details});
+          }
+          if(body.publicEnquiryId){
+            const reviewed=await tx.publicAdmissionEnquiry.updateMany({where:{id:body.publicEnquiryId,status:"PENDING"},data:{status:"ACCEPTED",reviewedAt:new Date(),convertedAdmissionId:created.id,student:"",parent:"",mobile:"",dob:""}});
+            if(reviewed.count!==1)throw new PublicEnquiryConflict("Online enquiry was already reviewed.");
+          }
           const action = getNextAdmissionAction(created);
           const task = await tx.admissionFollowUp.create({
             data: {
@@ -130,7 +149,7 @@ export async function POST(req: Request) {
         after(() => dispatchForRecipients(alertRecipients));
         return NextResponse.json({ data: admission }, { status: 201 });
       } catch (error) {
-        if (error instanceof DuplicateEnquiry) return NextResponse.json({ error: error.message }, { status: 409 });
+        if (error instanceof DuplicateEnquiry || error instanceof PublicEnquiryConflict) return NextResponse.json({ error: error.message }, { status: 409 });
         if (!(error instanceof Prisma.PrismaClientKnownRequestError) || !["P2002", "P2034"].includes(error.code)) throw error;
         if (attempt === 2) return NextResponse.json({ error: "Another enquiry is being saved. Refresh and try again." }, { status: 409 });
       }

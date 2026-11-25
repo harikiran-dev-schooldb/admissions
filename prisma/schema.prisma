@@ -319,3 +319,22 @@ model AdmissionArchive {
 
   @@index([archivedAt(sort: Desc)])
 }
+
+/** Public submissions are isolated from live admissions until approved by an administrator. */
+model PublicAdmissionEnquiry {
+  id String @id @default(cuid())
+  academicYear String
+  student String
+  parent String
+  mobile String
+  dob String
+  admClass String
+  status String @default("PENDING")
+  consentAt DateTime
+  createdAt DateTime @default(now())
+  reviewedAt DateTime?
+  convertedAdmissionId String?
+
+  @@index([status, createdAt])
+  @@index([mobile, createdAt])
+}

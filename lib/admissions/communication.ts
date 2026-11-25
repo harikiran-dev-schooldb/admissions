@@ -9,8 +9,8 @@ export function parentMessage(type:TemplateType, record:RecordInfo, school:strin
   switch(type){
     case "ACKNOWLEDGEMENT":return start+"thank you for your enquiry. "+ref+end;
     case "APPLICATION":return start+"please contact the admission office regarding the application for "+ref+end;
-    case "ENTRANCE":return record.entranceScheduledAt?start+"the entrance appointment is scheduled for "+date(record.entranceScheduledAt)+" (IST). "+ref+end:null;
-    case "INTERVIEW":return record.interviewScheduledAt?start+"the interview is scheduled for "+date(record.interviewScheduledAt)+" (IST). "+ref+end:null;
+    case "ENTRANCE":return record.finalAdmission==="PENDING"&&record.entranceScheduledAt?start+"the entrance appointment is scheduled for "+date(record.entranceScheduledAt)+" (IST). "+ref+end:null;
+    case "INTERVIEW":return record.finalAdmission==="PENDING"&&record.interviewScheduledAt?start+"the interview is scheduled for "+date(record.interviewScheduledAt)+" (IST). "+ref+end:null;
     case "FEES":return start+"please contact the admission office for the current approved fee quotation. "+ref+end;
     case "CONFIRMATION":return record.finalAdmission==="ADMITTED"?start+"we are pleased to confirm the admission recorded by the school. "+ref+end:null;
   }
