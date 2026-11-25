@@ -1,0 +1,4 @@
+"use client";
+import { useState } from "react";
+import { portalText,type PortalLanguage } from "@/lib/admissions/portalLanguage";
+export default function ClosedParentPortal(){const [lang,setLang]=useState<PortalLanguage>("en");return <main lang={lang} className="mx-auto max-w-xl p-6 sm:p-12"><section className="premium-panel rounded-[24px] p-6"><div role="group" aria-label="Language / భాష" className="mb-4 flex gap-2">{(["en","te"] as const).map(value=><button key={value} type="button" aria-pressed={lang===value} onClick={()=>setLang(value)} className={"rounded-xl px-3 py-2 text-sm font-bold "+(lang===value?"bg-indigo-600 text-white":"border border-slate-200")}>{value==="en"?"English":"తెలుగు"}</button>)}</div><h1 className="text-2xl font-black">{portalText[lang].title}</h1><p className="mt-3 text-sm leading-6 text-slate-600">{portalText[lang].closed}</p></section></main>;}

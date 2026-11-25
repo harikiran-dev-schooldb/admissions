@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { sendWebPush } from "@/lib/notifications/webPush";
 import { queueAdminAlert, dispatchPendingAlerts } from "@/lib/notifications/events";
 import { indiaDayWindow } from "@/lib/notifications/catalog";
+import { queueWeeklySummary } from "@/lib/notifications/weeklySummary";
 import { resolveAccessRole } from "@/lib/auth/accessPolicy";
 
 export const runtime = "nodejs";
@@ -74,6 +75,7 @@ export async function GET(request: Request) {
   // Once-daily summary reports the previous completed IST calendar day.
   const { start, end, label } = indiaDayWindow(now);
   let summariesQueued = 0;
+  let summaryFailed=false,weeklyFailed=false,retryFailed=false,weeklyQueued=0;
   try {
     const [enquiries, pendingAdmissions, transitions] = await Promise.all([
       prisma.admission.count({ where: { enquiryDate: { gte: start, lt: end } } }),
@@ -96,14 +98,21 @@ export async function GET(request: Request) {
     }));
     summariesQueued = recipients.length;
   } catch {
+    summaryFailed=true;
     console.error("DAILY_ADMISSION_SUMMARY_FAILED");
   }
+  try{weeklyQueued=await queueWeeklySummary(now);}catch{weeklyFailed=true;console.error("WEEKLY_ADMISSION_SUMMARY_FAILED");}
   // Retry queued event pushes if an earlier request ended before delivery.
   let eventPushes = { checked: 0, accepted: 0, failed: 0 };
   try {
     eventPushes = await dispatchPendingAlerts();
   } catch {
+    retryFailed=true;
     console.error("QUEUED_NOTIFICATION_RETRY_FAILED");
   }
-  return NextResponse.json({ tasksChecked: tasks.length, sent, failed, summariesQueued, eventPushes });
+  try{
+    const key="health:reminderCron",value=JSON.stringify({startedAt:now.toISOString(),finishedAt:new Date().toISOString(),tasksChecked:tasks.length,sent,failed,summariesQueued,weeklyQueued,summaryFailed,weeklyFailed,retryFailed,eventPushes});
+    await prisma.admissionConfig.upsert({where:{key},update:{value},create:{key,value}});
+  }catch{console.error("REMINDER_HEALTH_WRITE_FAILED");}
+  return NextResponse.json({ tasksChecked: tasks.length, sent, failed, summariesQueued, weeklyQueued, eventPushes });
 }

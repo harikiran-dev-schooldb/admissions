@@ -30,7 +30,7 @@ export async function GET(_req: Request, { params }: Context) {
     }
     return NextResponse.json({data:{
       documents:admission.documents.map(({verifiedByEmail,...doc})=>({...doc,verifiedByName:verifiedByEmail?displayMemberName(verifiedByEmail,names.get(verifiedByEmail)):null})),
-      caseDetails:admission.caseDetails, seat,
+      caseDetails:admission.caseDetails?{source:admission.caseDetails.source,cancellationReason:admission.caseDetails.cancellationReason,waitlistedAt:admission.caseDetails.waitlistedAt}:null, seat,
     }},{headers});
   } catch(error) {console.error("ADMISSION_CASE_READ",error);return NextResponse.json({error:"Unable to load verification details"},{status:500,headers});}
 }
