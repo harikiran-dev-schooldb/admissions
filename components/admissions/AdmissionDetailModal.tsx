@@ -233,7 +233,7 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
                   </div>
                   <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
                     {canMessage ? (
-                      <a href={"https://wa.me/" + whatsappNumber} target="_blank" rel="noopener noreferrer"
+                      <a href={"https://wa.me/" + whatsappNumber + "?text=" + encodeURIComponent("Dear Parent, thank you for your admission enquiry (" + student.enquiryNo + "). Please contact the school admission office for the next steps. Thank you.")} target="_blank" rel="noopener noreferrer"
                         className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-emerald-600 px-3 text-sm font-bold text-white transition hover:bg-emerald-700">
                         <MessageCircle className="size-4" /> WhatsApp parent
                       </a>

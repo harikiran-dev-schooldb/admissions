@@ -1,5 +1,8 @@
 import { requireAccess } from "@/lib/auth/requireAccess";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
+import { assertUniqueEnquiry, DuplicateEnquiry } from "@/lib/admissions/duplicateServer";
+import { canonicalName } from "@/lib/admissions/duplicate";
+import { Prisma } from "@/src/generated/prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { admissionUpdateSchema, validationError } from "@/lib/validation/admissions";
@@ -39,7 +42,7 @@ export async function PATCH(req: Request, { params }: Context) {
 
     const data = {
       ...parsed.data,
-      ...(parsed.data.student ? { student: parsed.data.student.toUpperCase() } : {}),
+      ...(parsed.data.student ? { student: canonicalName(parsed.data.student) } : {}),
       ...(parsed.data.parent ? { parent: parsed.data.parent.toUpperCase() } : {}),
     };
 
@@ -58,15 +61,21 @@ export async function PATCH(req: Request, { params }: Context) {
 
     const admission = await prisma.$transaction(async (tx) => {
       const before = await tx.admission.findUniqueOrThrow({ where: { id } });
-      const updated = await tx.admission.update({ where: { id }, data });
+      if (parsed.data.student !== undefined || parsed.data.mobile !== undefined || parsed.data.dob !== undefined || parsed.data.academicYear !== undefined) {
+        await assertUniqueEnquiry(tx, { academicYear, student: parsed.data.student ?? before.student,
+          mobile: parsed.data.mobile ?? before.mobile, dob: parsed.data.dob ?? before.dob }, id);
+      }
+      const updated = await tx.admission.update({ where: { id, updatedAt: existing.updatedAt }, data });
       await recordActivity(tx, actor, {
         entityType: "ADMISSION", action: "UPDATED", entityId: id,
         entityLabel: updated.enquiryNo, before, after: updated,
       });
       return updated;
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     return NextResponse.json({ data: admission });
   } catch (error) {
+    if (error instanceof DuplicateEnquiry) return NextResponse.json({ error: error.message }, { status: 409 });
+    if (error instanceof Prisma.PrismaClientKnownRequestError && ["P2025", "P2034"].includes(error.code)) return NextResponse.json({ error: "Record changed. Refresh before editing." }, { status: 409 });
     console.error("UPDATE_ADMISSION_ERROR", error);
     return NextResponse.json({ error: "Failed to update admission" }, { status: 500 });
   }

@@ -4,13 +4,13 @@ import { calculateAge, getEligibleClass } from "../lib/eligibility.ts";
 
 test("age calculation uses the configured cutoff date", () => {
   assert.deepEqual(calculateAge("2020-06-01", "2026-06-01"), {
-    years: 6, months: 0, text: "6 Years 0 Months",
+    years: 6, months: 0, days: 0, text: "6 Years 0 Months 0 Days",
   });
 });
 
 test("age calculation handles month boundary", () => {
   assert.deepEqual(calculateAge("2020-06-15", "2026-06-01"), {
-    years: 5, months: 11, text: "5 Years 11 Months",
+    years: 5, months: 11, days: 17, text: "5 Years 11 Months 17 Days",
   });
 });
 

@@ -11,6 +11,8 @@ import { calculateAge, getEligibleClass } from "@/lib/eligibility";
 import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
 import { parsePage, parsePageSize, getPagination } from "@/lib/admissions/pagination";
 import { getAdmissionWhere } from "@/lib/admissions/filterQuery";
+import { assertUniqueEnquiry, DuplicateEnquiry } from "@/lib/admissions/duplicateServer";
+import { canonicalName } from "@/lib/admissions/duplicate";
 import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 
 export async function GET(req: Request) {
@@ -82,11 +84,12 @@ export async function POST(req: Request) {
       try {
         let alertRecipients: string[] = [];
         const admission = await prisma.$transaction(async (tx) => {
+          await assertUniqueEnquiry(tx, body);
           const created = await tx.admission.create({
           data: {
             academicYear: body.academicYear,
             enquiryNo: await createEnquiryNumber(),
-            student: body.student.toUpperCase(),
+            student: canonicalName(body.student),
             parent: body.parent.toUpperCase(),
             mobile: body.mobile,
             dob: body.dob,
@@ -122,11 +125,13 @@ export async function POST(req: Request) {
             title: "New admission enquiry", body: `Enquiry ${created.enquiryNo} · ${created.admClass}`,
           });
           return created;
-        });
+        }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
         after(() => dispatchForRecipients(alertRecipients));
         return NextResponse.json({ data: admission }, { status: 201 });
       } catch (error) {
-        if (!(error instanceof Prisma.PrismaClientKnownRequestError) || error.code !== "P2002" || attempt === 2) throw error;
+        if (error instanceof DuplicateEnquiry) return NextResponse.json({ error: error.message }, { status: 409 });
+        if (!(error instanceof Prisma.PrismaClientKnownRequestError) || !["P2002", "P2034"].includes(error.code)) throw error;
+        if (attempt === 2) return NextResponse.json({ error: "Another enquiry is being saved. Refresh and try again." }, { status: 409 });
       }
     }
 
