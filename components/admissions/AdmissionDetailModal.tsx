@@ -13,6 +13,8 @@ import AdmissionFeePreview from "@/components/admissions/AdmissionFeePreview";
 import AdmissionFollowUpManager from "@/components/admissions/AdmissionFollowUpManager";
 import AdmissionSchedulePanel from "@/components/admissions/AdmissionSchedulePanel";
 import AdmissionActivityLogs from "@/components/admissions/AdmissionActivityLogs";
+import AdmissionCasePanel from "@/components/admissions/AdmissionCasePanel";
+import AdmissionCommunication from "@/components/admissions/AdmissionCommunication";
 import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 
 type Props = {
@@ -29,6 +31,8 @@ const PROFILE_TABS = [
   { id: "followups", label: "Follow-ups", icon: MessagesSquare },
   { id: "fees", label: "Fees", icon: ReceiptText },
   { id: "timeline", label: "Timeline", icon: History },
+  { id: "documents", label: "Documents", icon: CheckCircle2 },
+  { id: "communication", label: "Communication", icon: MessageCircle },
   { id: "logs", label: "Logs", icon: Clock3 },
 ] as const;
 
@@ -306,6 +310,8 @@ export default function AdmissionDetailModal({ student, open, onClose, onFollowU
               <AdmissionFeePreview key={student.id} student={student} onClose={() => setActiveTab("overview")} />
             )}
 
+            {activeTab === "documents" && <AdmissionCasePanel key={student.id} student={student} />}
+            {activeTab === "communication" && <AdmissionCommunication key={student.id} student={student} />}
             {activeTab === "logs" && (
               <AdmissionActivityLogs key={student.id} admissionId={student.id} />
             )}

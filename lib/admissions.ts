@@ -13,6 +13,10 @@ export async function createEnquiryNumber() {
     select: { enquiryNo: true },
   });
 
-  const current = Number(latest?.enquiryNo.split("-").at(-1) ?? "0");
+  // Archived enquiry numbers remain reserved so restoration cannot collide with new enquiries.
+  const archived = await prisma.admissionArchive.findFirst({
+    where: { enquiryNo: { startsWith: prefix } }, orderBy: { enquiryNo: "desc" }, select: { enquiryNo: true },
+  });
+  const current = Math.max(Number(latest?.enquiryNo.split("-").at(-1) ?? "0"), Number(archived?.enquiryNo.split("-").at(-1) ?? "0"));
   return `${prefix}${String(current + 1).padStart(4, "0")}`;
 }
