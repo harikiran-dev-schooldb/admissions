@@ -308,3 +308,7 @@ The parent portal at `/enquire` is disabled unless all of these **server-side** 
 Review submitted enquiries in **Parent inbox**. Acceptance uses the authenticated standard enquiry creation route, with duplicate detection and follow-up creation in the same transaction; dismissed or converted submission details are redacted from the inbox. The portal is not an admission decision or payment page. No documents are uploaded.
 
 **Recovery** restores enquiries archived after this release, including follow-ups, document status and case metadata. It is not a disaster-recovery backup. Verify Neon point-in-time restore settings and establish a school-approved retention policy separately. Seat capacity remains a planning target; waiting-list membership is explicit. WhatsApp templates are manual drafts, not automated messages.
+
+
+### V4 Excel centre
+Administrator-only. Import UTF-8 CSV saved from Excel (100 rows, 300 KB), validate against existing enquiries and the selected active year, then create valid rows individually through the existing admission endpoint. Export filtered records as native XLSX (up to 10,000 rows). Excel formulas are not generated from student text. Treat exports as confidential. Native .xlsx import is not supported; save the sheet as CSV first.
