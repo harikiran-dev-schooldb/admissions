@@ -7,7 +7,7 @@ import { displayMemberName } from "@/lib/users/displayMemberName";
 
 export const dynamic = "force-dynamic";
 
-const types = new Set(["ADMISSION", "FEE", "ACADEMIC_YEAR", "SETTINGS", "USER"]);
+const types = new Set(["ADMISSION", "FEE", "ACADEMIC_YEAR", "SETTINGS", "USER", "ADMISSION_CASE", "DOCUMENT"]);
 const actions = new Set(["CREATED", "UPDATED", "DELETED", "STAGE_CHANGED", "DEACTIVATED", "REACTIVATED", "ROLE_CHANGED"]);
 const noStore = { "Cache-Control": "private, no-store, max-age=0" };
 

@@ -10,6 +10,7 @@ import NewFeeModal from "../fees/NewFeeModal";
 import { useYearPolicy } from "@/hooks/useYearPolicy";
 import { eligibleForPolicy, SCHOOL_CLASSES } from "@/lib/admissions/yearPolicy";
 import { toast } from "sonner";
+import { ENQUIRY_SOURCES, labelCode } from "@/lib/admissions/casePolicy";
 import { getApiErrorMessage } from "@/lib/ui/getApiErrorMessage";
 
 type Props = {
@@ -31,6 +32,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
   const [mobile, setMobile] = useState("");
 
   const [admClass, setAdmClass] = useState("");
+  const [source,setSource] = useState("UNSPECIFIED");
 
   const [loading, setLoading] = useState(false);
   const [showFees, setShowFees] = useState(false);
@@ -67,6 +69,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
           age: ageData?.text,
           admClass,
           eligibleClass,
+          source,
         }),
       });
 
@@ -89,6 +92,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
         setDob("");
       }
       setAdmClass("");
+      setSource("UNSPECIFIED");
     } catch (error) {
       console.error(error);
 
@@ -441,6 +445,10 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
                   </div>
                 </div>
 
+                <div>
+                  <label className="mb-2 block text-sm font-semibold text-slate-600">Enquiry source</label>
+                  <SchoolDbSelect ariaLabel="Enquiry source" value={source} onValueChange={setSource} options={ENQUIRY_SOURCES.map(value=>({value,label:labelCode(value)}))} className="h-14 rounded-2xl font-semibold"/>
+                </div>
                 <div>
                   <label className="mb-2 block text-sm font-semibold text-slate-600">
                     Admission Class

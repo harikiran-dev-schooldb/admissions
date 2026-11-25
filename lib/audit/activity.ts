@@ -3,7 +3,7 @@ import type { Prisma } from "@/src/generated/prisma/client";
 import { canAccess, type AccessLevel, type AccessRole } from "@/lib/auth/accessPolicy";
 import { getAuthorizedRole } from "@/lib/auth/requireAccess";
 
-export type AuditEntity = "ADMISSION" | "FEE" | "ACADEMIC_YEAR" | "SETTINGS" | "USER" | "FOLLOW_UP";
+export type AuditEntity = "ADMISSION" | "FEE" | "ACADEMIC_YEAR" | "SETTINGS" | "USER" | "FOLLOW_UP" | "ADMISSION_CASE" | "DOCUMENT";
 export type AuditAction = "CREATED" | "UPDATED" | "DELETED" | "STAGE_CHANGED" | "DEACTIVATED" | "REACTIVATED" | "ROLE_CHANGED" | "COMPLETED";
 export type AuditActor = { email: string; name: string | null; role: AccessRole };
 export type AuditValue = string | number | boolean | null;
@@ -15,6 +15,8 @@ const auditableFields: Record<AuditEntity, readonly string[]> = {
   ACADEMIC_YEAR: ["academicYear","startDate","endDate","isActive"],
   SETTINGS: ["key","value"],
   USER: ["email","name","role","isActive"],
+  ADMISSION_CASE: ["source","cancellationReason","waitlistedAt"],
+  DOCUMENT: ["kind","status","verifiedAt"],
   // Private parent conversation notes never enter the shared audit log.
   FOLLOW_UP: ["assignedToEmail","dueAt","status","outcome"],
 };

@@ -2,8 +2,11 @@ import { requireAccess } from "@/lib/auth/requireAccess";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
 import { assertUniqueEnquiry, DuplicateEnquiry } from "@/lib/admissions/duplicateServer";
 import { canonicalName } from "@/lib/admissions/duplicate";
+import { archiveAdmission } from "@/lib/admissions/archive";
 import { Prisma } from "@/src/generated/prisma/client";
-import { NextResponse } from "next/server";
+import { alertReleasedSeat } from "@/lib/admissions/seatAlerts";
+import { dispatchForRecipients } from "@/lib/notifications/events";
+import { NextResponse, after } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { admissionUpdateSchema, validationError } from "@/lib/validation/admissions";
 import { calculateAge, getEligibleClass } from "@/lib/eligibility";
@@ -88,15 +91,14 @@ export async function DELETE(_req: Request, { params }: Context) {
   const actor = authz.actor;
   try {
     const { id } = await params;
-    await prisma.$transaction(async (tx) => {
-      const deleted = await tx.admission.delete({ where: { id } });
-      await recordActivity(tx, actor, {
-        entityType: "ADMISSION", action: "DELETED", entityId: id,
-        entityLabel: deleted.enquiryNo, before: deleted,
-      });
-    });
+    const recipients=await prisma.$transaction(async (tx) => {
+      const archived=await archiveAdmission(tx,id,actor);
+      return archived.finalAdmission==="ADMITTED"?alertReleasedSeat(tx,archived,"archived"):[];
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
+    if(recipients.length)after(()=>dispatchForRecipients(recipients));
     return new Response(null, { status: 204 });
   } catch (error) {
+    if(error instanceof Prisma.PrismaClientKnownRequestError && ["P2025","P2034","P2002"].includes(error.code)) return NextResponse.json({error:"Record changed. Refresh before archiving."},{status:409});
     console.error("DELETE_ADMISSION_ERROR", error);
     return NextResponse.json({ error: "Failed to delete admission" }, { status: 500 });
   }

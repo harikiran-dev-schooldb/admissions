@@ -54,6 +54,8 @@ model Admission {
   interviewAssignedEmail String?
 
   followUps       AdmissionFollowUp[]
+  caseDetails     AdmissionCase?
+  documents       AdmissionDocument[]
 
   @@index([academicYear])
 }
@@ -278,4 +280,61 @@ model NotificationPreference {
   updatedAt    DateTime @updatedAt
 
   @@unique([email, type])
+}
+
+/** Optional workflow metadata; historical records require no backfill. */
+model AdmissionCase {
+  admissionId String @id
+  admission Admission @relation(fields: [admissionId], references: [id], onDelete: Cascade)
+  source String @default("UNSPECIFIED")
+  cancellationReason String?
+  waitlistedAt DateTime?
+  updatedAt DateTime @updatedAt
+
+  @@index([waitlistedAt])
+  @@index([source])
+}
+
+/** Verification metadata only. No document images or identity numbers. */
+model AdmissionDocument {
+  admissionId String
+  admission Admission @relation(fields: [admissionId], references: [id], onDelete: Cascade)
+  kind String
+  status String
+  verifiedAt DateTime?
+  verifiedByEmail String?
+  updatedAt DateTime @updatedAt
+
+  @@id([admissionId, kind])
+}
+
+/** Admin-only recovery snapshot, created before removal of the live record. */
+model AdmissionArchive {
+  id String @id
+  enquiryNo String @unique
+  academicYear String
+  archivedAt DateTime @default(now())
+  archivedByEmail String
+  snapshot Json
+
+  @@index([archivedAt(sort: Desc)])
+}
+
+/** Public submissions are isolated from live admissions until approved by an administrator. */
+model PublicAdmissionEnquiry {
+  id String @id @default(cuid())
+  academicYear String
+  student String
+  parent String
+  mobile String
+  dob String
+  admClass String
+  status String @default("PENDING")
+  consentAt DateTime
+  createdAt DateTime @default(now())
+  reviewedAt DateTime?
+  convertedAdmissionId String?
+
+  @@index([status, createdAt])
+  @@index([mobile, createdAt])
 }

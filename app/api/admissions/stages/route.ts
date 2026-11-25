@@ -1,3 +1,4 @@
+import { alertReleasedSeat } from "@/lib/admissions/seatAlerts";
 import { buildStageUpdate, validateStageTransition } from "@/lib/admissionTransitionRules";
 import { getNextAdmissionAction } from "@/lib/admissions/nextAction";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
@@ -101,6 +102,13 @@ export async function PATCH(req: Request) {
           ...event, eventKey: `admission:${id}:${event.type}:${changed.updatedAt.toISOString()}`,
         });
         alertRecipients = [...new Set([...alertRecipients, ...recipients])];
+      }
+      if(changed.finalAdmission!=="PENDING"){
+        await tx.admissionCase.updateMany({where:{admissionId:id,waitlistedAt:{not:null}},data:{waitlistedAt:null}});
+      }
+      if(current.finalAdmission==="ADMITTED"&&changed.finalAdmission!=="ADMITTED"){
+        const recipients=await alertReleasedSeat(tx,changed,"reopened");
+        alertRecipients=[...new Set([...alertRecipients,...recipients])];
       }
       return changed;
     });
