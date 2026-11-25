@@ -96,6 +96,8 @@ export async function DELETE(_req: Request, { params }: Context) {
   try {
     const { id } = await params;
     await prisma.$transaction(async (tx) => {
+      const year = await tx.academicYear.findUniqueOrThrow({where:{id}});
+      if(await tx.admissionArchive.count({where:{academicYear:year.academicYear}}))throw new Error("ARCHIVED_ADMISSIONS_EXIST");
       const deleted = await tx.academicYear.delete({ where: { id } });
       await recordActivity(tx, actor, {
         entityType: "ACADEMIC_YEAR", action: "DELETED", entityId: id,
@@ -104,6 +106,7 @@ export async function DELETE(_req: Request, { params }: Context) {
     });
     return new Response(null, { status: 204 });
   } catch (error) {
+    if(error instanceof Error && error.message==="ARCHIVED_ADMISSIONS_EXIST") return NextResponse.json({error:"Restore archived admissions before deleting this academic year."},{status:409});
     return academicYearError(error, "DELETE");
   }
 }

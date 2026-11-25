@@ -6,6 +6,7 @@ export const ALERT_OPTIONS = [
   { type: "STUDENT_ADMITTED", label: "Student admitted", description: "Final admission changed to Admitted", roles: ["admin"] },
   { type: "ADMISSION_CANCELLED", label: "Admission cancelled", description: "Final admission changed to Cancelled", roles: ["admin"] },
   { type: "FOLLOW_UP_COMPLETED", label: "Follow-up completed", description: "A staff member completed a parent follow-up", roles: ["admin"] },
+  { type: "SEAT_AVAILABLE", label: "Seat available", description: "A confirmed seat was released for a class with waiting-list enquiries", roles: ["admin"] },
   { type: "DAILY_SUMMARY", label: "Daily admissions summary", description: "Previous day's activity, sent at 8:30 AM IST", roles: ["admin"] },
   { type: "FOLLOW_UP_ASSIGNED", label: "Follow-up assigned", description: "A new parent follow-up is assigned to you", roles: ["admin", "staff"] },
   { type: "FOLLOW_UP_DUE", label: "Follow-up due soon", description: "Upcoming assigned parent follow-up", roles: ["admin", "staff"] },
