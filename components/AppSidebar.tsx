@@ -30,6 +30,7 @@ const nav: NavItem[] = [
   { label: "Academic Years", href: "/academic-years", icon: CalendarRange, group: "Workspace", adminOnly: true },
   { label: "Settings", href: "/settings", icon: Settings2, group: "Administration", adminOnly: true },
   { label: "Users & Roles", href: "/users", icon: UserRoundCog, group: "Administration", adminOnly: true },
+  { label: "Management reports", href: "/admissions/reports", icon: BarChart3, group: "Administration", adminOnly: true },
   { label: "Excel centre", href: "/admissions/excel", icon: LayoutGrid, group: "Administration", adminOnly: true },
   { label: "Operations", href: "/admissions/operations", icon: BarChart3, group: "Administration", adminOnly: true },
   { label: "Recovery", href: "/admissions/recovery", icon: History, group: "Administration", adminOnly: true },

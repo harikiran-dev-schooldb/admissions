@@ -312,3 +312,6 @@ Review submitted enquiries in **Parent inbox**. Acceptance uses the authenticate
 
 ### V4 Excel centre
 Administrator-only. Import UTF-8 CSV saved from Excel (100 rows, 300 KB), validate against existing enquiries and the selected active year, then create valid rows individually through the existing admission endpoint. Export filtered records as native XLSX (up to 10,000 rows). Excel formulas are not generated from student text. Treat exports as confidential. Native .xlsx import is not supported; save the sheet as CSV first.
+
+### V4 management reports and application forms
+Report dates are inclusive IST days. Enquiry cohorts use creation dates; admitted/cancelled decisions count audited stage transitions for current live records, including repeated transitions after reopening. Targets are daily class admission counts in AdmissionConfig; unset is distinct from zero. Current class totals and capacity are not historical snapshots. Reports can be exported to XLSX or printed to PDF. Application drafts keep optional previous school/class, address and preferred language in the existing AdmissionCase (therefore included in new archive snapshots), with administrator-only edits. No automatic stage submission, no extra personal fields in audit logs.
