@@ -8,7 +8,7 @@ import { labelCode } from "@/lib/admissions/casePolicy";
 const PRINT_TYPES=["acknowledgement","entrance","interview","fees","confirmation"] as const;
 export default function AdmissionCommunication({student}:{student:Admission}){
   const [type,setType]=useState<TemplateType>("ACKNOWLEDGEMENT");
-  const message=parentMessage(type,student,"SchoolDB");
+  const message=parentMessage(type,student,"the school");
   const phone=whatsappContact(student.mobile);
   return <div className="space-y-4">
     <section className="premium-panel rounded-[22px] p-4 sm:p-6"><h3 className="text-lg font-black">Parent communication</h3><p className="mt-1 text-sm text-slate-600">Review the message before sending manually. Nothing is sent automatically.</p>

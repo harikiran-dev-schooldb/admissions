@@ -7,7 +7,7 @@ export function portalConfiguration(){
   const secret=process.env.TURNSTILE_SECRET_KEY?.trim()??"";
   const hostname=process.env.ADMISSIONS_PUBLIC_HOST?.trim().toLowerCase()??"";
   const school=process.env.ADMISSIONS_SCHOOL_NAME?.trim()??"";
-  if(process.env.ADMISSIONS_PUBLIC_PORTAL_ENABLED!=="true"||!/^\d{4}-\d{2}$/.test(year)||!siteKey||!secret||!hostname||!school)return null;
+  if(process.env.ADMISSIONS_PUBLIC_PORTAL_ENABLED!=="true"||!/^\d{4}-\d{2}$/.test(year)||!siteKey||!secret||!/^[a-z0-9](?:[a-z0-9.-]{0,251}[a-z0-9])?$/.test(hostname)||!hostname.includes(".")||!school)return null;
   return {year,siteKey,secret,hostname,school,publishFees:process.env.ADMISSIONS_PUBLIC_FEES_ENABLED==="true"};
 }
 export async function getPublishedPortal(){

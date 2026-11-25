@@ -9,7 +9,10 @@ export async function GET(req:Request){
   const page=Math.max(1,Math.min(10000,Math.floor(Number(new URL(req.url).searchParams.get("page"))||1)));
   try{
     const [data,total]=await Promise.all([prisma.publicAdmissionEnquiry.findMany({where:{status:"PENDING"},orderBy:[{createdAt:"asc"},{id:"asc"}],skip:(page-1)*20,take:20,select:{id:true,student:true,parent:true,mobile:true,dob:true,admClass:true,academicYear:true,createdAt:true}}),prisma.publicAdmissionEnquiry.count({where:{status:"PENDING"}})]);
-    return NextResponse.json({data,total,page,pageSize:20,portalConfigured:Boolean(portalConfiguration())},{headers});
+    const config=portalConfiguration();
+    const active=config?await prisma.academicYear.findUnique({where:{academicYear:config.year},select:{isActive:true}}):null;
+    const portalUrl=config&&active?.isActive?"https://"+config.hostname+"/enquire":null;
+    return NextResponse.json({data,total,page,pageSize:20,portalConfigured:Boolean(portalUrl),portalUrl},{headers});
   }catch(error){console.error("PUBLIC_INBOX_READ",error);return NextResponse.json({error:"Unable to load parent enquiries"},{status:500,headers});}
 }
 export async function PATCH(req:Request){
