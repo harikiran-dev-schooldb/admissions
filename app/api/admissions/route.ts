@@ -8,7 +8,8 @@ import { createEnquiryNumber, shouldSkipEntrance } from "@/lib/admissions";
 import { admissionCreateSchema, validationError } from "@/lib/validation/admissions";
 import { withDatabaseRetry } from "@/lib/dbRetry";
 import { calculateAge, getEligibleClass } from "@/lib/eligibility";
-import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
+import { loadYearPolicy } from "@/lib/admissions/yearPolicyServer";
+import { eligibleForPolicy } from "@/lib/admissions/yearPolicy";
 import { parsePage, parsePageSize, getPagination } from "@/lib/admissions/pagination";
 import { getAdmissionWhere } from "@/lib/admissions/filterQuery";
 import { assertUniqueEnquiry, DuplicateEnquiry } from "@/lib/admissions/duplicateServer";
@@ -74,9 +75,9 @@ export async function POST(req: Request) {
     if (!managedYear?.isActive) {
       return NextResponse.json({ error: "Choose an active academic year before creating an admission" }, { status: 400 });
     }
-    const config = await prisma.admissionConfig.findUnique({ where: { key: "ageAsOfDate" } });
-    const ageData = calculateAge(body.dob, config?.value ?? getDefaultAgeAsOfDate(body.academicYear));
-    const eligibleClass = ageData ? getEligibleClass(ageData.years) : "NOT ELIGIBLE";
+    const policy = await loadYearPolicy(body.academicYear);
+    const ageData = calculateAge(body.dob, policy.ageAsOfDate);
+    const eligibleClass = eligibleForPolicy(ageData, ageData ? getEligibleClass(ageData.years) : "NOT ELIGIBLE", body.admClass, policy.rules);
     const eligibleStatus = eligibleClass === body.admClass.trim().toUpperCase() ? "ELIGIBLE" : "NOT ELIGIBLE";
     const skipEntrance = shouldSkipEntrance(body.admClass);
 

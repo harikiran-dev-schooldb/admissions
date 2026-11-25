@@ -61,7 +61,7 @@ export default function WorkspacePage() {
     <div className="lg:pl-72">
       <header className="premium-topbar sticky top-18 z-30 flex flex-wrap items-center justify-between gap-3 px-4 py-4 lg:top-0 sm:px-8 print:hidden">
         <div className="flex items-center gap-3"><span className="grid size-11 place-items-center rounded-2xl bg-indigo-50 text-indigo-600"><LayoutDashboard className="size-5" /></span><div><p className="premium-kicker">Workspace</p><h1 className="text-xl font-black text-slate-950">Daily work dashboard</h1></div></div>
-        <div className="flex items-center gap-3"><Link className="rounded-xl border border-indigo-200 bg-white px-3 py-2 text-sm font-bold text-indigo-700" href="/admissions">Admissions</Link><div className="hidden lg:block"><AccountMenu /></div></div>
+        <div className="flex flex-wrap items-center gap-3">{role === "admin" && <Link className="rounded-xl border border-indigo-200 bg-white px-3 py-2 text-sm font-bold text-indigo-700" href="/admissions/planning">Seat &amp; age rules</Link>}<Link className="rounded-xl border border-indigo-200 bg-white px-3 py-2 text-sm font-bold text-indigo-700" href="/admissions">Admissions</Link><div className="hidden lg:block"><AccountMenu /></div></div>
       </header>
       <main className="mx-auto max-w-[1480px] space-y-5 p-3 sm:p-6 xl:p-10">
         <AccessNotice role={role} error={accessError} />

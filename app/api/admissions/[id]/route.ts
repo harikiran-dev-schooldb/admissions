@@ -7,7 +7,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { admissionUpdateSchema, validationError } from "@/lib/validation/admissions";
 import { calculateAge, getEligibleClass } from "@/lib/eligibility";
-import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
+import { loadYearPolicy } from "@/lib/admissions/yearPolicyServer";
+import { eligibleForPolicy } from "@/lib/admissions/yearPolicy";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -49,9 +50,9 @@ export async function PATCH(req: Request, { params }: Context) {
     if (parsed.data.dob !== undefined || parsed.data.admClass !== undefined || parsed.data.academicYear !== undefined) {
       const dob = parsed.data.dob ?? existing.dob;
       const admClass = parsed.data.admClass ?? existing.admClass;
-      const config = await prisma.admissionConfig.findUnique({ where: { key: "ageAsOfDate" } });
-      const ageData = dob ? calculateAge(dob, config?.value ?? getDefaultAgeAsOfDate(academicYear)) : null;
-      const eligibleClass = ageData ? getEligibleClass(ageData.years) : "NOT ELIGIBLE";
+      const policy = await loadYearPolicy(academicYear);
+      const ageData = dob ? calculateAge(dob, policy.ageAsOfDate) : null;
+      const eligibleClass = eligibleForPolicy(ageData, ageData ? getEligibleClass(ageData.years) : "NOT ELIGIBLE", admClass, policy.rules);
       Object.assign(data, {
         age: ageData?.text ?? null,
         eligibleClass,
