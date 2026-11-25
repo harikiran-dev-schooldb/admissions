@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { CheckCircle2, Plus, Sparkles, Users } from "lucide-react";
 import { toast } from "sonner";
 import FollowUpQueue from "@/components/admissions/FollowUpQueue";
@@ -150,6 +151,7 @@ export default function AdmissionsPage() {
 
         <main className="mx-auto max-w-[1680px] space-y-4 p-3 sm:space-y-6 sm:p-6 xl:p-10">
           <AccessNotice role={role} error={accessError} />
+          {(role === "staff" || role === "admin") && <Link href="/admissions/workspace" className="inline-flex items-center gap-2 rounded-xl border border-indigo-200 bg-white px-4 py-3 text-sm font-bold text-indigo-700"><Sparkles className="size-4" /> Daily work dashboard &amp; calendar</Link>}
           <section className="premium-hero rounded-[26px] p-5 sm:rounded-[30px] sm:p-7 xl:p-8">
             <div className={`relative z-10 grid items-center gap-5 sm:gap-6 ${canManage ? "xl:grid-cols-[minmax(0,1fr)_minmax(0,360px)]" : ""}`}>
               <div className="min-w-0 max-w-2xl">

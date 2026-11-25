@@ -7,7 +7,8 @@ import { Calendar, CheckCircle2, Loader2, Phone, User, X } from "lucide-react";
 import { calculateAge, getEligibleClass } from "@/lib/eligibility";
 import SchoolDbSelect from "@/components/ui/SchoolDbSelect";
 import NewFeeModal from "../fees/NewFeeModal";
-import { useAdmissionSettings } from "@/hooks/useAdmissionSettings";
+import { useYearPolicy } from "@/hooks/useYearPolicy";
+import { eligibleForPolicy, SCHOOL_CLASSES } from "@/lib/admissions/yearPolicy";
 import { toast } from "sonner";
 import { getApiErrorMessage } from "@/lib/ui/getApiErrorMessage";
 
@@ -20,7 +21,7 @@ type Props = {
 };
 
 export default function NewAdmissionModal({ open, onClose, reload, academicYear, canManageFees }: Props) {
-  const { settings, loading: settingsLoading, error: settingsError } = useAdmissionSettings();
+  const { policy, loading: settingsLoading, error: settingsError } = useYearPolicy(academicYear, open);
   const [dob, setDob] = useState("");
 
   const [student, setStudent] = useState("");
@@ -35,16 +36,16 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
   const [showFees, setShowFees] = useState(false);
 
   const ageData = useMemo(() => {
-    if (!dob) return null;
+    if (!dob || !policy) return null;
 
-    return calculateAge(dob, settings.ageAsOfDate);
-  }, [dob, settings.ageAsOfDate]);
+    return calculateAge(dob, policy.ageAsOfDate);
+  }, [dob, policy]);
 
   const eligibleClass = useMemo(() => {
-    if (!ageData) return "";
+    if (!ageData || !policy) return "";
 
-    return getEligibleClass(ageData.years);
-  }, [ageData]);
+    return eligibleForPolicy(ageData, getEligibleClass(ageData.years), admClass, policy.rules);
+  }, [ageData, policy, admClass]);
 
   async function createAdmission() {
     try {
@@ -227,7 +228,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
                   </h3>
 
                   <p className="text-sm text-slate-500">
-                    Age as of {new Date(`${settings.ageAsOfDate}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
+                    Age as of {policy ? new Date(`${policy.ageAsOfDate}T00:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "Loading school policy…"}
                   </p>
                 </div>
               </div>
@@ -307,6 +308,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
               </div>
             </div>
 
+            {settingsError && <p role="alert" className="rounded-xl bg-rose-50 p-3 text-sm text-rose-700">{settingsError}</p>}
             {/* ENQUIRY DETAILS */}
 
             <div
@@ -450,7 +452,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
                     onValueChange={setAdmClass}
                     placeholder="Select Class"
                     className="h-14 rounded-2xl font-semibold"
-                    options={["PRE KG", "LKG", "UKG", "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"].map((value) => ({ label: value, value }))}
+                    options={SCHOOL_CLASSES.map((value) => ({ label: value, value }))}
                   />
                 </div>
               </div>
@@ -478,7 +480,7 @@ export default function NewAdmissionModal({ open, onClose, reload, academicYear,
 
               <button
                 onClick={createAdmission}
-                disabled={loading || settingsLoading || Boolean(settingsError)}
+                disabled={loading || settingsLoading || !policy || Boolean(settingsError)}
                 className="
                 flex
                 items-center

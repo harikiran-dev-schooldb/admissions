@@ -27,11 +27,13 @@ export function calculateAge(dob: string, asOfDate?: string) {
     months += 12;
   }
 
-  return {
-    years,
-    months,
-    text: `${years} Years ${months} Months`,
-  };
+  // Anchor the last completed month; clamp end-of-month births to its last day.
+  const anchorMonth = new Date(Date.UTC(birthDate.getFullYear() + years, birthDate.getMonth() + months, 1));
+  const lastDay = new Date(Date.UTC(anchorMonth.getUTCFullYear(), anchorMonth.getUTCMonth() + 1, 0)).getUTCDate();
+  const anchor = Date.UTC(anchorMonth.getUTCFullYear(), anchorMonth.getUTCMonth(), Math.min(birthDate.getDate(), lastDay));
+  const cutoff = Date.UTC(today.getFullYear(), today.getMonth(), today.getDate());
+  const days = Math.floor((cutoff - anchor) / 86400000);
+  return { years, months, days, text: `${years} Years ${months} Months ${days} Days` };
 }
 
 export function getEligibleClass(age: number) {

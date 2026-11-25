@@ -1,10 +1,14 @@
 import { requireAccess } from "@/lib/auth/requireAccess";
 import { requireAuditActor, recordActivity } from "@/lib/audit/activity";
+import { assertUniqueEnquiry, DuplicateEnquiry } from "@/lib/admissions/duplicateServer";
+import { canonicalName } from "@/lib/admissions/duplicate";
+import { Prisma } from "@/src/generated/prisma/client";
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { admissionUpdateSchema, validationError } from "@/lib/validation/admissions";
 import { calculateAge, getEligibleClass } from "@/lib/eligibility";
-import { getDefaultAgeAsOfDate } from "@/lib/admissionSettings";
+import { loadYearPolicy } from "@/lib/admissions/yearPolicyServer";
+import { eligibleForPolicy } from "@/lib/admissions/yearPolicy";
 
 type Context = { params: Promise<{ id: string }> };
 
@@ -39,16 +43,16 @@ export async function PATCH(req: Request, { params }: Context) {
 
     const data = {
       ...parsed.data,
-      ...(parsed.data.student ? { student: parsed.data.student.toUpperCase() } : {}),
+      ...(parsed.data.student ? { student: canonicalName(parsed.data.student) } : {}),
       ...(parsed.data.parent ? { parent: parsed.data.parent.toUpperCase() } : {}),
     };
 
     if (parsed.data.dob !== undefined || parsed.data.admClass !== undefined || parsed.data.academicYear !== undefined) {
       const dob = parsed.data.dob ?? existing.dob;
       const admClass = parsed.data.admClass ?? existing.admClass;
-      const config = await prisma.admissionConfig.findUnique({ where: { key: "ageAsOfDate" } });
-      const ageData = dob ? calculateAge(dob, config?.value ?? getDefaultAgeAsOfDate(academicYear)) : null;
-      const eligibleClass = ageData ? getEligibleClass(ageData.years) : "NOT ELIGIBLE";
+      const policy = await loadYearPolicy(academicYear);
+      const ageData = dob ? calculateAge(dob, policy.ageAsOfDate) : null;
+      const eligibleClass = eligibleForPolicy(ageData, ageData ? getEligibleClass(ageData.years) : "NOT ELIGIBLE", admClass, policy.rules);
       Object.assign(data, {
         age: ageData?.text ?? null,
         eligibleClass,
@@ -58,15 +62,21 @@ export async function PATCH(req: Request, { params }: Context) {
 
     const admission = await prisma.$transaction(async (tx) => {
       const before = await tx.admission.findUniqueOrThrow({ where: { id } });
-      const updated = await tx.admission.update({ where: { id }, data });
+      if (parsed.data.student !== undefined || parsed.data.mobile !== undefined || parsed.data.dob !== undefined || parsed.data.academicYear !== undefined) {
+        await assertUniqueEnquiry(tx, { academicYear, student: parsed.data.student ?? before.student,
+          mobile: parsed.data.mobile ?? before.mobile, dob: parsed.data.dob ?? before.dob }, id);
+      }
+      const updated = await tx.admission.update({ where: { id, updatedAt: existing.updatedAt }, data });
       await recordActivity(tx, actor, {
         entityType: "ADMISSION", action: "UPDATED", entityId: id,
         entityLabel: updated.enquiryNo, before, after: updated,
       });
       return updated;
-    });
+    }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable });
     return NextResponse.json({ data: admission });
   } catch (error) {
+    if (error instanceof DuplicateEnquiry) return NextResponse.json({ error: error.message }, { status: 409 });
+    if (error instanceof Prisma.PrismaClientKnownRequestError && ["P2025", "P2034"].includes(error.code)) return NextResponse.json({ error: "Record changed. Refresh before editing." }, { status: 409 });
     console.error("UPDATE_ADMISSION_ERROR", error);
     return NextResponse.json({ error: "Failed to update admission" }, { status: 500 });
   }

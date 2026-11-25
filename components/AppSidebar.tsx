@@ -23,6 +23,8 @@ type NavItem = {
 
 const nav: NavItem[] = [
   { label: "Admissions", href: "/admissions", icon: Users, group: "Workspace" },
+  { label: "Dashboard", href: "/admissions/workspace", icon: LayoutGrid, group: "Workspace", adminOnly: true },
+  { label: "Seat & age rules", href: "/admissions/planning", icon: Settings2, group: "Administration", adminOnly: true },
   { label: "Analytics", href: "/admissions/analytics", icon: BarChart3, group: "Workspace", adminOnly: true },
   { label: "Fee Structure", href: "/fees", icon: CircleDollarSign, group: "Workspace" },
   { label: "Academic Years", href: "/academic-years", icon: CalendarRange, group: "Workspace", adminOnly: true },
