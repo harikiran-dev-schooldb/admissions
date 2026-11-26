@@ -244,6 +244,7 @@ export type FeeRecordWhereInput = {
   className?: Prisma.StringFilter<"FeeRecord"> | string
   createdAt?: Prisma.DateTimeFilter<"FeeRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FeeRecord"> | Date | string
+  year?: Prisma.XOR<Prisma.AcademicYearScalarRelationFilter, Prisma.AcademicYearWhereInput>
 }
 
 export type FeeRecordOrderByWithRelationInput = {
@@ -255,6 +256,7 @@ export type FeeRecordOrderByWithRelationInput = {
   className?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  year?: Prisma.AcademicYearOrderByWithRelationInput
 }
 
 export type FeeRecordWhereUniqueInput = Prisma.AtLeast<{
@@ -270,6 +272,7 @@ export type FeeRecordWhereUniqueInput = Prisma.AtLeast<{
   className?: Prisma.StringFilter<"FeeRecord"> | string
   createdAt?: Prisma.DateTimeFilter<"FeeRecord"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FeeRecord"> | Date | string
+  year?: Prisma.XOR<Prisma.AcademicYearScalarRelationFilter, Prisma.AcademicYearWhereInput>
 }, "id" | "academicYear_className">
 
 export type FeeRecordOrderByWithAggregationInput = {
@@ -304,13 +307,13 @@ export type FeeRecordScalarWhereWithAggregatesInput = {
 
 export type FeeRecordCreateInput = {
   id?: string
-  academicYear: string
   termFee: number
   annualFees: number
   age?: string | null
   className: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  year: Prisma.AcademicYearCreateNestedOneWithoutFeeRecordsInput
 }
 
 export type FeeRecordUncheckedCreateInput = {
@@ -326,13 +329,13 @@ export type FeeRecordUncheckedCreateInput = {
 
 export type FeeRecordUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
   termFee?: Prisma.IntFieldUpdateOperationsInput | number
   annualFees?: Prisma.IntFieldUpdateOperationsInput | number
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   className?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  year?: Prisma.AcademicYearUpdateOneRequiredWithoutFeeRecordsNestedInput
 }
 
 export type FeeRecordUncheckedUpdateInput = {
@@ -359,7 +362,6 @@ export type FeeRecordCreateManyInput = {
 
 export type FeeRecordUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
   termFee?: Prisma.IntFieldUpdateOperationsInput | number
   annualFees?: Prisma.IntFieldUpdateOperationsInput | number
   age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -427,12 +429,164 @@ export type FeeRecordSumOrderByAggregateInput = {
   annualFees?: Prisma.SortOrder
 }
 
+export type FeeRecordListRelationFilter = {
+  every?: Prisma.FeeRecordWhereInput
+  some?: Prisma.FeeRecordWhereInput
+  none?: Prisma.FeeRecordWhereInput
+}
+
+export type FeeRecordOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
 export type IntFieldUpdateOperationsInput = {
   set?: number
   increment?: number
   decrement?: number
   multiply?: number
   divide?: number
+}
+
+export type FeeRecordCreateNestedManyWithoutYearInput = {
+  create?: Prisma.XOR<Prisma.FeeRecordCreateWithoutYearInput, Prisma.FeeRecordUncheckedCreateWithoutYearInput> | Prisma.FeeRecordCreateWithoutYearInput[] | Prisma.FeeRecordUncheckedCreateWithoutYearInput[]
+  connectOrCreate?: Prisma.FeeRecordCreateOrConnectWithoutYearInput | Prisma.FeeRecordCreateOrConnectWithoutYearInput[]
+  createMany?: Prisma.FeeRecordCreateManyYearInputEnvelope
+  connect?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+}
+
+export type FeeRecordUncheckedCreateNestedManyWithoutYearInput = {
+  create?: Prisma.XOR<Prisma.FeeRecordCreateWithoutYearInput, Prisma.FeeRecordUncheckedCreateWithoutYearInput> | Prisma.FeeRecordCreateWithoutYearInput[] | Prisma.FeeRecordUncheckedCreateWithoutYearInput[]
+  connectOrCreate?: Prisma.FeeRecordCreateOrConnectWithoutYearInput | Prisma.FeeRecordCreateOrConnectWithoutYearInput[]
+  createMany?: Prisma.FeeRecordCreateManyYearInputEnvelope
+  connect?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+}
+
+export type FeeRecordUpdateManyWithoutYearNestedInput = {
+  create?: Prisma.XOR<Prisma.FeeRecordCreateWithoutYearInput, Prisma.FeeRecordUncheckedCreateWithoutYearInput> | Prisma.FeeRecordCreateWithoutYearInput[] | Prisma.FeeRecordUncheckedCreateWithoutYearInput[]
+  connectOrCreate?: Prisma.FeeRecordCreateOrConnectWithoutYearInput | Prisma.FeeRecordCreateOrConnectWithoutYearInput[]
+  upsert?: Prisma.FeeRecordUpsertWithWhereUniqueWithoutYearInput | Prisma.FeeRecordUpsertWithWhereUniqueWithoutYearInput[]
+  createMany?: Prisma.FeeRecordCreateManyYearInputEnvelope
+  set?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+  disconnect?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+  delete?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+  connect?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+  update?: Prisma.FeeRecordUpdateWithWhereUniqueWithoutYearInput | Prisma.FeeRecordUpdateWithWhereUniqueWithoutYearInput[]
+  updateMany?: Prisma.FeeRecordUpdateManyWithWhereWithoutYearInput | Prisma.FeeRecordUpdateManyWithWhereWithoutYearInput[]
+  deleteMany?: Prisma.FeeRecordScalarWhereInput | Prisma.FeeRecordScalarWhereInput[]
+}
+
+export type FeeRecordUncheckedUpdateManyWithoutYearNestedInput = {
+  create?: Prisma.XOR<Prisma.FeeRecordCreateWithoutYearInput, Prisma.FeeRecordUncheckedCreateWithoutYearInput> | Prisma.FeeRecordCreateWithoutYearInput[] | Prisma.FeeRecordUncheckedCreateWithoutYearInput[]
+  connectOrCreate?: Prisma.FeeRecordCreateOrConnectWithoutYearInput | Prisma.FeeRecordCreateOrConnectWithoutYearInput[]
+  upsert?: Prisma.FeeRecordUpsertWithWhereUniqueWithoutYearInput | Prisma.FeeRecordUpsertWithWhereUniqueWithoutYearInput[]
+  createMany?: Prisma.FeeRecordCreateManyYearInputEnvelope
+  set?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+  disconnect?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+  delete?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+  connect?: Prisma.FeeRecordWhereUniqueInput | Prisma.FeeRecordWhereUniqueInput[]
+  update?: Prisma.FeeRecordUpdateWithWhereUniqueWithoutYearInput | Prisma.FeeRecordUpdateWithWhereUniqueWithoutYearInput[]
+  updateMany?: Prisma.FeeRecordUpdateManyWithWhereWithoutYearInput | Prisma.FeeRecordUpdateManyWithWhereWithoutYearInput[]
+  deleteMany?: Prisma.FeeRecordScalarWhereInput | Prisma.FeeRecordScalarWhereInput[]
+}
+
+export type FeeRecordCreateWithoutYearInput = {
+  id?: string
+  termFee: number
+  annualFees: number
+  age?: string | null
+  className: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FeeRecordUncheckedCreateWithoutYearInput = {
+  id?: string
+  termFee: number
+  annualFees: number
+  age?: string | null
+  className: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FeeRecordCreateOrConnectWithoutYearInput = {
+  where: Prisma.FeeRecordWhereUniqueInput
+  create: Prisma.XOR<Prisma.FeeRecordCreateWithoutYearInput, Prisma.FeeRecordUncheckedCreateWithoutYearInput>
+}
+
+export type FeeRecordCreateManyYearInputEnvelope = {
+  data: Prisma.FeeRecordCreateManyYearInput | Prisma.FeeRecordCreateManyYearInput[]
+  skipDuplicates?: boolean
+}
+
+export type FeeRecordUpsertWithWhereUniqueWithoutYearInput = {
+  where: Prisma.FeeRecordWhereUniqueInput
+  update: Prisma.XOR<Prisma.FeeRecordUpdateWithoutYearInput, Prisma.FeeRecordUncheckedUpdateWithoutYearInput>
+  create: Prisma.XOR<Prisma.FeeRecordCreateWithoutYearInput, Prisma.FeeRecordUncheckedCreateWithoutYearInput>
+}
+
+export type FeeRecordUpdateWithWhereUniqueWithoutYearInput = {
+  where: Prisma.FeeRecordWhereUniqueInput
+  data: Prisma.XOR<Prisma.FeeRecordUpdateWithoutYearInput, Prisma.FeeRecordUncheckedUpdateWithoutYearInput>
+}
+
+export type FeeRecordUpdateManyWithWhereWithoutYearInput = {
+  where: Prisma.FeeRecordScalarWhereInput
+  data: Prisma.XOR<Prisma.FeeRecordUpdateManyMutationInput, Prisma.FeeRecordUncheckedUpdateManyWithoutYearInput>
+}
+
+export type FeeRecordScalarWhereInput = {
+  AND?: Prisma.FeeRecordScalarWhereInput | Prisma.FeeRecordScalarWhereInput[]
+  OR?: Prisma.FeeRecordScalarWhereInput[]
+  NOT?: Prisma.FeeRecordScalarWhereInput | Prisma.FeeRecordScalarWhereInput[]
+  id?: Prisma.StringFilter<"FeeRecord"> | string
+  academicYear?: Prisma.StringFilter<"FeeRecord"> | string
+  termFee?: Prisma.IntFilter<"FeeRecord"> | number
+  annualFees?: Prisma.IntFilter<"FeeRecord"> | number
+  age?: Prisma.StringNullableFilter<"FeeRecord"> | string | null
+  className?: Prisma.StringFilter<"FeeRecord"> | string
+  createdAt?: Prisma.DateTimeFilter<"FeeRecord"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"FeeRecord"> | Date | string
+}
+
+export type FeeRecordCreateManyYearInput = {
+  id?: string
+  termFee: number
+  annualFees: number
+  age?: string | null
+  className: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FeeRecordUpdateWithoutYearInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  termFee?: Prisma.IntFieldUpdateOperationsInput | number
+  annualFees?: Prisma.IntFieldUpdateOperationsInput | number
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  className?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FeeRecordUncheckedUpdateWithoutYearInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  termFee?: Prisma.IntFieldUpdateOperationsInput | number
+  annualFees?: Prisma.IntFieldUpdateOperationsInput | number
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  className?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FeeRecordUncheckedUpdateManyWithoutYearInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  termFee?: Prisma.IntFieldUpdateOperationsInput | number
+  annualFees?: Prisma.IntFieldUpdateOperationsInput | number
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  className?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -446,6 +600,7 @@ export type FeeRecordSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   className?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["feeRecord"]>
 
 export type FeeRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -457,6 +612,7 @@ export type FeeRecordSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   className?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["feeRecord"]>
 
 export type FeeRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -468,6 +624,7 @@ export type FeeRecordSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   className?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["feeRecord"]>
 
 export type FeeRecordSelectScalar = {
@@ -482,10 +639,21 @@ export type FeeRecordSelectScalar = {
 }
 
 export type FeeRecordOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "academicYear" | "termFee" | "annualFees" | "age" | "className" | "createdAt" | "updatedAt", ExtArgs["result"]["feeRecord"]>
+export type FeeRecordInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
+}
+export type FeeRecordIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
+}
+export type FeeRecordIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
+}
 
 export type $FeeRecordPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FeeRecord"
-  objects: {}
+  objects: {
+    year: Prisma.$AcademicYearPayload<ExtArgs>
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     academicYear: string
@@ -889,6 +1057,7 @@ readonly fields: FeeRecordFieldRefs;
  */
 export interface Prisma__FeeRecordClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  year<T extends Prisma.AcademicYearDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AcademicYearDefaultArgs<ExtArgs>>): Prisma.Prisma__AcademicYearClient<runtime.Types.Result.GetResult<Prisma.$AcademicYearPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -943,6 +1112,10 @@ export type FeeRecordFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
+  /**
    * Filter, which FeeRecord to fetch.
    */
   where: Prisma.FeeRecordWhereUniqueInput
@@ -961,6 +1134,10 @@ export type FeeRecordFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
+  /**
    * Filter, which FeeRecord to fetch.
    */
   where: Prisma.FeeRecordWhereUniqueInput
@@ -978,6 +1155,10 @@ export type FeeRecordFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the FeeRecord
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
   /**
    * Filter, which FeeRecord to fetch.
    */
@@ -1027,6 +1208,10 @@ export type FeeRecordFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
+  /**
    * Filter, which FeeRecord to fetch.
    */
   where?: Prisma.FeeRecordWhereInput
@@ -1074,6 +1259,10 @@ export type FeeRecordFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the FeeRecord
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
   /**
    * Filter, which FeeRecords to fetch.
    */
@@ -1123,6 +1312,10 @@ export type FeeRecordCreateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
+  /**
    * The data needed to create a FeeRecord.
    */
   data: Prisma.XOR<Prisma.FeeRecordCreateInput, Prisma.FeeRecordUncheckedCreateInput>
@@ -1156,6 +1349,10 @@ export type FeeRecordCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    */
   data: Prisma.FeeRecordCreateManyInput | Prisma.FeeRecordCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1170,6 +1367,10 @@ export type FeeRecordUpdateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the FeeRecord
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
   /**
    * The data needed to update a FeeRecord.
    */
@@ -1222,6 +1423,10 @@ export type FeeRecordUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many FeeRecords to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1236,6 +1441,10 @@ export type FeeRecordUpsertArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the FeeRecord
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
   /**
    * The filter to search for the FeeRecord to update in case it exists.
    */
@@ -1262,6 +1471,10 @@ export type FeeRecordDeleteArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the FeeRecord
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
   /**
    * Filter which FeeRecord to delete.
    */
@@ -1294,4 +1507,8 @@ export type FeeRecordDefaultArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the FeeRecord
    */
   omit?: Prisma.FeeRecordOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FeeRecordInclude<ExtArgs> | null
 }

@@ -6,6 +6,7 @@ export function getFeeYearOptions(
   years: readonly YearRecord[],
   _fees: readonly FeeYearRecord[],
 ): string[] {
+  void _fees;
   return [...new Set(years.filter((year) => year.isActive).map((year) => year.academicYear).filter(Boolean))]
     .sort((a, b) => b.localeCompare(a, undefined, { numeric: true }));
 }

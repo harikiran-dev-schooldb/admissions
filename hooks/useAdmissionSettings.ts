@@ -28,10 +28,16 @@ export function useAdmissionSettings() {
   }, []);
 
   useEffect(() => {
-    void reload();
+    let cancelled = false;
+    void readSettings()
+      .then((value) => { if (!cancelled) setSettingsState(value); })
+      .catch((caught: unknown) => {
+        if (!cancelled) setError(caught instanceof Error ? caught.message : "Unable to load settings");
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
     const sync = () => { void reload(); };
     window.addEventListener(ADMISSION_SETTINGS_EVENT, sync);
-    return () => window.removeEventListener(ADMISSION_SETTINGS_EVENT, sync);
+    return () => { cancelled = true; window.removeEventListener(ADMISSION_SETTINGS_EVENT, sync); };
   }, [reload]);
 
   const saveSettings = useCallback(async (next: AdmissionSettings) => {

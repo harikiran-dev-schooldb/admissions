@@ -8,7 +8,7 @@ test("foreground due follow-ups surface a visible toast on iPhone and desktop", 
   const bell = source("components/notifications/NotificationBell.tsx");
   assert.ok(bell.includes("toast.warning("));
   assert.ok(bell.includes("newDue.length"));
-  assert.ok(bell.includes('onClick: () => window.location.assign("/admissions")'));
+  assert.ok(bell.includes('onClick: () => router.push("/admissions")'));
   assert.ok(bell.includes("popupKey(email)"));
   assert.ok(bell.includes("read.includes(item.id)"));
   assert.ok(!bell.includes("new Notification("));

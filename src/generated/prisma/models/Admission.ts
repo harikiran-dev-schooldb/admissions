@@ -43,6 +43,10 @@ export type AdmissionMinAggregateOutputType = {
   application: $Enums.ApplicationStatus | null
   eligibleClass: string | null
   enquiryDate: Date | null
+  entranceScheduledAt: Date | null
+  entranceAssignedEmail: string | null
+  interviewScheduledAt: Date | null
+  interviewAssignedEmail: string | null
 }
 
 export type AdmissionMaxAggregateOutputType = {
@@ -64,6 +68,10 @@ export type AdmissionMaxAggregateOutputType = {
   application: $Enums.ApplicationStatus | null
   eligibleClass: string | null
   enquiryDate: Date | null
+  entranceScheduledAt: Date | null
+  entranceAssignedEmail: string | null
+  interviewScheduledAt: Date | null
+  interviewAssignedEmail: string | null
 }
 
 export type AdmissionCountAggregateOutputType = {
@@ -85,6 +93,10 @@ export type AdmissionCountAggregateOutputType = {
   application: number
   eligibleClass: number
   enquiryDate: number
+  entranceScheduledAt: number
+  entranceAssignedEmail: number
+  interviewScheduledAt: number
+  interviewAssignedEmail: number
   _all: number
 }
 
@@ -108,6 +120,10 @@ export type AdmissionMinAggregateInputType = {
   application?: true
   eligibleClass?: true
   enquiryDate?: true
+  entranceScheduledAt?: true
+  entranceAssignedEmail?: true
+  interviewScheduledAt?: true
+  interviewAssignedEmail?: true
 }
 
 export type AdmissionMaxAggregateInputType = {
@@ -129,6 +145,10 @@ export type AdmissionMaxAggregateInputType = {
   application?: true
   eligibleClass?: true
   enquiryDate?: true
+  entranceScheduledAt?: true
+  entranceAssignedEmail?: true
+  interviewScheduledAt?: true
+  interviewAssignedEmail?: true
 }
 
 export type AdmissionCountAggregateInputType = {
@@ -150,6 +170,10 @@ export type AdmissionCountAggregateInputType = {
   application?: true
   eligibleClass?: true
   enquiryDate?: true
+  entranceScheduledAt?: true
+  entranceAssignedEmail?: true
+  interviewScheduledAt?: true
+  interviewAssignedEmail?: true
   _all?: true
 }
 
@@ -244,6 +268,10 @@ export type AdmissionGroupByOutputType = {
   application: $Enums.ApplicationStatus
   eligibleClass: string | null
   enquiryDate: Date
+  entranceScheduledAt: Date | null
+  entranceAssignedEmail: string | null
+  interviewScheduledAt: Date | null
+  interviewAssignedEmail: string | null
   _count: AdmissionCountAggregateOutputType | null
   _min: AdmissionMinAggregateOutputType | null
   _max: AdmissionMaxAggregateOutputType | null
@@ -286,6 +314,14 @@ export type AdmissionWhereInput = {
   application?: Prisma.EnumApplicationStatusFilter<"Admission"> | $Enums.ApplicationStatus
   eligibleClass?: Prisma.StringNullableFilter<"Admission"> | string | null
   enquiryDate?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  entranceScheduledAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  entranceAssignedEmail?: Prisma.StringNullableFilter<"Admission"> | string | null
+  interviewScheduledAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  interviewAssignedEmail?: Prisma.StringNullableFilter<"Admission"> | string | null
+  year?: Prisma.XOR<Prisma.AcademicYearScalarRelationFilter, Prisma.AcademicYearWhereInput>
+  followUps?: Prisma.AdmissionFollowUpListRelationFilter
+  caseDetails?: Prisma.XOR<Prisma.AdmissionCaseNullableScalarRelationFilter, Prisma.AdmissionCaseWhereInput> | null
+  documents?: Prisma.AdmissionDocumentListRelationFilter
 }
 
 export type AdmissionOrderByWithRelationInput = {
@@ -307,6 +343,14 @@ export type AdmissionOrderByWithRelationInput = {
   application?: Prisma.SortOrder
   eligibleClass?: Prisma.SortOrderInput | Prisma.SortOrder
   enquiryDate?: Prisma.SortOrder
+  entranceScheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  entranceAssignedEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  interviewScheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  interviewAssignedEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  year?: Prisma.AcademicYearOrderByWithRelationInput
+  followUps?: Prisma.AdmissionFollowUpOrderByRelationAggregateInput
+  caseDetails?: Prisma.AdmissionCaseOrderByWithRelationInput
+  documents?: Prisma.AdmissionDocumentOrderByRelationAggregateInput
 }
 
 export type AdmissionWhereUniqueInput = Prisma.AtLeast<{
@@ -331,6 +375,14 @@ export type AdmissionWhereUniqueInput = Prisma.AtLeast<{
   application?: Prisma.EnumApplicationStatusFilter<"Admission"> | $Enums.ApplicationStatus
   eligibleClass?: Prisma.StringNullableFilter<"Admission"> | string | null
   enquiryDate?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  entranceScheduledAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  entranceAssignedEmail?: Prisma.StringNullableFilter<"Admission"> | string | null
+  interviewScheduledAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  interviewAssignedEmail?: Prisma.StringNullableFilter<"Admission"> | string | null
+  year?: Prisma.XOR<Prisma.AcademicYearScalarRelationFilter, Prisma.AcademicYearWhereInput>
+  followUps?: Prisma.AdmissionFollowUpListRelationFilter
+  caseDetails?: Prisma.XOR<Prisma.AdmissionCaseNullableScalarRelationFilter, Prisma.AdmissionCaseWhereInput> | null
+  documents?: Prisma.AdmissionDocumentListRelationFilter
 }, "id" | "enquiryNo">
 
 export type AdmissionOrderByWithAggregationInput = {
@@ -352,6 +404,10 @@ export type AdmissionOrderByWithAggregationInput = {
   application?: Prisma.SortOrder
   eligibleClass?: Prisma.SortOrderInput | Prisma.SortOrder
   enquiryDate?: Prisma.SortOrder
+  entranceScheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  entranceAssignedEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  interviewScheduledAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  interviewAssignedEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AdmissionCountOrderByAggregateInput
   _max?: Prisma.AdmissionMaxOrderByAggregateInput
   _min?: Prisma.AdmissionMinOrderByAggregateInput
@@ -379,12 +435,15 @@ export type AdmissionScalarWhereWithAggregatesInput = {
   application?: Prisma.EnumApplicationStatusWithAggregatesFilter<"Admission"> | $Enums.ApplicationStatus
   eligibleClass?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
   enquiryDate?: Prisma.DateTimeWithAggregatesFilter<"Admission"> | Date | string
+  entranceScheduledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Admission"> | Date | string | null
+  entranceAssignedEmail?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
+  interviewScheduledAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Admission"> | Date | string | null
+  interviewAssignedEmail?: Prisma.StringNullableWithAggregatesFilter<"Admission"> | string | null
 }
 
 export type AdmissionCreateInput = {
   id?: string
   enquiryNo: string
-  academicYear?: string
   student: string
   parent?: string | null
   admClass: string
@@ -400,6 +459,14 @@ export type AdmissionCreateInput = {
   application?: $Enums.ApplicationStatus
   eligibleClass?: string | null
   enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  year?: Prisma.AcademicYearCreateNestedOneWithoutAdmissionsInput
+  followUps?: Prisma.AdmissionFollowUpCreateNestedManyWithoutAdmissionInput
+  caseDetails?: Prisma.AdmissionCaseCreateNestedOneWithoutAdmissionInput
+  documents?: Prisma.AdmissionDocumentCreateNestedManyWithoutAdmissionInput
 }
 
 export type AdmissionUncheckedCreateInput = {
@@ -421,12 +488,18 @@ export type AdmissionUncheckedCreateInput = {
   application?: $Enums.ApplicationStatus
   eligibleClass?: string | null
   enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  followUps?: Prisma.AdmissionFollowUpUncheckedCreateNestedManyWithoutAdmissionInput
+  caseDetails?: Prisma.AdmissionCaseUncheckedCreateNestedOneWithoutAdmissionInput
+  documents?: Prisma.AdmissionDocumentUncheckedCreateNestedManyWithoutAdmissionInput
 }
 
 export type AdmissionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
-  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
   student?: Prisma.StringFieldUpdateOperationsInput | string
   parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admClass?: Prisma.StringFieldUpdateOperationsInput | string
@@ -442,6 +515,14 @@ export type AdmissionUpdateInput = {
   application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
   eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  year?: Prisma.AcademicYearUpdateOneRequiredWithoutAdmissionsNestedInput
+  followUps?: Prisma.AdmissionFollowUpUpdateManyWithoutAdmissionNestedInput
+  caseDetails?: Prisma.AdmissionCaseUpdateOneWithoutAdmissionNestedInput
+  documents?: Prisma.AdmissionDocumentUpdateManyWithoutAdmissionNestedInput
 }
 
 export type AdmissionUncheckedUpdateInput = {
@@ -463,6 +544,13 @@ export type AdmissionUncheckedUpdateInput = {
   application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
   eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUps?: Prisma.AdmissionFollowUpUncheckedUpdateManyWithoutAdmissionNestedInput
+  caseDetails?: Prisma.AdmissionCaseUncheckedUpdateOneWithoutAdmissionNestedInput
+  documents?: Prisma.AdmissionDocumentUncheckedUpdateManyWithoutAdmissionNestedInput
 }
 
 export type AdmissionCreateManyInput = {
@@ -484,12 +572,15 @@ export type AdmissionCreateManyInput = {
   application?: $Enums.ApplicationStatus
   eligibleClass?: string | null
   enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
 }
 
 export type AdmissionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
-  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
   student?: Prisma.StringFieldUpdateOperationsInput | string
   parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   admClass?: Prisma.StringFieldUpdateOperationsInput | string
@@ -505,6 +596,10 @@ export type AdmissionUpdateManyMutationInput = {
   application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
   eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdmissionUncheckedUpdateManyInput = {
@@ -526,6 +621,10 @@ export type AdmissionUncheckedUpdateManyInput = {
   application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
   eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AdmissionCountOrderByAggregateInput = {
@@ -547,6 +646,10 @@ export type AdmissionCountOrderByAggregateInput = {
   application?: Prisma.SortOrder
   eligibleClass?: Prisma.SortOrder
   enquiryDate?: Prisma.SortOrder
+  entranceScheduledAt?: Prisma.SortOrder
+  entranceAssignedEmail?: Prisma.SortOrder
+  interviewScheduledAt?: Prisma.SortOrder
+  interviewAssignedEmail?: Prisma.SortOrder
 }
 
 export type AdmissionMaxOrderByAggregateInput = {
@@ -568,6 +671,10 @@ export type AdmissionMaxOrderByAggregateInput = {
   application?: Prisma.SortOrder
   eligibleClass?: Prisma.SortOrder
   enquiryDate?: Prisma.SortOrder
+  entranceScheduledAt?: Prisma.SortOrder
+  entranceAssignedEmail?: Prisma.SortOrder
+  interviewScheduledAt?: Prisma.SortOrder
+  interviewAssignedEmail?: Prisma.SortOrder
 }
 
 export type AdmissionMinOrderByAggregateInput = {
@@ -589,6 +696,25 @@ export type AdmissionMinOrderByAggregateInput = {
   application?: Prisma.SortOrder
   eligibleClass?: Prisma.SortOrder
   enquiryDate?: Prisma.SortOrder
+  entranceScheduledAt?: Prisma.SortOrder
+  entranceAssignedEmail?: Prisma.SortOrder
+  interviewScheduledAt?: Prisma.SortOrder
+  interviewAssignedEmail?: Prisma.SortOrder
+}
+
+export type AdmissionListRelationFilter = {
+  every?: Prisma.AdmissionWhereInput
+  some?: Prisma.AdmissionWhereInput
+  none?: Prisma.AdmissionWhereInput
+}
+
+export type AdmissionOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
+}
+
+export type AdmissionScalarRelationFilter = {
+  is?: Prisma.AdmissionWhereInput
+  isNot?: Prisma.AdmissionWhereInput
 }
 
 export type EnumEntranceStatusFieldUpdateOperationsInput = {
@@ -611,6 +737,714 @@ export type EnumApplicationStatusFieldUpdateOperationsInput = {
   set?: $Enums.ApplicationStatus
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
+export type AdmissionCreateNestedManyWithoutYearInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutYearInput, Prisma.AdmissionUncheckedCreateWithoutYearInput> | Prisma.AdmissionCreateWithoutYearInput[] | Prisma.AdmissionUncheckedCreateWithoutYearInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutYearInput | Prisma.AdmissionCreateOrConnectWithoutYearInput[]
+  createMany?: Prisma.AdmissionCreateManyYearInputEnvelope
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+}
+
+export type AdmissionUncheckedCreateNestedManyWithoutYearInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutYearInput, Prisma.AdmissionUncheckedCreateWithoutYearInput> | Prisma.AdmissionCreateWithoutYearInput[] | Prisma.AdmissionUncheckedCreateWithoutYearInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutYearInput | Prisma.AdmissionCreateOrConnectWithoutYearInput[]
+  createMany?: Prisma.AdmissionCreateManyYearInputEnvelope
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+}
+
+export type AdmissionUpdateManyWithoutYearNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutYearInput, Prisma.AdmissionUncheckedCreateWithoutYearInput> | Prisma.AdmissionCreateWithoutYearInput[] | Prisma.AdmissionUncheckedCreateWithoutYearInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutYearInput | Prisma.AdmissionCreateOrConnectWithoutYearInput[]
+  upsert?: Prisma.AdmissionUpsertWithWhereUniqueWithoutYearInput | Prisma.AdmissionUpsertWithWhereUniqueWithoutYearInput[]
+  createMany?: Prisma.AdmissionCreateManyYearInputEnvelope
+  set?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  disconnect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  delete?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  update?: Prisma.AdmissionUpdateWithWhereUniqueWithoutYearInput | Prisma.AdmissionUpdateWithWhereUniqueWithoutYearInput[]
+  updateMany?: Prisma.AdmissionUpdateManyWithWhereWithoutYearInput | Prisma.AdmissionUpdateManyWithWhereWithoutYearInput[]
+  deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+}
+
+export type AdmissionUncheckedUpdateManyWithoutYearNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutYearInput, Prisma.AdmissionUncheckedCreateWithoutYearInput> | Prisma.AdmissionCreateWithoutYearInput[] | Prisma.AdmissionUncheckedCreateWithoutYearInput[]
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutYearInput | Prisma.AdmissionCreateOrConnectWithoutYearInput[]
+  upsert?: Prisma.AdmissionUpsertWithWhereUniqueWithoutYearInput | Prisma.AdmissionUpsertWithWhereUniqueWithoutYearInput[]
+  createMany?: Prisma.AdmissionCreateManyYearInputEnvelope
+  set?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  disconnect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  delete?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  connect?: Prisma.AdmissionWhereUniqueInput | Prisma.AdmissionWhereUniqueInput[]
+  update?: Prisma.AdmissionUpdateWithWhereUniqueWithoutYearInput | Prisma.AdmissionUpdateWithWhereUniqueWithoutYearInput[]
+  updateMany?: Prisma.AdmissionUpdateManyWithWhereWithoutYearInput | Prisma.AdmissionUpdateManyWithWhereWithoutYearInput[]
+  deleteMany?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+}
+
+export type AdmissionCreateNestedOneWithoutFollowUpsInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutFollowUpsInput, Prisma.AdmissionUncheckedCreateWithoutFollowUpsInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutFollowUpsInput
+  connect?: Prisma.AdmissionWhereUniqueInput
+}
+
+export type AdmissionUpdateOneRequiredWithoutFollowUpsNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutFollowUpsInput, Prisma.AdmissionUncheckedCreateWithoutFollowUpsInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutFollowUpsInput
+  upsert?: Prisma.AdmissionUpsertWithoutFollowUpsInput
+  connect?: Prisma.AdmissionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdmissionUpdateToOneWithWhereWithoutFollowUpsInput, Prisma.AdmissionUpdateWithoutFollowUpsInput>, Prisma.AdmissionUncheckedUpdateWithoutFollowUpsInput>
+}
+
+export type AdmissionCreateNestedOneWithoutCaseDetailsInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutCaseDetailsInput, Prisma.AdmissionUncheckedCreateWithoutCaseDetailsInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutCaseDetailsInput
+  connect?: Prisma.AdmissionWhereUniqueInput
+}
+
+export type AdmissionUpdateOneRequiredWithoutCaseDetailsNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutCaseDetailsInput, Prisma.AdmissionUncheckedCreateWithoutCaseDetailsInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutCaseDetailsInput
+  upsert?: Prisma.AdmissionUpsertWithoutCaseDetailsInput
+  connect?: Prisma.AdmissionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdmissionUpdateToOneWithWhereWithoutCaseDetailsInput, Prisma.AdmissionUpdateWithoutCaseDetailsInput>, Prisma.AdmissionUncheckedUpdateWithoutCaseDetailsInput>
+}
+
+export type AdmissionCreateNestedOneWithoutDocumentsInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutDocumentsInput, Prisma.AdmissionUncheckedCreateWithoutDocumentsInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutDocumentsInput
+  connect?: Prisma.AdmissionWhereUniqueInput
+}
+
+export type AdmissionUpdateOneRequiredWithoutDocumentsNestedInput = {
+  create?: Prisma.XOR<Prisma.AdmissionCreateWithoutDocumentsInput, Prisma.AdmissionUncheckedCreateWithoutDocumentsInput>
+  connectOrCreate?: Prisma.AdmissionCreateOrConnectWithoutDocumentsInput
+  upsert?: Prisma.AdmissionUpsertWithoutDocumentsInput
+  connect?: Prisma.AdmissionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AdmissionUpdateToOneWithWhereWithoutDocumentsInput, Prisma.AdmissionUpdateWithoutDocumentsInput>, Prisma.AdmissionUncheckedUpdateWithoutDocumentsInput>
+}
+
+export type AdmissionCreateWithoutYearInput = {
+  id?: string
+  enquiryNo: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  followUps?: Prisma.AdmissionFollowUpCreateNestedManyWithoutAdmissionInput
+  caseDetails?: Prisma.AdmissionCaseCreateNestedOneWithoutAdmissionInput
+  documents?: Prisma.AdmissionDocumentCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutYearInput = {
+  id?: string
+  enquiryNo: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  followUps?: Prisma.AdmissionFollowUpUncheckedCreateNestedManyWithoutAdmissionInput
+  caseDetails?: Prisma.AdmissionCaseUncheckedCreateNestedOneWithoutAdmissionInput
+  documents?: Prisma.AdmissionDocumentUncheckedCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutYearInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutYearInput, Prisma.AdmissionUncheckedCreateWithoutYearInput>
+}
+
+export type AdmissionCreateManyYearInputEnvelope = {
+  data: Prisma.AdmissionCreateManyYearInput | Prisma.AdmissionCreateManyYearInput[]
+  skipDuplicates?: boolean
+}
+
+export type AdmissionUpsertWithWhereUniqueWithoutYearInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutYearInput, Prisma.AdmissionUncheckedUpdateWithoutYearInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutYearInput, Prisma.AdmissionUncheckedCreateWithoutYearInput>
+}
+
+export type AdmissionUpdateWithWhereUniqueWithoutYearInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutYearInput, Prisma.AdmissionUncheckedUpdateWithoutYearInput>
+}
+
+export type AdmissionUpdateManyWithWhereWithoutYearInput = {
+  where: Prisma.AdmissionScalarWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateManyMutationInput, Prisma.AdmissionUncheckedUpdateManyWithoutYearInput>
+}
+
+export type AdmissionScalarWhereInput = {
+  AND?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+  OR?: Prisma.AdmissionScalarWhereInput[]
+  NOT?: Prisma.AdmissionScalarWhereInput | Prisma.AdmissionScalarWhereInput[]
+  id?: Prisma.StringFilter<"Admission"> | string
+  enquiryNo?: Prisma.StringFilter<"Admission"> | string
+  academicYear?: Prisma.StringFilter<"Admission"> | string
+  student?: Prisma.StringFilter<"Admission"> | string
+  parent?: Prisma.StringNullableFilter<"Admission"> | string | null
+  admClass?: Prisma.StringFilter<"Admission"> | string
+  mobile?: Prisma.StringFilter<"Admission"> | string
+  dob?: Prisma.StringNullableFilter<"Admission"> | string | null
+  age?: Prisma.StringNullableFilter<"Admission"> | string | null
+  eligibleStatus?: Prisma.StringNullableFilter<"Admission"> | string | null
+  entrance?: Prisma.EnumEntranceStatusFilter<"Admission"> | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFilter<"Admission"> | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFilter<"Admission"> | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFilter<"Admission"> | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFilter<"Admission"> | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.StringNullableFilter<"Admission"> | string | null
+  enquiryDate?: Prisma.DateTimeFilter<"Admission"> | Date | string
+  entranceScheduledAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  entranceAssignedEmail?: Prisma.StringNullableFilter<"Admission"> | string | null
+  interviewScheduledAt?: Prisma.DateTimeNullableFilter<"Admission"> | Date | string | null
+  interviewAssignedEmail?: Prisma.StringNullableFilter<"Admission"> | string | null
+}
+
+export type AdmissionCreateWithoutFollowUpsInput = {
+  id?: string
+  enquiryNo: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  year?: Prisma.AcademicYearCreateNestedOneWithoutAdmissionsInput
+  caseDetails?: Prisma.AdmissionCaseCreateNestedOneWithoutAdmissionInput
+  documents?: Prisma.AdmissionDocumentCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutFollowUpsInput = {
+  id?: string
+  enquiryNo: string
+  academicYear?: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  caseDetails?: Prisma.AdmissionCaseUncheckedCreateNestedOneWithoutAdmissionInput
+  documents?: Prisma.AdmissionDocumentUncheckedCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutFollowUpsInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutFollowUpsInput, Prisma.AdmissionUncheckedCreateWithoutFollowUpsInput>
+}
+
+export type AdmissionUpsertWithoutFollowUpsInput = {
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutFollowUpsInput, Prisma.AdmissionUncheckedUpdateWithoutFollowUpsInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutFollowUpsInput, Prisma.AdmissionUncheckedCreateWithoutFollowUpsInput>
+  where?: Prisma.AdmissionWhereInput
+}
+
+export type AdmissionUpdateToOneWithWhereWithoutFollowUpsInput = {
+  where?: Prisma.AdmissionWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutFollowUpsInput, Prisma.AdmissionUncheckedUpdateWithoutFollowUpsInput>
+}
+
+export type AdmissionUpdateWithoutFollowUpsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  year?: Prisma.AcademicYearUpdateOneRequiredWithoutAdmissionsNestedInput
+  caseDetails?: Prisma.AdmissionCaseUpdateOneWithoutAdmissionNestedInput
+  documents?: Prisma.AdmissionDocumentUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutFollowUpsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  caseDetails?: Prisma.AdmissionCaseUncheckedUpdateOneWithoutAdmissionNestedInput
+  documents?: Prisma.AdmissionDocumentUncheckedUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionCreateWithoutCaseDetailsInput = {
+  id?: string
+  enquiryNo: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  year?: Prisma.AcademicYearCreateNestedOneWithoutAdmissionsInput
+  followUps?: Prisma.AdmissionFollowUpCreateNestedManyWithoutAdmissionInput
+  documents?: Prisma.AdmissionDocumentCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutCaseDetailsInput = {
+  id?: string
+  enquiryNo: string
+  academicYear?: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  followUps?: Prisma.AdmissionFollowUpUncheckedCreateNestedManyWithoutAdmissionInput
+  documents?: Prisma.AdmissionDocumentUncheckedCreateNestedManyWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutCaseDetailsInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutCaseDetailsInput, Prisma.AdmissionUncheckedCreateWithoutCaseDetailsInput>
+}
+
+export type AdmissionUpsertWithoutCaseDetailsInput = {
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutCaseDetailsInput, Prisma.AdmissionUncheckedUpdateWithoutCaseDetailsInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutCaseDetailsInput, Prisma.AdmissionUncheckedCreateWithoutCaseDetailsInput>
+  where?: Prisma.AdmissionWhereInput
+}
+
+export type AdmissionUpdateToOneWithWhereWithoutCaseDetailsInput = {
+  where?: Prisma.AdmissionWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutCaseDetailsInput, Prisma.AdmissionUncheckedUpdateWithoutCaseDetailsInput>
+}
+
+export type AdmissionUpdateWithoutCaseDetailsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  year?: Prisma.AcademicYearUpdateOneRequiredWithoutAdmissionsNestedInput
+  followUps?: Prisma.AdmissionFollowUpUpdateManyWithoutAdmissionNestedInput
+  documents?: Prisma.AdmissionDocumentUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutCaseDetailsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUps?: Prisma.AdmissionFollowUpUncheckedUpdateManyWithoutAdmissionNestedInput
+  documents?: Prisma.AdmissionDocumentUncheckedUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionCreateWithoutDocumentsInput = {
+  id?: string
+  enquiryNo: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  year?: Prisma.AcademicYearCreateNestedOneWithoutAdmissionsInput
+  followUps?: Prisma.AdmissionFollowUpCreateNestedManyWithoutAdmissionInput
+  caseDetails?: Prisma.AdmissionCaseCreateNestedOneWithoutAdmissionInput
+}
+
+export type AdmissionUncheckedCreateWithoutDocumentsInput = {
+  id?: string
+  enquiryNo: string
+  academicYear?: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+  followUps?: Prisma.AdmissionFollowUpUncheckedCreateNestedManyWithoutAdmissionInput
+  caseDetails?: Prisma.AdmissionCaseUncheckedCreateNestedOneWithoutAdmissionInput
+}
+
+export type AdmissionCreateOrConnectWithoutDocumentsInput = {
+  where: Prisma.AdmissionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutDocumentsInput, Prisma.AdmissionUncheckedCreateWithoutDocumentsInput>
+}
+
+export type AdmissionUpsertWithoutDocumentsInput = {
+  update: Prisma.XOR<Prisma.AdmissionUpdateWithoutDocumentsInput, Prisma.AdmissionUncheckedUpdateWithoutDocumentsInput>
+  create: Prisma.XOR<Prisma.AdmissionCreateWithoutDocumentsInput, Prisma.AdmissionUncheckedCreateWithoutDocumentsInput>
+  where?: Prisma.AdmissionWhereInput
+}
+
+export type AdmissionUpdateToOneWithWhereWithoutDocumentsInput = {
+  where?: Prisma.AdmissionWhereInput
+  data: Prisma.XOR<Prisma.AdmissionUpdateWithoutDocumentsInput, Prisma.AdmissionUncheckedUpdateWithoutDocumentsInput>
+}
+
+export type AdmissionUpdateWithoutDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  year?: Prisma.AcademicYearUpdateOneRequiredWithoutAdmissionsNestedInput
+  followUps?: Prisma.AdmissionFollowUpUpdateManyWithoutAdmissionNestedInput
+  caseDetails?: Prisma.AdmissionCaseUpdateOneWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutDocumentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  academicYear?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUps?: Prisma.AdmissionFollowUpUncheckedUpdateManyWithoutAdmissionNestedInput
+  caseDetails?: Prisma.AdmissionCaseUncheckedUpdateOneWithoutAdmissionNestedInput
+}
+
+export type AdmissionCreateManyYearInput = {
+  id?: string
+  enquiryNo: string
+  student: string
+  parent?: string | null
+  admClass: string
+  mobile: string
+  dob?: string | null
+  age?: string | null
+  eligibleStatus?: string | null
+  entrance?: $Enums.EntranceStatus
+  interview?: $Enums.InterviewStatus
+  finalAdmission?: $Enums.FinalAdmissionStatus
+  updatedAt?: Date | string
+  admissionGiven?: $Enums.AdmissionGivenStatus
+  application?: $Enums.ApplicationStatus
+  eligibleClass?: string | null
+  enquiryDate?: Date | string
+  entranceScheduledAt?: Date | string | null
+  entranceAssignedEmail?: string | null
+  interviewScheduledAt?: Date | string | null
+  interviewAssignedEmail?: string | null
+}
+
+export type AdmissionUpdateWithoutYearInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUps?: Prisma.AdmissionFollowUpUpdateManyWithoutAdmissionNestedInput
+  caseDetails?: Prisma.AdmissionCaseUpdateOneWithoutAdmissionNestedInput
+  documents?: Prisma.AdmissionDocumentUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateWithoutYearInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  followUps?: Prisma.AdmissionFollowUpUncheckedUpdateManyWithoutAdmissionNestedInput
+  caseDetails?: Prisma.AdmissionCaseUncheckedUpdateOneWithoutAdmissionNestedInput
+  documents?: Prisma.AdmissionDocumentUncheckedUpdateManyWithoutAdmissionNestedInput
+}
+
+export type AdmissionUncheckedUpdateManyWithoutYearInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  enquiryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  student?: Prisma.StringFieldUpdateOperationsInput | string
+  parent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  admClass?: Prisma.StringFieldUpdateOperationsInput | string
+  mobile?: Prisma.StringFieldUpdateOperationsInput | string
+  dob?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  eligibleStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  entrance?: Prisma.EnumEntranceStatusFieldUpdateOperationsInput | $Enums.EntranceStatus
+  interview?: Prisma.EnumInterviewStatusFieldUpdateOperationsInput | $Enums.InterviewStatus
+  finalAdmission?: Prisma.EnumFinalAdmissionStatusFieldUpdateOperationsInput | $Enums.FinalAdmissionStatus
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  admissionGiven?: Prisma.EnumAdmissionGivenStatusFieldUpdateOperationsInput | $Enums.AdmissionGivenStatus
+  application?: Prisma.EnumApplicationStatusFieldUpdateOperationsInput | $Enums.ApplicationStatus
+  eligibleClass?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enquiryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  entranceScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  entranceAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  interviewScheduledAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  interviewAssignedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+
+/**
+ * Count Type AdmissionCountOutputType
+ */
+
+export type AdmissionCountOutputType = {
+  followUps: number
+  documents: number
+}
+
+export type AdmissionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  followUps?: boolean | AdmissionCountOutputTypeCountFollowUpsArgs
+  documents?: boolean | AdmissionCountOutputTypeCountDocumentsArgs
+}
+
+/**
+ * AdmissionCountOutputType without action
+ */
+export type AdmissionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdmissionCountOutputType
+   */
+  select?: Prisma.AdmissionCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AdmissionCountOutputType without action
+ */
+export type AdmissionCountOutputTypeCountFollowUpsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdmissionFollowUpWhereInput
+}
+
+/**
+ * AdmissionCountOutputType without action
+ */
+export type AdmissionCountOutputTypeCountDocumentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AdmissionDocumentWhereInput
+}
 
 
 export type AdmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -632,6 +1466,15 @@ export type AdmissionSelect<ExtArgs extends runtime.Types.Extensions.InternalArg
   application?: boolean
   eligibleClass?: boolean
   enquiryDate?: boolean
+  entranceScheduledAt?: boolean
+  entranceAssignedEmail?: boolean
+  interviewScheduledAt?: boolean
+  interviewAssignedEmail?: boolean
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
+  followUps?: boolean | Prisma.Admission$followUpsArgs<ExtArgs>
+  caseDetails?: boolean | Prisma.Admission$caseDetailsArgs<ExtArgs>
+  documents?: boolean | Prisma.Admission$documentsArgs<ExtArgs>
+  _count?: boolean | Prisma.AdmissionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["admission"]>
 
 export type AdmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -653,6 +1496,11 @@ export type AdmissionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ext
   application?: boolean
   eligibleClass?: boolean
   enquiryDate?: boolean
+  entranceScheduledAt?: boolean
+  entranceAssignedEmail?: boolean
+  interviewScheduledAt?: boolean
+  interviewAssignedEmail?: boolean
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["admission"]>
 
 export type AdmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -674,6 +1522,11 @@ export type AdmissionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ext
   application?: boolean
   eligibleClass?: boolean
   enquiryDate?: boolean
+  entranceScheduledAt?: boolean
+  entranceAssignedEmail?: boolean
+  interviewScheduledAt?: boolean
+  interviewAssignedEmail?: boolean
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["admission"]>
 
 export type AdmissionSelectScalar = {
@@ -695,13 +1548,35 @@ export type AdmissionSelectScalar = {
   application?: boolean
   eligibleClass?: boolean
   enquiryDate?: boolean
+  entranceScheduledAt?: boolean
+  entranceAssignedEmail?: boolean
+  interviewScheduledAt?: boolean
+  interviewAssignedEmail?: boolean
 }
 
-export type AdmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "enquiryNo" | "academicYear" | "student" | "parent" | "admClass" | "mobile" | "dob" | "age" | "eligibleStatus" | "entrance" | "interview" | "finalAdmission" | "updatedAt" | "admissionGiven" | "application" | "eligibleClass" | "enquiryDate", ExtArgs["result"]["admission"]>
+export type AdmissionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "enquiryNo" | "academicYear" | "student" | "parent" | "admClass" | "mobile" | "dob" | "age" | "eligibleStatus" | "entrance" | "interview" | "finalAdmission" | "updatedAt" | "admissionGiven" | "application" | "eligibleClass" | "enquiryDate" | "entranceScheduledAt" | "entranceAssignedEmail" | "interviewScheduledAt" | "interviewAssignedEmail", ExtArgs["result"]["admission"]>
+export type AdmissionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
+  followUps?: boolean | Prisma.Admission$followUpsArgs<ExtArgs>
+  caseDetails?: boolean | Prisma.Admission$caseDetailsArgs<ExtArgs>
+  documents?: boolean | Prisma.Admission$documentsArgs<ExtArgs>
+  _count?: boolean | Prisma.AdmissionCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type AdmissionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
+}
+export type AdmissionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  year?: boolean | Prisma.AcademicYearDefaultArgs<ExtArgs>
+}
 
 export type $AdmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Admission"
-  objects: {}
+  objects: {
+    year: Prisma.$AcademicYearPayload<ExtArgs>
+    followUps: Prisma.$AdmissionFollowUpPayload<ExtArgs>[]
+    caseDetails: Prisma.$AdmissionCasePayload<ExtArgs> | null
+    documents: Prisma.$AdmissionDocumentPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     enquiryNo: string
@@ -733,6 +1608,10 @@ export type $AdmissionPayload<ExtArgs extends runtime.Types.Extensions.InternalA
      * * DATES
      */
     enquiryDate: Date
+    entranceScheduledAt: Date | null
+    entranceAssignedEmail: string | null
+    interviewScheduledAt: Date | null
+    interviewAssignedEmail: string | null
   }, ExtArgs["result"]["admission"]>
   composites: {}
 }
@@ -1127,6 +2006,10 @@ readonly fields: AdmissionFieldRefs;
  */
 export interface Prisma__AdmissionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  year<T extends Prisma.AcademicYearDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AcademicYearDefaultArgs<ExtArgs>>): Prisma.Prisma__AcademicYearClient<runtime.Types.Result.GetResult<Prisma.$AcademicYearPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  followUps<T extends Prisma.Admission$followUpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admission$followUpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdmissionFollowUpPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  caseDetails<T extends Prisma.Admission$caseDetailsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admission$caseDetailsArgs<ExtArgs>>): Prisma.Prisma__AdmissionCaseClient<runtime.Types.Result.GetResult<Prisma.$AdmissionCasePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  documents<T extends Prisma.Admission$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Admission$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AdmissionDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1174,6 +2057,10 @@ export interface AdmissionFieldRefs {
   readonly application: Prisma.FieldRef<"Admission", 'ApplicationStatus'>
   readonly eligibleClass: Prisma.FieldRef<"Admission", 'String'>
   readonly enquiryDate: Prisma.FieldRef<"Admission", 'DateTime'>
+  readonly entranceScheduledAt: Prisma.FieldRef<"Admission", 'DateTime'>
+  readonly entranceAssignedEmail: Prisma.FieldRef<"Admission", 'String'>
+  readonly interviewScheduledAt: Prisma.FieldRef<"Admission", 'DateTime'>
+  readonly interviewAssignedEmail: Prisma.FieldRef<"Admission", 'String'>
 }
     
 
@@ -1190,6 +2077,10 @@ export type AdmissionFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the Admission
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
   /**
    * Filter, which Admission to fetch.
    */
@@ -1209,6 +2100,10 @@ export type AdmissionFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensi
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
+  /**
    * Filter, which Admission to fetch.
    */
   where: Prisma.AdmissionWhereUniqueInput
@@ -1226,6 +2121,10 @@ export type AdmissionFindFirstArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Omit specific fields from the Admission
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
   /**
    * Filter, which Admission to fetch.
    */
@@ -1275,6 +2174,10 @@ export type AdmissionFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensio
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
+  /**
    * Filter, which Admission to fetch.
    */
   where?: Prisma.AdmissionWhereInput
@@ -1322,6 +2225,10 @@ export type AdmissionFindManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * Omit specific fields from the Admission
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
   /**
    * Filter, which Admissions to fetch.
    */
@@ -1371,6 +2278,10 @@ export type AdmissionCreateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
+  /**
    * The data needed to create a Admission.
    */
   data: Prisma.XOR<Prisma.AdmissionCreateInput, Prisma.AdmissionUncheckedCreateInput>
@@ -1404,6 +2315,10 @@ export type AdmissionCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    */
   data: Prisma.AdmissionCreateManyInput | Prisma.AdmissionCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1418,6 +2333,10 @@ export type AdmissionUpdateArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Admission
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
   /**
    * The data needed to update a Admission.
    */
@@ -1470,6 +2389,10 @@ export type AdmissionUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many Admissions to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1484,6 +2407,10 @@ export type AdmissionUpsertArgs<ExtArgs extends runtime.Types.Extensions.Interna
    * Omit specific fields from the Admission
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
   /**
    * The filter to search for the Admission to update in case it exists.
    */
@@ -1511,6 +2438,10 @@ export type AdmissionDeleteArgs<ExtArgs extends runtime.Types.Extensions.Interna
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
+  /**
    * Filter which Admission to delete.
    */
   where: Prisma.AdmissionWhereUniqueInput
@@ -1531,6 +2462,73 @@ export type AdmissionDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Int
 }
 
 /**
+ * Admission.followUps
+ */
+export type Admission$followUpsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdmissionFollowUp
+   */
+  select?: Prisma.AdmissionFollowUpSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AdmissionFollowUp
+   */
+  omit?: Prisma.AdmissionFollowUpOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionFollowUpInclude<ExtArgs> | null
+  where?: Prisma.AdmissionFollowUpWhereInput
+  orderBy?: Prisma.AdmissionFollowUpOrderByWithRelationInput | Prisma.AdmissionFollowUpOrderByWithRelationInput[]
+  cursor?: Prisma.AdmissionFollowUpWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdmissionFollowUpScalarFieldEnum | Prisma.AdmissionFollowUpScalarFieldEnum[]
+}
+
+/**
+ * Admission.caseDetails
+ */
+export type Admission$caseDetailsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdmissionCase
+   */
+  select?: Prisma.AdmissionCaseSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AdmissionCase
+   */
+  omit?: Prisma.AdmissionCaseOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionCaseInclude<ExtArgs> | null
+  where?: Prisma.AdmissionCaseWhereInput
+}
+
+/**
+ * Admission.documents
+ */
+export type Admission$documentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AdmissionDocument
+   */
+  select?: Prisma.AdmissionDocumentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AdmissionDocument
+   */
+  omit?: Prisma.AdmissionDocumentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionDocumentInclude<ExtArgs> | null
+  where?: Prisma.AdmissionDocumentWhereInput
+  orderBy?: Prisma.AdmissionDocumentOrderByWithRelationInput | Prisma.AdmissionDocumentOrderByWithRelationInput[]
+  cursor?: Prisma.AdmissionDocumentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AdmissionDocumentScalarFieldEnum | Prisma.AdmissionDocumentScalarFieldEnum[]
+}
+
+/**
  * Admission without action
  */
 export type AdmissionDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1542,4 +2540,8 @@ export type AdmissionDefaultArgs<ExtArgs extends runtime.Types.Extensions.Intern
    * Omit specific fields from the Admission
    */
   omit?: Prisma.AdmissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AdmissionInclude<ExtArgs> | null
 }

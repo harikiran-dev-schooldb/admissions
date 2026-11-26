@@ -9,6 +9,14 @@
 * 🟢 You can import this file directly.
 */
 
+export const WorkspaceRole = {
+  ADMIN: 'ADMIN',
+  STAFF: 'STAFF'
+} as const
+
+export type WorkspaceRole = (typeof WorkspaceRole)[keyof typeof WorkspaceRole]
+
+
 export const ApplicationStatus = {
   NO: 'NO',
   YES: 'YES',
@@ -54,3 +62,22 @@ export const FinalAdmissionStatus = {
 } as const
 
 export type FinalAdmissionStatus = (typeof FinalAdmissionStatus)[keyof typeof FinalAdmissionStatus]
+
+
+export const FollowUpStatus = {
+  OPEN: 'OPEN',
+  COMPLETED: 'COMPLETED'
+} as const
+
+export type FollowUpStatus = (typeof FollowUpStatus)[keyof typeof FollowUpStatus]
+
+
+export const FollowUpOutcome = {
+  INTERESTED: 'INTERESTED',
+  CALL_BACK: 'CALL_BACK',
+  NO_RESPONSE: 'NO_RESPONSE',
+  NOT_INTERESTED: 'NOT_INTERESTED',
+  OTHER: 'OTHER'
+} as const
+
+export type FollowUpOutcome = (typeof FollowUpOutcome)[keyof typeof FollowUpOutcome]

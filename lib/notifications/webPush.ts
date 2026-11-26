@@ -1,4 +1,4 @@
-import { createCipheriv, createECDH, createHash, createPrivateKey, hkdfSync, randomBytes, sign } from "node:crypto";
+import { createCipheriv, createECDH, createPrivateKey, hkdfSync, randomBytes, sign } from "node:crypto";
 
 type Subscription = { endpoint: string; p256dh: string; auth: string };
 const b64 = (input: Buffer | Uint8Array) => Buffer.from(input).toString("base64url");

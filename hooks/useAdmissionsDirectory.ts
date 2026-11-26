@@ -56,7 +56,13 @@ export function useAdmissionsDirectory(filters: AdmissionDirectoryFilters) {
   const [refresh, setRefresh] = useState(0);
   const reload = useCallback(() => setRefresh((value) => value + 1), []);
   const params = useMemo(() => {
-    const query = toAdmissionSearchParams(filters);
+    const query = toAdmissionSearchParams({
+      academicYear: filters.academicYear,
+      search: filters.search,
+      classFilter: filters.classFilter,
+      finalStatusFilter: filters.finalStatusFilter,
+      applicationFilter: filters.applicationFilter,
+    });
     query.set("page", String(filters.page));
     query.set("pageSize", String(filters.pageSize));
     return query.toString();
@@ -97,7 +103,13 @@ export function useAdmissionsDirectory(filters: AdmissionDirectoryFilters) {
 export function useAdmissionsSummary(filters: AdmissionSearchFilters, enabled: boolean = true) {
   const [refresh, setRefresh] = useState(0);
   const reload = useCallback(() => setRefresh((value) => value + 1), []);
-  const params = useMemo(() => toAdmissionSearchParams(filters).toString(), [
+  const params = useMemo(() => toAdmissionSearchParams({
+    academicYear: filters.academicYear,
+    search: filters.search,
+    classFilter: filters.classFilter,
+    finalStatusFilter: filters.finalStatusFilter,
+    applicationFilter: filters.applicationFilter,
+  }).toString(), [
     filters.academicYear, filters.search, filters.classFilter, filters.finalStatusFilter, filters.applicationFilter,
   ]);
   const requestKey = `${params}&r=${refresh}&enabled=${enabled}`;

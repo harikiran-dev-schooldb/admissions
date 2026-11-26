@@ -14,6 +14,10 @@ function localValue(value: Date | string | null | undefined) {
 
 type Kind = "ENTRANCE" | "INTERVIEW";
 
+function isFutureDate(value: Date) {
+  return value.getTime() >= Date.now();
+}
+
 export default function AdmissionSchedulePanel({ student, onChanged }: {
   student: Admission; onChanged?: () => void;
 }) {
@@ -42,7 +46,7 @@ export default function AdmissionSchedulePanel({ student, onChanged }: {
   async function save(kind: Kind) {
     if (!dates[kind] || saving) return;
     const time = new Date(dates[kind]);
-    if (!Number.isFinite(time.getTime()) || time.getTime() < Date.now()) {
+    if (!Number.isFinite(time.getTime()) || !isFutureDate(time)) {
       toast.error("Select a future date and time");
       return;
     }

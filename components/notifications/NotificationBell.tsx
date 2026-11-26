@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Bell, BellRing, CheckCheck, Clock3, RefreshCw } from "lucide-react";
 import { useAccess } from "@/hooks/useAccess";
 import { toast } from "sonner";
@@ -24,6 +25,7 @@ const storageKey = (email: string) => `schooldb:notifications:read:${email.toLow
 const popupKey = (email: string) => `schooldb:notifications:popups:${email.toLowerCase()}`;
 
 export default function NotificationBell() {
+  const router = useRouter();
   const { email, role } = useAccess();
   const [open, setOpen] = useState(false);
   const [preferencesOpen, setPreferencesOpen] = useState(false);
@@ -38,16 +40,25 @@ export default function NotificationBell() {
   const [testFeedback, setTestFeedback] = useState("");
   const [pushError, setPushError] = useState("");
   const [permission, setPermission] = useState<NotificationPermission>("default");
+  const [feedUpdatedAt, setFeedUpdatedAt] = useState(0);
 
   useEffect(() => {
-    if (!email) { setReadIds([]); return; }
-    try { setReadIds(JSON.parse(localStorage.getItem(storageKey(email)) || "[]")); }
-    catch { setReadIds([]); }
-    if ("Notification" in window) setPermission(Notification.permission);
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      if (!email) {
+        setReadIds([]);
+        return;
+      }
+      try { setReadIds(JSON.parse(localStorage.getItem(storageKey(email)) || "[]")); }
+      catch { setReadIds([]); }
+      if ("Notification" in window) setPermission(Notification.permission);
+    });
     if ("serviceWorker" in navigator) void navigator.serviceWorker.getRegistration("/push-sw.js").then(async (registration) => {
       const subscription = await registration?.pushManager.getSubscription();
-      setPushEnabled(Boolean(subscription));
-    }).catch(() => setPushEnabled(false));
+      if (!cancelled) setPushEnabled(Boolean(subscription));
+    }).catch(() => { if (!cancelled) setPushEnabled(false); });
+    return () => { cancelled = true; };
   }, [email]);
 
   useEffect(() => {
@@ -78,6 +89,7 @@ export default function NotificationBell() {
       // In-app popups work on iPhone PWAs too. The Notification constructor used
       // previously is unsupported in iOS web apps and silently lost alerts.
       const now = Date.now();
+      setFeedUpdatedAt(now);
       const seenKey = popupKey(email);
       let seen: Record<string, number> = {};
       try {
@@ -112,7 +124,7 @@ export default function NotificationBell() {
         const firstEvent = freshEvents[0];
         toast.info(freshEvents.length > 1 ? `${freshEvents.length} SchoolDB admission updates` : (firstEvent.title || "SchoolDB update"), {
           description: firstEvent.note || "View your latest admission updates",
-          action: { label: "Open", onClick: () => window.location.assign(firstEvent.href || "/admissions") },
+          action: { label: "Open", onClick: () => router.push(firstEvent.href || "/admissions") },
           duration: 9000,
         });
       }
@@ -122,7 +134,7 @@ export default function NotificationBell() {
         toast.warning(newDue.length > 1 ? `${newDue.length} admission follow-ups need attention` :
           overdue ? "Overdue admission follow-up" : "Admission follow-up due soon", {
           description: `${first.admission.enquiryNo}: ${first.admission.student}`,
-          action: { label: "Open", onClick: () => window.location.assign("/admissions") },
+          action: { label: "Open", onClick: () => router.push("/admissions") },
           duration: 9000,
         });
       }
@@ -139,14 +151,15 @@ export default function NotificationBell() {
     } catch {
       // Keep the last successfully loaded feed on transient network errors.
     } finally { setLoading(false); }
-  }, [email, role]);
+  }, [email, role, router]);
 
   useEffect(() => {
-    void refresh();
+    let cancelled = false;
+    void Promise.resolve().then(() => { if (!cancelled) void refresh(); });
     const interval = window.setInterval(() => { if (!document.hidden) void refresh(); }, POLL_MS);
     const onFocus = () => void refresh();
     window.addEventListener("focus", onFocus);
-    return () => { window.clearInterval(interval); window.removeEventListener("focus", onFocus); };
+    return () => { cancelled = true; window.clearInterval(interval); window.removeEventListener("focus", onFocus); };
   }, [refresh]);
 
   const unread = useMemo(() => items.filter((item) =>
@@ -156,7 +169,8 @@ export default function NotificationBell() {
     if (!email) return;
     const next = Array.from(new Set([...readIds, ...ids])).slice(-500);
     setReadIds(next);
-    localStorage.setItem(storageKey(email), JSON.stringify(next));
+    try { localStorage.setItem(storageKey(email), JSON.stringify(next)); }
+    catch { /* Read state remains available for this session. */ }
     const eventIds = ids.filter((id) => id.startsWith("event:"));
     if (eventIds.length) {
       void fetch("/api/notifications", {
@@ -260,8 +274,8 @@ export default function NotificationBell() {
         {!items.length && <p className="rounded-xl bg-slate-50 p-4 text-sm text-slate-500">No open tasks assigned to you.</p>}
         {items.map((item) => {
           const isEvent = item.kind === "EVENT";
-          const overdue = !isEvent && new Date(item.dueAt).getTime() < Date.now();
-          return <button type="button" key={item.id} onClick={() => { markRead([item.id]); setOpen(false); window.location.assign(item.href || "/admissions"); }}
+          const overdue = !isEvent && new Date(item.dueAt).getTime() < feedUpdatedAt;
+          return <button type="button" key={item.id} onClick={() => { markRead([item.id]); setOpen(false); router.push(item.href || "/admissions"); }}
             className={`block w-full rounded-xl border p-3 text-left hover:border-indigo-300 ${readIds.includes(item.id) ? "border-slate-100 bg-white" : "border-indigo-100 bg-indigo-50/70"}`}>
             <span className="flex items-center gap-1 text-xs font-extrabold text-slate-900"><Clock3 className="size-3.5" />{isEvent ? item.title : `${overdue ? "Overdue task" : "Upcoming task"} · ${item.admission.enquiryNo}`}</span>
             {!isEvent && <span className="mt-1 block truncate text-xs font-semibold text-slate-700">{item.admission.student}</span>}

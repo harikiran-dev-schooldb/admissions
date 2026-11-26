@@ -33,8 +33,15 @@ export function useAcademicYears() {
     }
   }, []);
   useEffect(() => {
-    void reload();
+    const controller = new AbortController();
+    currentRequest.current = controller;
+    void loadAcademicYears(controller.signal)
+      .then((data) => { if (!controller.signal.aborted) setAcademicYears(data); })
+      .catch((caught: unknown) => {
+        if (!controller.signal.aborted) setError(caught instanceof Error ? caught.message : "Failed to load academic years");
+      })
+      .finally(() => { if (!controller.signal.aborted) setLoading(false); });
     return () => currentRequest.current?.abort();
-  }, [reload]);
+  }, []);
   return { academicYears, loading, error, reload };
 }

@@ -55,7 +55,20 @@ export const ModelName = {
   Admission: 'Admission',
   FeeRecord: 'FeeRecord',
   AcademicYear: 'AcademicYear',
-  Eligibility: 'Eligibility'
+  WorkspaceMember: 'WorkspaceMember',
+  WorkspaceMemberAudit: 'WorkspaceMemberAudit',
+  AdmissionConfig: 'AdmissionConfig',
+  Eligibility: 'Eligibility',
+  ActivityLog: 'ActivityLog',
+  AdmissionFollowUp: 'AdmissionFollowUp',
+  PushSubscription: 'PushSubscription',
+  PushDelivery: 'PushDelivery',
+  NotificationEvent: 'NotificationEvent',
+  NotificationPreference: 'NotificationPreference',
+  AdmissionCase: 'AdmissionCase',
+  AdmissionDocument: 'AdmissionDocument',
+  AdmissionArchive: 'AdmissionArchive',
+  PublicAdmissionEnquiry: 'PublicAdmissionEnquiry'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -110,7 +123,11 @@ export const AdmissionScalarFieldEnum = {
   admissionGiven: 'admissionGiven',
   application: 'application',
   eligibleClass: 'eligibleClass',
-  enquiryDate: 'enquiryDate'
+  enquiryDate: 'enquiryDate',
+  entranceScheduledAt: 'entranceScheduledAt',
+  entranceAssignedEmail: 'entranceAssignedEmail',
+  interviewScheduledAt: 'interviewScheduledAt',
+  interviewAssignedEmail: 'interviewAssignedEmail'
 } as const
 
 export type AdmissionScalarFieldEnum = (typeof AdmissionScalarFieldEnum)[keyof typeof AdmissionScalarFieldEnum]
@@ -143,6 +160,45 @@ export const AcademicYearScalarFieldEnum = {
 export type AcademicYearScalarFieldEnum = (typeof AcademicYearScalarFieldEnum)[keyof typeof AcademicYearScalarFieldEnum]
 
 
+export const WorkspaceMemberScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  name: 'name',
+  role: 'role',
+  isActive: 'isActive',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkspaceMemberScalarFieldEnum = (typeof WorkspaceMemberScalarFieldEnum)[keyof typeof WorkspaceMemberScalarFieldEnum]
+
+
+export const WorkspaceMemberAuditScalarFieldEnum = {
+  id: 'id',
+  memberEmail: 'memberEmail',
+  actorEmail: 'actorEmail',
+  action: 'action',
+  beforeRole: 'beforeRole',
+  afterRole: 'afterRole',
+  beforeActive: 'beforeActive',
+  afterActive: 'afterActive',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkspaceMemberAuditScalarFieldEnum = (typeof WorkspaceMemberAuditScalarFieldEnum)[keyof typeof WorkspaceMemberAuditScalarFieldEnum]
+
+
+export const AdmissionConfigScalarFieldEnum = {
+  key: 'key',
+  value: 'value',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdmissionConfigScalarFieldEnum = (typeof AdmissionConfigScalarFieldEnum)[keyof typeof AdmissionConfigScalarFieldEnum]
+
+
 export const EligibilityScalarFieldEnum = {
   id: 'id',
   age: 'age',
@@ -153,12 +209,160 @@ export const EligibilityScalarFieldEnum = {
 export type EligibilityScalarFieldEnum = (typeof EligibilityScalarFieldEnum)[keyof typeof EligibilityScalarFieldEnum]
 
 
+export const ActivityLogScalarFieldEnum = {
+  id: 'id',
+  actorEmail: 'actorEmail',
+  actorName: 'actorName',
+  actorRole: 'actorRole',
+  action: 'action',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  entityLabel: 'entityLabel',
+  changes: 'changes',
+  createdAt: 'createdAt'
+} as const
+
+export type ActivityLogScalarFieldEnum = (typeof ActivityLogScalarFieldEnum)[keyof typeof ActivityLogScalarFieldEnum]
+
+
+export const AdmissionFollowUpScalarFieldEnum = {
+  id: 'id',
+  admissionId: 'admissionId',
+  assignedToEmail: 'assignedToEmail',
+  dueAt: 'dueAt',
+  note: 'note',
+  status: 'status',
+  outcome: 'outcome',
+  completionNote: 'completionNote',
+  completedAt: 'completedAt',
+  completedByEmail: 'completedByEmail',
+  createdByEmail: 'createdByEmail',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdmissionFollowUpScalarFieldEnum = (typeof AdmissionFollowUpScalarFieldEnum)[keyof typeof AdmissionFollowUpScalarFieldEnum]
+
+
+export const PushSubscriptionScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  endpoint: 'endpoint',
+  p256dh: 'p256dh',
+  auth: 'auth',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PushSubscriptionScalarFieldEnum = (typeof PushSubscriptionScalarFieldEnum)[keyof typeof PushSubscriptionScalarFieldEnum]
+
+
+export const PushDeliveryScalarFieldEnum = {
+  id: 'id',
+  subscriptionId: 'subscriptionId',
+  followUpId: 'followUpId',
+  reminderKind: 'reminderKind',
+  sentAt: 'sentAt'
+} as const
+
+export type PushDeliveryScalarFieldEnum = (typeof PushDeliveryScalarFieldEnum)[keyof typeof PushDeliveryScalarFieldEnum]
+
+
+export const NotificationEventScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  eventKey: 'eventKey',
+  type: 'type',
+  title: 'title',
+  body: 'body',
+  href: 'href',
+  createdAt: 'createdAt',
+  readAt: 'readAt',
+  pushSentAt: 'pushSentAt',
+  pushClaimedAt: 'pushClaimedAt'
+} as const
+
+export type NotificationEventScalarFieldEnum = (typeof NotificationEventScalarFieldEnum)[keyof typeof NotificationEventScalarFieldEnum]
+
+
+export const NotificationPreferenceScalarFieldEnum = {
+  id: 'id',
+  email: 'email',
+  type: 'type',
+  inAppEnabled: 'inAppEnabled',
+  pushEnabled: 'pushEnabled',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NotificationPreferenceScalarFieldEnum = (typeof NotificationPreferenceScalarFieldEnum)[keyof typeof NotificationPreferenceScalarFieldEnum]
+
+
+export const AdmissionCaseScalarFieldEnum = {
+  admissionId: 'admissionId',
+  source: 'source',
+  cancellationReason: 'cancellationReason',
+  waitlistedAt: 'waitlistedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdmissionCaseScalarFieldEnum = (typeof AdmissionCaseScalarFieldEnum)[keyof typeof AdmissionCaseScalarFieldEnum]
+
+
+export const AdmissionDocumentScalarFieldEnum = {
+  admissionId: 'admissionId',
+  kind: 'kind',
+  status: 'status',
+  verifiedAt: 'verifiedAt',
+  verifiedByEmail: 'verifiedByEmail',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AdmissionDocumentScalarFieldEnum = (typeof AdmissionDocumentScalarFieldEnum)[keyof typeof AdmissionDocumentScalarFieldEnum]
+
+
+export const AdmissionArchiveScalarFieldEnum = {
+  id: 'id',
+  enquiryNo: 'enquiryNo',
+  academicYear: 'academicYear',
+  archivedAt: 'archivedAt',
+  archivedByEmail: 'archivedByEmail',
+  snapshot: 'snapshot'
+} as const
+
+export type AdmissionArchiveScalarFieldEnum = (typeof AdmissionArchiveScalarFieldEnum)[keyof typeof AdmissionArchiveScalarFieldEnum]
+
+
+export const PublicAdmissionEnquiryScalarFieldEnum = {
+  id: 'id',
+  academicYear: 'academicYear',
+  student: 'student',
+  parent: 'parent',
+  mobile: 'mobile',
+  dob: 'dob',
+  admClass: 'admClass',
+  status: 'status',
+  consentAt: 'consentAt',
+  createdAt: 'createdAt',
+  reviewedAt: 'reviewedAt',
+  convertedAdmissionId: 'convertedAdmissionId'
+} as const
+
+export type PublicAdmissionEnquiryScalarFieldEnum = (typeof PublicAdmissionEnquiryScalarFieldEnum)[keyof typeof PublicAdmissionEnquiryScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -175,4 +379,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

@@ -22,23 +22,25 @@ export default function AdmissionFollowUpManager({
   const [saving, setSaving] = useState(false);
   const [completing, setCompleting] = useState("");
 
-  const reload = useCallback(async () => {
+  const reload = useCallback(async (signal?: AbortSignal) => {
     try {
-      const response = await fetch("/api/follow-ups?admissionId=" + encodeURIComponent(admissionId) + "&status=ALL", { cache: "no-store" });
+      const response = await fetch("/api/follow-ups?admissionId=" + encodeURIComponent(admissionId) + "&status=ALL", { cache: "no-store", signal });
       const data = await response.json() as FollowUpResponse;
       if (!response.ok) throw new Error(data.error || "Unable to load conversations");
+      if (signal?.aborted) return;
       setItems(data.data);
       setError("");
     } catch (caught) {
+      if (signal?.aborted) return;
       setError(caught instanceof Error ? caught.message : "Unable to load follow-ups");
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, [admissionId]);
 
   useEffect(() => {
-    void reload();
     const controller = new AbortController();
+    void Promise.resolve().then(() => reload(controller.signal));
     fetch("/api/follow-ups/assignees", { cache: "no-store", signal: controller.signal })
       .then(async (response) => {
         const data = await response.json();
